@@ -42,8 +42,11 @@ class DoctorController extends Controller
             return $map;
         });
 
+        $page_num = ($doctors->currentPage() - 1) * $doctors->perPage() + 1;
+
         return Inertia::render('Administrator/Doctor/Index',[
-            'doctors' => $doctors
+            'doctors'  => $doctors,
+            'page_num' => $page_num
         ]);
     }
 

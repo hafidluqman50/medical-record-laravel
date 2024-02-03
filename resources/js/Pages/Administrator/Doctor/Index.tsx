@@ -69,7 +69,7 @@ type DoctorProps = {
     doctors:Doctors
 }
 
-export default function Index({auth, app, doctors}: PageProps & DoctorProps) {
+export default function Index({auth, app, doctors, page_num}: PageProps & DoctorProps) {
 
     const [searchData, setSearchData] = useState<string>('');
 
@@ -166,7 +166,7 @@ export default function Index({auth, app, doctors}: PageProps & DoctorProps) {
                                     : doctors.data.map((row, key) => (
                                         <TableRow key={row.id}>
                                             <TableCell>
-                                                {key+1}
+                                                {page_num+1}
                                             </TableCell>
                                             <TableCell>
                                                 {row.name}

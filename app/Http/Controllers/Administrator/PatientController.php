@@ -18,6 +18,7 @@ class PatientController extends Controller
     public function index(Request $request): Response
     {
         $search = $request->search;
+        
         $patients = Patient::with('patientCategory')
         ->when($request->filled('search'), function(Builder $query) use ($search){
             $query->where('name','like',"%{$search}%");
@@ -30,7 +31,9 @@ class PatientController extends Controller
             return $through;
         });
 
-        return Inertia::render('Administrator/Patient/Index', compact('patients'));
+        $page_num = ($patients->currentPage() - 1) * $patients->perPage() + 1;
+
+        return Inertia::render('Administrator/Patient/Index', compact('patients','page_num'));
     }
 
     public function create(): Response

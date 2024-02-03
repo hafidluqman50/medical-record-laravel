@@ -49,7 +49,7 @@ import {
 
 import { Input } from "@/Components/ui/input"
 
-export default function Index({auth, app, patients}: PageProps & PatientIndexProps) {
+export default function Index({auth, app, patients, page_num}: PageProps & PatientIndexProps) {
 
     const [searchData, setSearchData] = useState<string>('');
 
@@ -144,7 +144,7 @@ export default function Index({auth, app, patients}: PageProps & PatientIndexPro
                                     : patients.data.map((row, key) => (
                                         <TableRow key={row.id}>
                                             <TableCell>
-                                                {key+1}
+                                                {page_num+1}
                                             </TableCell>
                                             <TableCell>
                                                 {row.code}
