@@ -1,8 +1,9 @@
 import { useState, useEffect, FormEventHandler } from 'react'
 import axios from 'axios'
 import AdministratorLayout from '@/Layouts/AdministratorLayout';
+import { type PatientIndexProps } from './type'
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { PageProps, Doctor } from '@/types';
+import { PageProps } from '@/types';
 import { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from '@/Components/DataTable'
 import { SkeletonTable } from "@/Components/SkeletonTable"
@@ -48,35 +49,14 @@ import {
 
 import { Input } from "@/Components/ui/input"
 
-interface Doctors {
-    data:Array<{
-        id: number,
-        name:string,
-        username:string,
-        fee:number,
-        address:string,
-        phone_number:number,
-        status_doctor_text:string
-    }>;
-    links:Array<{
-        url?:string,
-        label:string,
-        active:boolean
-    }>;
-}
-
-type DoctorProps = {
-    doctors:Doctors
-}
-
-export default function Index({auth, app, doctors, page_num}: PageProps & DoctorProps) {
+export default function Index({auth, app, patients, page_num}: PageProps & PatientIndexProps) {
 
     const [searchData, setSearchData] = useState<string>('');
 
     const { session } = usePage<PageProps>().props
 
     const submitDelete = (id: number): void => {
-        router.delete(route('administrator.doctors.delete',id))
+        router.delete(route('administrator.patients.delete',id))
     }
 
     const dismissAlert = (): void => {
@@ -85,7 +65,7 @@ export default function Index({auth, app, doctors, page_num}: PageProps & Doctor
 
     const search = (): void => {
         router.get(
-            route('administrator.doctors'),
+            route('administrator.patients'),
             {
                 search:searchData
             },
@@ -100,10 +80,10 @@ export default function Index({auth, app, doctors, page_num}: PageProps & Doctor
         <AdministratorLayout
             user={auth.user}
             routeParent="data-master"
-            routeChild="data-dokter"
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Dokter</h2>}
+            routeChild="data-pasien"
+            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Pasien</h2>}
         >
-            <Head title="Data Dokter" />
+            <Head title="Data Pasien" />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -126,14 +106,14 @@ export default function Index({auth, app, doctors, page_num}: PageProps & Doctor
                             <div className="flex">
                                 <div className="grow">
                                     <Button size="sm" className="mb-2" asChild>
-                                        <Link href={route('administrator.doctors.create')}>Tambah Dokter</Link>
+                                        <Link href={route('administrator.patients.create')}>Tambah Pasien</Link>
                                     </Button>
                                 </div>
                                 <div className="w-1/3 flex-none flex space-x-4">
                                     <Input
                                         type="search" 
                                         name="search_data"
-                                        placeholder="Cari Dokter" 
+                                        placeholder="Cari Pasien" 
                                         value={searchData}
                                         onChange={(e) => setSearchData(e.target.value)}
                                     />
@@ -146,50 +126,42 @@ export default function Index({auth, app, doctors, page_num}: PageProps & Doctor
                               <TableHeader>
                                 <TableRow>
                                   <TableHead>No</TableHead>
-                                  <TableHead>Nama Dokter</TableHead>
-                                  <TableHead>Username</TableHead>
+                                  <TableHead>Kode Pasien</TableHead>
+                                  <TableHead>Nama Pasien</TableHead>
+                                  <TableHead>Nomor Telepon</TableHead>
                                   <TableHead>Alamat</TableHead>
-                                  <TableHead>Nomor HP</TableHead>
-                                  <TableHead>Biaya Dokter</TableHead>
-                                  <TableHead>Status Dokter</TableHead>
                                   <TableHead>#</TableHead>
                                 </TableRow>
                               </TableHeader>
                               <TableBody>
                                 {
-                                    doctors.data.length == 0 ? 
+                                    patients.data.length == 0 ? 
                                     <TableRow>
                                         <TableCell colSpan={7} align="center">
                                             Empty Data!
                                         </TableCell>
                                     </TableRow>
-                                    : doctors.data.map((row, key) => (
+                                    : patients.data.map((row, key) => (
                                         <TableRow key={row.id}>
                                             <TableCell>
                                                 {page_num+1}
                                             </TableCell>
                                             <TableCell>
+                                                {row.code}
+                                            </TableCell>
+                                            <TableCell>
                                                 {row.name}
-                                            </TableCell>
-                                            <TableCell>
-                                                {row.username}
-                                            </TableCell>
-                                            <TableCell>
-                                                {row.address}
                                             </TableCell>
                                             <TableCell>
                                                 {row.phone_number}
                                             </TableCell>
                                             <TableCell>
-                                                {row.fee}
-                                            </TableCell>
-                                            <TableCell>
-                                                {row.status_doctor_text}
+                                                {row.address}
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex space-x-4">
                                                     <Button className="bg-amber-500 text-white hover:bg-amber-500" asChild>
-                                                        <Link href={route('administrator.doctors.edit', row.id)}>Edit</Link>
+                                                        <Link href={route('administrator.patients.edit', row.id)}>Edit</Link>
                                                     </Button>
                                                     <AlertDialog>
                                                       <AlertDialogTrigger asChild>
@@ -199,7 +171,7 @@ export default function Index({auth, app, doctors, page_num}: PageProps & Doctor
                                                         <AlertDialogHeader>
                                                           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                                                           <AlertDialogDescription>
-                                                            This action cannot be undone. This will delete your doctors data from our servers.
+                                                            This action cannot be undone. This will delete your patients data from our servers.
                                                           </AlertDialogDescription>
                                                         </AlertDialogHeader>
                                                         <AlertDialogFooter>
@@ -220,7 +192,7 @@ export default function Index({auth, app, doctors, page_num}: PageProps & Doctor
                                         <Pagination>
                                             <PaginationContent>    
                                         {
-                                            doctors.links.map((pagination, key) => (
+                                            patients.links.map((pagination, key) => (
                                                 <div key={key}>
                                                 {   
                                                     pagination.label.includes('Previous') ? 

@@ -64,7 +64,7 @@ type PatientCategoryProps = {
     patient_categories:PatientCategories
 }
 
-export default function Index({auth, app, patient_categories}: PageProps & PatientCategoryProps) {
+export default function Index({auth, app, patient_categories, page_num}: PageProps & PatientCategoryProps) {
 
     const [searchData, setSearchData] = useState<string>('')
 
@@ -156,7 +156,7 @@ export default function Index({auth, app, patient_categories}: PageProps & Patie
                                     : patient_categories.data.map((row, key) => (
                                         <TableRow key={row.id}>
                                             <TableCell>
-                                                {key+1}
+                                                {page_num+1}
                                             </TableCell>
                                             <TableCell>
                                                 {row.name}

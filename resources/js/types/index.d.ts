@@ -35,4 +35,5 @@ export type PageProps<T extends Record<string, unknown> = Record<string, unknown
         url:string;
     }
     ziggy: Config & { location: string };
+    page_num:string;
 };
