@@ -25,7 +25,7 @@ class RedirectIfAuthenticated
                     return redirect(RouteServiceProvider::DASHBOARD_DOCTOR);
                 }
                 else {
-                    return redirect(RouteServiceProvider::DASHBOARD_ADMIN);
+                    return redirect(RouteServiceProvider::DASHBOARD_ADMINISTRATOR);
                 }
             }
         }
