@@ -166,7 +166,7 @@ export default function Index({auth, app, doctors, page_num}: PageProps & Doctor
                                     : doctors.data.map((row, key) => (
                                         <TableRow key={row.id}>
                                             <TableCell>
-                                                {page_num+1}
+                                                {page_num+key}
                                             </TableCell>
                                             <TableCell>
                                                 {row.name}
@@ -224,22 +224,28 @@ export default function Index({auth, app, doctors, page_num}: PageProps & Doctor
                                                 <div key={key}>
                                                 {   
                                                     pagination.label.includes('Previous') ? 
-                                                    <PaginationPrevious href={pagination.url}/> : ''
+                                                    <Link href={pagination.url === undefined ? '#' : pagination.url}>
+                                                        <PaginationPrevious/>
+                                                    </Link> : ''
                                                 }
                                                 {
                                                     !pagination.label.includes('Previous') && !pagination.label.includes('Next') ? 
 
-                                                    <PaginationItem key={key}>
-                                                      <PaginationLink href={pagination.url} isActive={pagination.active}>
-                                                        {pagination.label}
-                                                      </PaginationLink>
-                                                    </PaginationItem>
+                                                    <Link href={pagination.url === undefined ? '#' : pagination.url}>
+                                                        <PaginationItem key={key}>
+                                                          <PaginationLink isActive={pagination.active}>
+                                                            {pagination.label}
+                                                          </PaginationLink>
+                                                        </PaginationItem>
+                                                    </Link>
                                                     :''
 
                                                 }
                                                 {
                                                     pagination.label.includes('Next') ?
-                                                    <PaginationNext href={pagination.url}/> : ''
+                                                    <Link href={pagination.url === undefined ? '#' : pagination.url}>
+                                                        <PaginationNext/>
+                                                    </Link> : ''
                                                 }
                                                 </div>
                                             ))

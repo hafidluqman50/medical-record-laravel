@@ -1,9 +1,8 @@
 import { useState, useEffect, FormEventHandler } from 'react'
 import axios from 'axios'
 import AdministratorLayout from '@/Layouts/AdministratorLayout';
-import { type PatientIndexProps } from './type'
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { PageProps } from '@/types';
+import { PageProps, Doctor } from '@/types';
 import { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from '@/Components/DataTable'
 import { SkeletonTable } from "@/Components/SkeletonTable"
@@ -47,16 +46,45 @@ import {
   AlertDialogTrigger,
 } from "@/Components/ui/alert-dialog"
 
-import { Input } from "@/Components/ui/input"
+import { Input } from '@/Components/ui/input'
 
-export default function Index({auth, app, patients, page_num}: PageProps & PatientIndexProps) {
+interface RegistrationCategories {
+    data:Array<{
+        id: number,
+        number_register:string,
+        patient:{
+            name:string
+        },
+        doctor:{
+            name:string
+        },
+        date_register:string,
+        body_height:number,
+        body_weight:number,
+        body_temp:number,
+        blood_pressure:string,
+        complains_of_pain:string,
+        supporting_examinations:string
+    }>;
+    links:Array<{
+        url?:string,
+        label:string,
+        active:boolean
+    }>;
+}
 
-    const [searchData, setSearchData] = useState<string>('');
+type RegistrationCategoryProps = {
+    registrations:RegistrationCategories
+}
+
+export default function Index({auth, app, registrations, page_num}: PageProps & RegistrationCategoryProps) {
+
+    const [searchData, setSearchData] = useState<string>('')
 
     const { session } = usePage<PageProps>().props
 
     const submitDelete = (id: number): void => {
-        router.delete(route('administrator.patients.delete',id))
+        router.delete(route('administrator.registrations.delete',id))
     }
 
     const dismissAlert = (): void => {
@@ -65,7 +93,7 @@ export default function Index({auth, app, patients, page_num}: PageProps & Patie
 
     const search = (): void => {
         router.get(
-            route('administrator.patients'),
+            route('administrator.registrations'),
             {
                 search:searchData
             },
@@ -79,11 +107,9 @@ export default function Index({auth, app, patients, page_num}: PageProps & Patie
     return (
         <AdministratorLayout
             user={auth.user}
-            routeParent="data-master"
-            routeChild="data-pasien"
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Pasien</h2>}
+            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Pendaftaran</h2>}
         >
-            <Head title="Data Pasien" />
+            <Head title="Data Pendaftaran" />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -106,14 +132,14 @@ export default function Index({auth, app, patients, page_num}: PageProps & Patie
                             <div className="flex">
                                 <div className="grow">
                                     <Button size="sm" className="mb-2" asChild>
-                                        <Link href={route('administrator.patients.create')}>Tambah Pasien</Link>
+                                        <Link href={route('administrator.registrations.create')}>Tambah Pendaftaran</Link>
                                     </Button>
                                 </div>
                                 <div className="w-1/3 flex-none flex space-x-4">
                                     <Input
                                         type="search" 
                                         name="search_data"
-                                        placeholder="Cari Pasien" 
+                                        placeholder="Cari Nama Pasien" 
                                         value={searchData}
                                         onChange={(e) => setSearchData(e.target.value)}
                                     />
@@ -126,42 +152,62 @@ export default function Index({auth, app, patients, page_num}: PageProps & Patie
                               <TableHeader>
                                 <TableRow>
                                   <TableHead>No</TableHead>
-                                  <TableHead>Kode Pasien</TableHead>
+                                  <TableHead>Nomor Daftar</TableHead>
+                                  <TableHead>Tanggal Daftar</TableHead>
                                   <TableHead>Nama Pasien</TableHead>
-                                  <TableHead>Nomor Telepon</TableHead>
-                                  <TableHead>Alamat</TableHead>
+                                  <TableHead>Nama Dokter</TableHead>
+                                  <TableHead>Tinggi Badan</TableHead>
+                                  <TableHead>Berat Badan</TableHead>
+                                  <TableHead>Tekanan Darah</TableHead>
+                                  <TableHead>Keluhan</TableHead>
+                                  <TableHead>Pemeriksaan Penunjang</TableHead>
                                   <TableHead>#</TableHead>
                                 </TableRow>
                               </TableHeader>
                               <TableBody>
                                 {
-                                    patients.data.length == 0 ? 
+                                    registrations.data.length == 0 ? 
                                     <TableRow>
-                                        <TableCell colSpan={7} align="center">
+                                        <TableCell colSpan={11} align="center">
                                             Empty Data!
                                         </TableCell>
                                     </TableRow>
-                                    : patients.data.map((row, key) => (
+                                    : registrations.data.map((row, key) => (
                                         <TableRow key={row.id}>
                                             <TableCell>
                                                 {page_num+key}
                                             </TableCell>
                                             <TableCell>
-                                                {row.code}
+                                                {row.number_register}
                                             </TableCell>
                                             <TableCell>
-                                                {row.name}
+                                                {row.patient.name}
                                             </TableCell>
                                             <TableCell>
-                                                {row.phone_number}
+                                                {row.doctor.name}
                                             </TableCell>
                                             <TableCell>
-                                                {row.address}
+                                                {row.body_height}
+                                            </TableCell>
+                                            <TableCell>
+                                                {row.body_weight}
+                                            </TableCell>
+                                            <TableCell>
+                                                {row.body_temp}
+                                            </TableCell>
+                                            <TableCell>
+                                                {row.blood_pressure}
+                                            </TableCell>
+                                            <TableCell>
+                                                {row.complains_of_pain}
+                                            </TableCell>
+                                            <TableCell>
+                                                {row.supporting_examinations}
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex space-x-4">
                                                     <Button className="bg-amber-500 text-white hover:bg-amber-500" asChild>
-                                                        <Link href={route('administrator.patients.edit', row.id)}>Edit</Link>
+                                                        <Link href={route('administrator.registrations.edit', row.id)}>Edit</Link>
                                                     </Button>
                                                     <AlertDialog>
                                                       <AlertDialogTrigger asChild>
@@ -171,7 +217,7 @@ export default function Index({auth, app, patients, page_num}: PageProps & Patie
                                                         <AlertDialogHeader>
                                                           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                                                           <AlertDialogDescription>
-                                                            This action cannot be undone. This will delete your patients data from our servers.
+                                                            This action cannot be undone. This will delete your patient category data from our servers.
                                                           </AlertDialogDescription>
                                                         </AlertDialogHeader>
                                                         <AlertDialogFooter>
@@ -188,11 +234,12 @@ export default function Index({auth, app, patients, page_num}: PageProps & Patie
                               </TableBody>
                               <TableFooter>
                                 <TableRow>
-                                    <TableCell colSpan={8}>
+                                    <TableCell colSpan={11}>
                                         <Pagination>
                                             <PaginationContent>    
                                         {
-                                            patients.links.map((pagination, key) => (
+                                            registrations.links.map((pagination, key) => (
+                                                
                                                 <div key={key}>
                                                 {   
                                                     pagination.label.includes('Previous') ? 
@@ -210,8 +257,7 @@ export default function Index({auth, app, patients, page_num}: PageProps & Patie
                                                           </PaginationLink>
                                                         </PaginationItem>
                                                     </Link>
-                                                    :''
-
+                                                    : ''
                                                 }
                                                 {
                                                     pagination.label.includes('Next') ?
