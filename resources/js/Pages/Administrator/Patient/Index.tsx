@@ -87,7 +87,7 @@ export default function Index({auth, app, patients, page_num}: PageProps & Patie
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg py-8 px-8">
+                    <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg py-4 px-4">
                         {/*<DataTable columns={columns} data={doctor}/>*/}
                     {
                         session.success && (
@@ -105,7 +105,7 @@ export default function Index({auth, app, patients, page_num}: PageProps & Patie
                     )}
                             <div className="flex">
                                 <div className="grow">
-                                    <Button size="sm" className="mb-2" asChild>
+                                    <Button className="mb-2" asChild>
                                         <Link href={route('administrator.patients.create')}>Tambah Pasien</Link>
                                     </Button>
                                 </div>
@@ -144,7 +144,7 @@ export default function Index({auth, app, patients, page_num}: PageProps & Patie
                                     : patients.data.map((row, key) => (
                                         <TableRow key={row.id}>
                                             <TableCell>
-                                                {page_num+1}
+                                                {page_num+key}
                                             </TableCell>
                                             <TableCell>
                                                 {row.code}
@@ -196,22 +196,26 @@ export default function Index({auth, app, patients, page_num}: PageProps & Patie
                                                 <div key={key}>
                                                 {   
                                                     pagination.label.includes('Previous') ? 
-                                                    <PaginationPrevious href={pagination.url}/> : ''
+                                                    <Link href={pagination.url === undefined ? '#' : pagination.url}>
+                                                        <PaginationPrevious/>
+                                                    </Link> : ''
                                                 }
                                                 {
                                                     !pagination.label.includes('Previous') && !pagination.label.includes('Next') ? 
-
-                                                    <PaginationItem key={key}>
-                                                      <PaginationLink href={pagination.url} isActive={pagination.active}>
-                                                        {pagination.label}
-                                                      </PaginationLink>
-                                                    </PaginationItem>
-                                                    :''
+                                                    <Link href={pagination.url === undefined ? '#' : pagination.url}>
+                                                        <PaginationItem key={key}>
+                                                          <PaginationLink isActive={pagination.active}>
+                                                            {pagination.label}
+                                                          </PaginationLink>
+                                                        </PaginationItem>
+                                                    </Link>   :''
 
                                                 }
                                                 {
                                                     pagination.label.includes('Next') ?
-                                                    <PaginationNext href={pagination.url}/> : ''
+                                                    <Link href={pagination.url === undefined ? '#' : pagination.url}>
+                                                        <PaginationNext/>
+                                                    </Link> : ''
                                                 }
                                                 </div>
                                             ))

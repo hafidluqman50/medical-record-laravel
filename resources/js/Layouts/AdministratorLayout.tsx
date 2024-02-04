@@ -80,7 +80,7 @@ export default function Authenticated({ user, header, routeParent = null, routeC
                                 <NavLink href='#' active={routeChild == 'penjualan'}>
                                     Penjualan
                                 </NavLink>
-                                <NavLink href='#' active={routeChild == 'pendaftaran'}>
+                                <NavLink href={route('administrator.registrations')} active={route().current('administrator.registrations')}>
                                     Pendaftaran
                                 </NavLink>
                                 <NavLink href='#'>

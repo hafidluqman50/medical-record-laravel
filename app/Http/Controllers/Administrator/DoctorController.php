@@ -26,7 +26,7 @@ class DoctorController extends Controller
                   ->orWhere('fee', 'like', "%{$search}%")
                   ->orWhere('address', 'like', "%{$search}%")
                   ->orWhere('phone_number', 'like', "%{$search}%");
-        })->orderByDesc('id')->paginate(5)->through(function(Doctor $map) {
+        })->orderByDesc('id')->paginate(5)->withQueryString()->through(function(Doctor $map) {
             $format_rupiah = format_rupiah($map->fee);
             
             $status_dokter = match($map->status_doctor) {

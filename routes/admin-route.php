@@ -4,6 +4,7 @@ use App\Http\Controllers\Administrator\DoctorController;
 use App\Http\Controllers\Administrator\DashboardController;
 use App\Http\Controllers\Administrator\PatientController;
 use App\Http\Controllers\Administrator\PatientCategoryController;
+use App\Http\Controllers\Administrator\RegistrationController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'auth'], function() {
@@ -35,5 +36,14 @@ Route::group(['middleware' => 'auth'], function() {
         Route::get('/edit/{id}', [PatientController::class, 'edit'])->name('administrator.patients.edit');
         Route::put('/update/{id}', [PatientController::class, 'update'])->name('administrator.patients.update');
         Route::delete('/delete/{id}', [PatientController::class, 'delete'])->name('administrator.patients.delete');
+    });
+
+    Route::group(['prefix' => 'registrations'], function() {
+        Route::get('/', [RegistrationController::class, 'index'])->name('administrator.registrations');
+        Route::get('/create', [RegistrationController::class, 'create'])->name('administrator.registrations.create');
+        Route::post('/store', [RegistrationController::class, 'store'])->name('administrator.registrations.store');
+        Route::get('/edit/{id}', [RegistrationController::class, 'edit'])->name('administrator.registrations.edit');
+        Route::put('/update/{id}', [RegistrationController::class, 'update'])->name('administrator.registrations.update');
+        Route::delete('/delete/{id}', [RegistrationController::class, 'delete'])->name('administrator.registrations.delete');
     });
 });

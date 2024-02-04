@@ -18,6 +18,19 @@ export interface Doctor {
     status_doctor:number;
 }
 
+export interface Patient {
+    id: number,
+    code:string,
+    bpjs_number:string,
+    patient_category_id:number,
+    name:string,
+    phone_number:number,
+    address:string,
+    city_place:string,
+    birth_date:string,
+    gender:string
+}
+
 export interface PatientCategory {
     id: number;
     name:string;
