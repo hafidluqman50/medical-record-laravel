@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('registrations', function (Blueprint $table) {
             $table->id();
             $table->date('date_register');
+            $table->string('number_register');
             $table->foreignId('patient_id')
                   ->constrained('patients')
                   ->onDelete('restrict')
@@ -28,6 +29,7 @@ return new class extends Migration
             $table->string('blood_pressure',10)->nullable();
             $table->text('complains_of_pain')->nullable();
             $table->string('supporting_examinations')->nullable();
+            $table->integer('status_register')->comment('0: Untuk Belum Diperiksa Dokter; 1: Untuk sudah diperiksa dokter;');
             $table->timestamps();
             $table->softDeletes();
         });

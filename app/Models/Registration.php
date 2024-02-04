@@ -15,14 +15,16 @@ class Registration extends Model
 
     protected $fillable = [
         'date_register',
+        'number_register',
         'patient_id',
         'doctor_id',
         'body_height',
         'body_weight',
         'body_temp',
         'blood_pressure',
-        'complaints_of_pain',
-        'supporting_examinations'
+        'complains_of_pain',
+        'supporting_examinations',
+        'status_register'
     ];
 
     protected $hidden = [
@@ -39,5 +41,16 @@ class Registration extends Model
     public function doctor(): BelongsTo
     {
         return $this->belongsTo(Doctor::class, 'doctor_id', 'id');
+    }
+
+    public static function generateCode(): string
+    {
+        $db = self::count();
+        $base = 'RGS'.date('dmy');
+        if ($db == 0) {
+            $db = 1;
+            $result = $base.'0001';
+        }
+        return $generate_code = $base.str_pad($db,4,'0000',STR_PAD_LEFT);
     }
 }

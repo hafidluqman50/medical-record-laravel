@@ -16,30 +16,45 @@ import {
 import { Textarea } from "@/Components/ui/textarea"
 import { Button } from '@/Components/ui/button'
 
+interface Registration {
+    id: number
+    number_register:string
+    patient_id:number
+    doctor_id:number
+    date_register:string
+    body_height:number
+    body_weight:number
+    body_temp:number
+    blood_pressure:string
+    complains_of_pain:string
+    supporting_examinations:string
+    status_register:number
+}
+
 type FormCreateProps = {
     patients:Patient[]
     doctors:Doctor[]
-    number_register:string
+    registration:Registration
 }
 
-export default function Create({auth, patients, doctors, number_register}: PageProps & FormCreateProps) {
+export default function Create({auth, patients, doctors, registration}: PageProps & FormCreateProps) {
 
-    const { data, setData, post, processing, errors, reset } = useForm({
-        number_register:number_register,
-        patient_id:0,
-        doctor_id:0,
-        body_height:0,
-        body_weight:0,
-        body_temp:0,
-        blood_pressure:'',
-        complains_of_pain:'',
-        supporting_examinations:'',
+    const { data, setData, put, processing, errors, reset } = useForm({
+        number_register:registration.number_register,
+        patient_id:registration.patient_id,
+        doctor_id:registration.doctor_id,
+        body_height:registration.body_height,
+        body_weight:registration.body_weight,
+        body_temp:registration.body_temp,
+        blood_pressure:registration.blood_pressure,
+        complains_of_pain:registration.complains_of_pain,
+        supporting_examinations:registration.supporting_examinations
     });
 
     const submitForm: FormEventHandler = (e) => {
         e.preventDefault()
 
-        post(route('administrator.registrations.store'));
+        put(route('administrator.registrations.update', registration.id));
     }
 
     return(
@@ -79,7 +94,7 @@ export default function Create({auth, patients, doctors, number_register}: PageP
                             <div className="mt-4">
                                 <InputLabel htmlFor="patient_id" value="Pasien" />
 
-                                <Select onValueChange={(value) => setData('patient_id', parseInt(value))}>
+                                <Select defaultValue={registration.patient_id.toString()} onValueChange={(value) => setData('patient_id', parseInt(value))}>
                                   <SelectTrigger className="w-full">
                                     <SelectValue placeholder="=== Pilih Pasien ===" />
                                   </SelectTrigger>
@@ -98,7 +113,7 @@ export default function Create({auth, patients, doctors, number_register}: PageP
                             <div className="mt-4">
                                 <InputLabel htmlFor="doctor_id" value="Dokter" />
 
-                                <Select onValueChange={(value) => setData('doctor_id', parseInt(value))}>
+                                <Select defaultValue={registration.doctor_id.toString()}  onValueChange={(value) => setData('doctor_id', parseInt(value))}>
                                   <SelectTrigger className="w-full">
                                     <SelectValue placeholder="=== Pilih Dokter ===" />
                                   </SelectTrigger>

@@ -102,7 +102,7 @@ export default function Index({auth, app, patient_categories, page_num}: PagePro
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg py-8 px-8">
+                    <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg py-4 px-4">
                         {/*<DataTable columns={columns} data={doctor}/>*/}
                     {
                         session.success && (
@@ -120,7 +120,7 @@ export default function Index({auth, app, patient_categories, page_num}: PagePro
                     )}
                             <div className="flex">
                                 <div className="grow">
-                                    <Button size="sm" className="mb-2" asChild>
+                                    <Button className="mb-2" asChild>
                                         <Link href={route('administrator.patient-categories.create')}>Tambah Kategori Pasien</Link>
                                     </Button>
                                 </div>
