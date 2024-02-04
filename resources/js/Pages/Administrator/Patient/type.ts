@@ -16,6 +16,8 @@ export interface Patients {
         birth_date:string,
         gender:string
     }>;
+    current_page:number;
+    per_page:number;
     links:Array<{
         url?:string,
         label:string,

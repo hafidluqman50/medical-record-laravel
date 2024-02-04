@@ -69,7 +69,7 @@ type DoctorProps = {
     doctors:Doctors
 }
 
-export default function Index({auth, app, doctors}: PageProps & DoctorProps) {
+export default function Index({auth, app, doctors, page_num}: PageProps & DoctorProps) {
 
     const [searchData, setSearchData] = useState<string>('');
 
@@ -107,7 +107,7 @@ export default function Index({auth, app, doctors}: PageProps & DoctorProps) {
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg py-8 px-8">
+                    <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg py-4 px-4">
                         {/*<DataTable columns={columns} data={doctor}/>*/}
                     {
                         session.success && (
@@ -125,7 +125,7 @@ export default function Index({auth, app, doctors}: PageProps & DoctorProps) {
                     )}
                             <div className="flex">
                                 <div className="grow">
-                                    <Button size="sm" className="mb-2" asChild>
+                                    <Button className="mb-2" asChild>
                                         <Link href={route('administrator.doctors.create')}>Tambah Dokter</Link>
                                     </Button>
                                 </div>
@@ -166,7 +166,7 @@ export default function Index({auth, app, doctors}: PageProps & DoctorProps) {
                                     : doctors.data.map((row, key) => (
                                         <TableRow key={row.id}>
                                             <TableCell>
-                                                {key+1}
+                                                {page_num+key}
                                             </TableCell>
                                             <TableCell>
                                                 {row.name}
@@ -224,22 +224,28 @@ export default function Index({auth, app, doctors}: PageProps & DoctorProps) {
                                                 <div key={key}>
                                                 {   
                                                     pagination.label.includes('Previous') ? 
-                                                    <PaginationPrevious href={pagination.url}/> : ''
+                                                    <Link href={pagination.url === undefined ? '#' : pagination.url}>
+                                                        <PaginationPrevious/>
+                                                    </Link> : ''
                                                 }
                                                 {
                                                     !pagination.label.includes('Previous') && !pagination.label.includes('Next') ? 
 
-                                                    <PaginationItem key={key}>
-                                                      <PaginationLink href={pagination.url} isActive={pagination.active}>
-                                                        {pagination.label}
-                                                      </PaginationLink>
-                                                    </PaginationItem>
+                                                    <Link href={pagination.url === undefined ? '#' : pagination.url}>
+                                                        <PaginationItem key={key}>
+                                                          <PaginationLink isActive={pagination.active}>
+                                                            {pagination.label}
+                                                          </PaginationLink>
+                                                        </PaginationItem>
+                                                    </Link>
                                                     :''
 
                                                 }
                                                 {
                                                     pagination.label.includes('Next') ?
-                                                    <PaginationNext href={pagination.url}/> : ''
+                                                    <Link href={pagination.url === undefined ? '#' : pagination.url}>
+                                                        <PaginationNext/>
+                                                    </Link> : ''
                                                 }
                                                 </div>
                                             ))

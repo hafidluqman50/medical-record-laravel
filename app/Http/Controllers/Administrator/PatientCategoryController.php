@@ -15,9 +15,12 @@ class PatientCategoryController extends Controller
 {
     public function index(Request $request): Response
     {
-        $patient_categories = PatientCategory::paginate(5);
+        $patient_categories = PatientCategory::paginate(5)->withQueryString();
+
+        $page_num = ($patient_categories->currentPage() - 1) * $patient_categories->perPage() + 1;
         return Inertia::render('Administrator/PatientCategory/Index',[
-            'patient_categories' => $patient_categories
+            'patient_categories' => $patient_categories,
+            'page_num'           => $page_num
         ]);
     }
 

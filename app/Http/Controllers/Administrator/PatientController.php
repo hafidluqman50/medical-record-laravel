@@ -18,10 +18,11 @@ class PatientController extends Controller
     public function index(Request $request): Response
     {
         $search = $request->search;
+        
         $patients = Patient::with('patientCategory')
         ->when($request->filled('search'), function(Builder $query) use ($search){
             $query->where('name','like',"%{$search}%");
-        })->paginate(5)->through(function(Patient $through) {
+        })->paginate(5)->withQueryString()->through(function(Patient $through) {
             $convert_date = human_date($through->birth_date);
             unset($through->birth_date);
 
@@ -29,8 +30,9 @@ class PatientController extends Controller
 
             return $through;
         });
+        $page_num = ($patients->currentPage() - 1) * $patients->perPage() + 1;
 
-        return Inertia::render('Administrator/Patient/Index', compact('patients'));
+        return Inertia::render('Administrator/Patient/Index', compact('patients','page_num'));
     }
 
     public function create(): Response

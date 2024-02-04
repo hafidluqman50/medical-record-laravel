@@ -26,7 +26,7 @@ class DoctorController extends Controller
                   ->orWhere('fee', 'like', "%{$search}%")
                   ->orWhere('address', 'like', "%{$search}%")
                   ->orWhere('phone_number', 'like', "%{$search}%");
-        })->orderByDesc('id')->paginate(5)->through(function(Doctor $map) {
+        })->orderByDesc('id')->paginate(5)->withQueryString()->through(function(Doctor $map) {
             $format_rupiah = format_rupiah($map->fee);
             
             $status_dokter = match($map->status_doctor) {
@@ -42,8 +42,11 @@ class DoctorController extends Controller
             return $map;
         });
 
+        $page_num = ($doctors->currentPage() - 1) * $doctors->perPage() + 1;
+
         return Inertia::render('Administrator/Doctor/Index',[
-            'doctors' => $doctors
+            'doctors'  => $doctors,
+            'page_num' => $page_num
         ]);
     }
 
