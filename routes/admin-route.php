@@ -37,7 +37,7 @@ Route::group(['middleware' => 'auth'], function() {
         Route::put('/update/{id}', [PatientController::class, 'update'])->name('administrator.patients.update');
         Route::delete('/delete/{id}', [PatientController::class, 'delete'])->name('administrator.patients.delete');
     });
-
+  
     Route::group(['prefix' => 'registrations'], function() {
         Route::get('/', [RegistrationController::class, 'index'])->name('administrator.registrations');
         Route::get('/create', [RegistrationController::class, 'create'])->name('administrator.registrations.create');

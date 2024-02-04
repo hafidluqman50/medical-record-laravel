@@ -209,7 +209,6 @@ export default function Index({auth, app, patients, page_num}: PageProps & Patie
                                                           </PaginationLink>
                                                         </PaginationItem>
                                                     </Link>   :''
-
                                                 }
                                                 {
                                                     pagination.label.includes('Next') ?

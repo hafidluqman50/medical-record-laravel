@@ -30,7 +30,6 @@ class PatientController extends Controller
 
             return $through;
         });
-
         $page_num = ($patients->currentPage() - 1) * $patients->perPage() + 1;
 
         return Inertia::render('Administrator/Patient/Index', compact('patients','page_num'));

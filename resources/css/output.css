@@ -2546,6 +2546,11 @@ body {
   border-color: rgb(67 56 202 / var(--tw-border-opacity));
 }
 
+.focus\:border-indigo-700:focus {
+  --tw-border-opacity: 1;
+  border-color: rgb(67 56 202 / var(--tw-border-opacity));
+}
+
 .focus\:border-rose-700:focus {
   --tw-border-opacity: 1;
   border-color: rgb(190 18 60 / var(--tw-border-opacity));
@@ -3131,6 +3136,16 @@ body {
 :is(.dark .dark\:focus\:border-rose-300:focus) {
   --tw-border-opacity: 1;
   border-color: rgb(253 164 175 / var(--tw-border-opacity));
+}
+
+:is(.dark .dark\:focus\:border-sky-600:focus) {
+  --tw-border-opacity: 1;
+  border-color: rgb(2 132 199 / var(--tw-border-opacity));
+}
+
+:is(.dark .dark\:focus\:border-rose-600:focus) {
+  --tw-border-opacity: 1;
+  border-color: rgb(225 29 72 / var(--tw-border-opacity));
 }
 
 :is(.dark .dark\:focus\:border-sky-600:focus) {
