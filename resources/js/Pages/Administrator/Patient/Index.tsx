@@ -202,15 +202,13 @@ export default function Index({auth, app, patients, page_num}: PageProps & Patie
                                                 }
                                                 {
                                                     !pagination.label.includes('Previous') && !pagination.label.includes('Next') ? 
-
                                                     <Link href={pagination.url === undefined ? '#' : pagination.url}>
                                                         <PaginationItem key={key}>
                                                           <PaginationLink isActive={pagination.active}>
                                                             {pagination.label}
                                                           </PaginationLink>
                                                         </PaginationItem>
-                                                    </Link>
-                                                    :''
+                                                    </Link>   :''
 
                                                 }
                                                 {
