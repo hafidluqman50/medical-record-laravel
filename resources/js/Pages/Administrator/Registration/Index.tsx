@@ -209,22 +209,22 @@ export default function Index({
                                                     Cari
                                                 </Button>
                                             </div>
-                                            <Table className="w-screen">
+                                            <Table className="w-screen border-collapse border border-slate-200">
                                               <TableHeader>
                                                 <TableRow>
-                                                  <TableHead>No</TableHead>
-                                                  <TableHead>Nomor Daftar</TableHead>
-                                                  <TableHead>Tanggal Daftar</TableHead>
-                                                  <TableHead>Nama Pasien</TableHead>
-                                                  <TableHead>Nama Dokter</TableHead>
-                                                  <TableHead>Tinggi Badan</TableHead>
-                                                  <TableHead>Berat Badan</TableHead>
-                                                  <TableHead>Suhu Badan</TableHead>
-                                                  <TableHead>Tekanan Darah</TableHead>
-                                                  <TableHead>Keluhan</TableHead>
-                                                  <TableHead>Pemeriksaan Penunjang</TableHead>
-                                                  <TableHead>Status</TableHead>
-                                                  <TableHead>#</TableHead>
+                                                  <TableHead className="border border-slate-200">No</TableHead>
+                                                  <TableHead className="border border-slate-200">Nomor Daftar</TableHead>
+                                                  <TableHead className="border border-slate-200">Tanggal Daftar</TableHead>
+                                                  <TableHead className="border border-slate-200">Nama Pasien</TableHead>
+                                                  <TableHead className="border border-slate-200">Nama Dokter</TableHead>
+                                                  <TableHead className="border border-slate-200">Tinggi Badan</TableHead>
+                                                  <TableHead className="border border-slate-200">Berat Badan</TableHead>
+                                                  <TableHead className="border border-slate-200">Suhu Badan</TableHead>
+                                                  <TableHead className="border border-slate-200">Tekanan Darah</TableHead>
+                                                  <TableHead className="border border-slate-200">Keluhan</TableHead>
+                                                  <TableHead className="border border-slate-200">Pemeriksaan Penunjang</TableHead>
+                                                  <TableHead className="border border-slate-200">Status</TableHead>
+                                                  <TableHead className="border border-slate-200">#</TableHead>
                                                 </TableRow>
                                               </TableHeader>
                                               <TableBody>
@@ -237,47 +237,47 @@ export default function Index({
                                                     </TableRow>
                                                     : registrations.data.map((data, key) => (
                                                         <TableRow key={data.id}>
-                                                            <TableCell>
+                                                            <TableCell className="border border-slate-200">
                                                                 {page_num+key}
                                                             </TableCell>
-                                                            <TableCell>
+                                                            <TableCell className="border border-slate-200">
                                                                 {data.number_register}
                                                             </TableCell>
-                                                            <TableCell>
+                                                            <TableCell className="border border-slate-200">
                                                                 {data.date_register}
                                                             </TableCell>
-                                                            <TableCell>
+                                                            <TableCell className="border border-slate-200">
                                                                 {data.patient.name}
                                                             </TableCell>
-                                                            <TableCell>
+                                                            <TableCell className="border border-slate-200">
                                                                 {data.doctor.name}
                                                             </TableCell>
-                                                            <TableCell>
+                                                            <TableCell className="border border-slate-200">
                                                                 {data.body_height} Cm
                                                             </TableCell>
-                                                            <TableCell>
+                                                            <TableCell className="border border-slate-200">
                                                                 {data.body_weight} Kg
                                                             </TableCell>
-                                                            <TableCell>
+                                                            <TableCell className="border border-slate-200">
                                                                 {data.body_temp} &deg;C
                                                             </TableCell>
-                                                            <TableCell>
+                                                            <TableCell className="border border-slate-200">
                                                                 {data.blood_pressure} mmHg
                                                             </TableCell>
-                                                            <TableCell>
+                                                            <TableCell className="border border-slate-200">
                                                                 {data.complains_of_pain}
                                                             </TableCell>
                                                             <TableCell>
                                                                 {data.supporting_examinations}
                                                             </TableCell>
-                                                            <TableCell>
+                                                            <TableCell className="border border-slate-200">
                                                                 {
                                                                     data.status_register == 0 ? 
                                                                     <Badge variant="destructive">Belum Diperiksa</Badge> : 
                                                                     <Badge variant="success">Sudah Diperiksa</Badge>
                                                                 }
                                                             </TableCell>
-                                                            <TableCell>
+                                                            <TableCell className="border border-slate-200">
                                                                 <div className="flex space-x-4">
                                                                     <Button className="bg-amber-500 text-white hover:bg-amber-500" disabled={data.status_register == 1}>
                                                                         <Link href={route('administrator.registrations.edit', data.id)}>Edit</Link>

@@ -137,12 +137,12 @@ export default function Index({auth, app, patient_categories, page_num}: PagePro
                                     </Button>
                                 </div>
                             </div>
-                            <Table>
+                            <Table className="border-collapse border border-slate-200">
                               <TableHeader>
                                 <TableRow>
-                                  <TableHead>No</TableHead>
-                                  <TableHead>Nama Kategori</TableHead>
-                                  <TableHead>#</TableHead>
+                                  <TableHead className="border border-slate-200">No</TableHead>
+                                  <TableHead className="border border-slate-200">Nama Kategori</TableHead>
+                                  <TableHead className="border border-slate-200">#</TableHead>
                                 </TableRow>
                               </TableHeader>
                               <TableBody>
@@ -155,13 +155,13 @@ export default function Index({auth, app, patient_categories, page_num}: PagePro
                                     </TableRow>
                                     : patient_categories.data.map((row, key) => (
                                         <TableRow key={row.id}>
-                                            <TableCell>
+                                            <TableCell className="border border-slate-200">
                                                 {page_num+key}
                                             </TableCell>
-                                            <TableCell>
+                                            <TableCell className="border border-slate-200">
                                                 {row.name}
                                             </TableCell>
-                                            <TableCell>
+                                            <TableCell className="border border-slate-200">
                                                 <div className="flex space-x-4">
                                                     <Button className="bg-amber-500 text-white hover:bg-amber-500" asChild>
                                                         <Link href={route('administrator.patient-categories.edit', row.id)}>Edit</Link>

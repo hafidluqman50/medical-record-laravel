@@ -142,17 +142,17 @@ export default function Index({auth, app, doctors, page_num}: PageProps & Doctor
                                     </Button>
                                 </div>
                             </div>
-                            <Table>
+                            <Table className="border-collapse border border-slate-200">
                               <TableHeader>
                                 <TableRow>
-                                  <TableHead>No</TableHead>
-                                  <TableHead>Nama Dokter</TableHead>
-                                  <TableHead>Username</TableHead>
-                                  <TableHead>Alamat</TableHead>
-                                  <TableHead>Nomor HP</TableHead>
-                                  <TableHead>Biaya Dokter</TableHead>
-                                  <TableHead>Status Dokter</TableHead>
-                                  <TableHead>#</TableHead>
+                                  <TableHead className="border border-slate-200">No</TableHead>
+                                  <TableHead className="border border-slate-200">Nama Dokter</TableHead>
+                                  <TableHead className="border border-slate-200">Username</TableHead>
+                                  <TableHead className="border border-slate-200">Alamat</TableHead>
+                                  <TableHead className="border border-slate-200">Nomor HP</TableHead>
+                                  <TableHead className="border border-slate-200">Biaya Dokter</TableHead>
+                                  <TableHead className="border border-slate-200">Status Dokter</TableHead>
+                                  <TableHead className="border border-slate-200">#</TableHead>
                                 </TableRow>
                               </TableHeader>
                               <TableBody>
@@ -165,28 +165,28 @@ export default function Index({auth, app, doctors, page_num}: PageProps & Doctor
                                     </TableRow>
                                     : doctors.data.map((row, key) => (
                                         <TableRow key={row.id}>
-                                            <TableCell>
+                                            <TableCell className="border border-slate-200">
                                                 {page_num+key}
                                             </TableCell>
-                                            <TableCell>
+                                            <TableCell className="border border-slate-200">
                                                 {row.name}
                                             </TableCell>
-                                            <TableCell>
+                                            <TableCell className="border border-slate-200">
                                                 {row.username}
                                             </TableCell>
-                                            <TableCell>
+                                            <TableCell className="border border-slate-200">
                                                 {row.address}
                                             </TableCell>
-                                            <TableCell>
+                                            <TableCell className="border border-slate-200">
                                                 {row.phone_number}
                                             </TableCell>
-                                            <TableCell>
+                                            <TableCell className="border border-slate-200">
                                                 {row.fee}
                                             </TableCell>
-                                            <TableCell>
+                                            <TableCell className="border border-slate-200">
                                                 {row.status_doctor_text}
                                             </TableCell>
-                                            <TableCell>
+                                            <TableCell className="border border-slate-200">
                                                 <div className="flex space-x-4">
                                                     <Button className="bg-amber-500 text-white hover:bg-amber-500" asChild>
                                                         <Link href={route('administrator.doctors.edit', row.id)}>Edit</Link>

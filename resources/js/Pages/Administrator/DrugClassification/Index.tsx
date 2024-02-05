@@ -1,9 +1,8 @@
 import { useState, useEffect, FormEventHandler } from 'react'
 import axios from 'axios'
 import AdministratorLayout from '@/Layouts/AdministratorLayout';
-import { type PatientIndexProps } from './type'
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { PageProps } from '@/types';
+import { PageProps, Doctor } from '@/types';
 import { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from '@/Components/DataTable'
 import { SkeletonTable } from "@/Components/SkeletonTable"
@@ -47,16 +46,35 @@ import {
   AlertDialogTrigger,
 } from "@/Components/ui/alert-dialog"
 
-import { Input } from "@/Components/ui/input"
+import { Input } from '@/Components/ui/input'
 
-export default function Index({auth, app, patients, page_num}: PageProps & PatientIndexProps) {
+interface DrugClassifications {
+    data:Array<{
+        id: number,
+        name:string,
+        is_prekursor:number,
+        is_narcotic:number,
+        is_psychotropic:number
+    }>;
+    links:Array<{
+        url?:string,
+        label:string,
+        active:boolean
+    }>;
+}
 
-    const [searchData, setSearchData] = useState<string>('');
+type DrugClassificationProps = {
+    drug_classifications:DrugClassifications
+}
+
+export default function Index({auth, app, drug_classifications, page_num}: PageProps & DrugClassificationProps) {
+
+    const [searchData, setSearchData] = useState<string>('')
 
     const { session } = usePage<PageProps>().props
 
     const submitDelete = (id: number): void => {
-        router.delete(route('administrator.patients.delete',id))
+        router.delete(route('administrator.drug-classifications.delete',id))
     }
 
     const dismissAlert = (): void => {
@@ -65,7 +83,7 @@ export default function Index({auth, app, patients, page_num}: PageProps & Patie
 
     const search = (): void => {
         router.get(
-            route('administrator.patients'),
+            route('administrator.drug-classifications'),
             {
                 search:searchData
             },
@@ -79,11 +97,11 @@ export default function Index({auth, app, patients, page_num}: PageProps & Patie
     return (
         <AdministratorLayout
             user={auth.user}
-            routeParent="data-master"
-            routeChild="data-pasien"
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Pasien</h2>}
+            routeParent="data-obat"
+            routeChild="data-golongan-obat"
+            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Golongan Obat</h2>}
         >
-            <Head title="Data Pasien" />
+            <Head title="Data Golongan Obat" />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -106,14 +124,14 @@ export default function Index({auth, app, patients, page_num}: PageProps & Patie
                             <div className="flex">
                                 <div className="grow">
                                     <Button className="mb-2" asChild>
-                                        <Link href={route('administrator.patients.create')}>Tambah Pasien</Link>
+                                        <Link href={route('administrator.drug-classifications.create')}>Tambah Golongan Obat</Link>
                                     </Button>
                                 </div>
                                 <div className="w-1/3 flex-none flex space-x-4">
                                     <Input
                                         type="search" 
                                         name="search_data"
-                                        placeholder="Cari Pasien" 
+                                        placeholder="Cari Golongan Obat" 
                                         value={searchData}
                                         onChange={(e) => setSearchData(e.target.value)}
                                     />
@@ -126,42 +144,42 @@ export default function Index({auth, app, patients, page_num}: PageProps & Patie
                               <TableHeader>
                                 <TableRow>
                                   <TableHead className="border border-slate-200">No</TableHead>
-                                  <TableHead className="border border-slate-200">Kode Pasien</TableHead>
-                                  <TableHead className="border border-slate-200">Nama Pasien</TableHead>
-                                  <TableHead className="border border-slate-200">Nomor Telepon</TableHead>
-                                  <TableHead className="border border-slate-200">Alamat</TableHead>
+                                  <TableHead className="border border-slate-200">Nama Kategori</TableHead>
+                                  <TableHead className="border border-slate-200">Prekursor</TableHead>
+                                  <TableHead className="border border-slate-200">Narkotika</TableHead>
+                                  <TableHead className="border border-slate-200">Psikotropika</TableHead>
                                   <TableHead className="border border-slate-200">#</TableHead>
                                 </TableRow>
                               </TableHeader>
                               <TableBody>
                                 {
-                                    patients.data.length == 0 ? 
+                                    drug_classifications.data.length == 0 ? 
                                     <TableRow>
-                                        <TableCell colSpan={7} align="center">
+                                        <TableCell colSpan={6} align="center">
                                             Empty Data!
                                         </TableCell>
                                     </TableRow>
-                                    : patients.data.map((row, key) => (
+                                    : drug_classifications.data.map((row, key) => (
                                         <TableRow key={row.id}>
                                             <TableCell className="border border-slate-200">
                                                 {page_num+key}
                                             </TableCell>
                                             <TableCell className="border border-slate-200">
-                                                {row.code}
-                                            </TableCell>
-                                            <TableCell className="border border-slate-200">
                                                 {row.name}
                                             </TableCell>
                                             <TableCell className="border border-slate-200">
-                                                {row.phone_number}
+                                                {row.is_prekursor ? 'YA' : 'TIDAK'}
                                             </TableCell>
                                             <TableCell className="border border-slate-200">
-                                                {row.address}
+                                                {row.is_narcotic ? 'YA' : 'TIDAK'}
+                                            </TableCell>
+                                            <TableCell className="border border-slate-200">
+                                                {row.is_psychotropic ? 'YA' : 'TIDAK'}
                                             </TableCell>
                                             <TableCell className="border border-slate-200">
                                                 <div className="flex space-x-4">
                                                     <Button className="bg-amber-500 text-white hover:bg-amber-500" asChild>
-                                                        <Link href={route('administrator.patients.edit', row.id)}>Edit</Link>
+                                                        <Link href={route('administrator.drug-classifications.edit', row.id)}>Edit</Link>
                                                     </Button>
                                                     <AlertDialog>
                                                       <AlertDialogTrigger asChild>
@@ -171,7 +189,7 @@ export default function Index({auth, app, patients, page_num}: PageProps & Patie
                                                         <AlertDialogHeader>
                                                           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                                                           <AlertDialogDescription>
-                                                            This action cannot be undone. This will delete your patients data from our servers.
+                                                            This action cannot be undone. This will delete your patient category data from our servers.
                                                           </AlertDialogDescription>
                                                         </AlertDialogHeader>
                                                         <AlertDialogFooter>
@@ -188,11 +206,12 @@ export default function Index({auth, app, patients, page_num}: PageProps & Patie
                               </TableBody>
                               <TableFooter>
                                 <TableRow>
-                                    <TableCell colSpan={8}>
+                                    <TableCell colSpan={6}>
                                         <Pagination>
                                             <PaginationContent>    
                                         {
-                                            patients.links.map((pagination, key) => (
+                                            drug_classifications.links.map((pagination, key) => (
+                                                
                                                 <div key={key}>
                                                 {   
                                                     pagination.label.includes('Previous') ? 
@@ -202,13 +221,15 @@ export default function Index({auth, app, patients, page_num}: PageProps & Patie
                                                 }
                                                 {
                                                     !pagination.label.includes('Previous') && !pagination.label.includes('Next') ? 
+
                                                     <Link href={pagination.url === undefined ? '#' : pagination.url}>
                                                         <PaginationItem key={key}>
                                                           <PaginationLink isActive={pagination.active}>
                                                             {pagination.label}
                                                           </PaginationLink>
                                                         </PaginationItem>
-                                                    </Link>   :''
+                                                    </Link>
+                                                    : ''
                                                 }
                                                 {
                                                     pagination.label.includes('Next') ?

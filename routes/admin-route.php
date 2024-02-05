@@ -1,7 +1,9 @@
 <?php 
 
-use App\Http\Controllers\Administrator\DoctorController;
 use App\Http\Controllers\Administrator\DashboardController;
+use App\Http\Controllers\Administrator\DoctorController;
+use App\Http\Controllers\Administrator\DrugClassificationController;
+use App\Http\Controllers\Administrator\MedicalSupplierController;
 use App\Http\Controllers\Administrator\PatientController;
 use App\Http\Controllers\Administrator\PatientCategoryController;
 use App\Http\Controllers\Administrator\RegistrationController;
@@ -45,5 +47,23 @@ Route::group(['middleware' => 'auth'], function() {
         Route::get('/edit/{id}', [RegistrationController::class, 'edit'])->name('administrator.registrations.edit');
         Route::put('/update/{id}', [RegistrationController::class, 'update'])->name('administrator.registrations.update');
         Route::delete('/delete/{id}', [RegistrationController::class, 'delete'])->name('administrator.registrations.delete');
+    });
+
+    Route::group(['prefix' => 'drug-classifications'], function() {
+        Route::get('/', [DrugClassificationController::class, 'index'])->name('administrator.drug-classifications');
+        Route::get('/create', [DrugClassificationController::class, 'create'])->name('administrator.drug-classifications.create');
+        Route::post('/store', [DrugClassificationController::class, 'store'])->name('administrator.drug-classifications.store');
+        Route::get('/edit/{id}', [DrugClassificationController::class, 'edit'])->name('administrator.drug-classifications.edit');
+        Route::put('/update/{id}', [DrugClassificationController::class, 'update'])->name('administrator.drug-classifications.update');
+        Route::delete('/delete/{id}', [DrugClassificationController::class, 'delete'])->name('administrator.drug-classifications.delete');
+    });
+
+    Route::group(['prefix' => 'medical-suppliers'], function() {
+        Route::get('/', [MedicalSupplierController::class, 'index'])->name('administrator.medical-suppliers');
+        Route::get('/create', [MedicalSupplierController::class, 'create'])->name('administrator.medical-suppliers.create');
+        Route::post('/store', [MedicalSupplierController::class, 'store'])->name('administrator.medical-suppliers.store');
+        Route::get('/edit/{id}', [MedicalSupplierController::class, 'edit'])->name('administrator.medical-suppliers.edit');
+        Route::put('/update/{id}', [MedicalSupplierController::class, 'update'])->name('administrator.medical-suppliers.update');
+        Route::delete('/delete/{id}', [MedicalSupplierController::class, 'delete'])->name('administrator.medical-suppliers.delete');
     });
 });

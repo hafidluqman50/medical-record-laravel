@@ -6,17 +6,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class DrugClassification extends Model
+class MedicalSupplier extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'drug_classifications';
+    protected $table = 'medical_suppliers';
 
     protected $fillable = [
         'name',
-        'is_prekursor',
-        'is_narcotic',
-        'is_psychotropic'
+        'abbreviation_name',
+        'phone_number',
+        'address'
     ];
 
     protected $hidden = [

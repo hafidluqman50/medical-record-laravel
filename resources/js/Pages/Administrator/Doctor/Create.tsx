@@ -104,21 +104,12 @@ export default function Create({auth}: PageProps) {
                             <div className="mt-4">
                                 <InputLabel htmlFor="address" value="Alamat Dokter" />
 
-                                {/*<TextInput
-                                    id="password"
-                                    type="password"
-                                    name="password"
-                                    value={data.password}
-                                    className="mt-1 block w-full"
-                                    autoComplete="password"
-                                    onChange={(e) => setData('password', e.target.value)}
-                                />*/}
-
                                 <Textarea 
-                                    name="address" 
-                                    placeholder="Isi Alamat Dokter" 
+                                    name="address"
                                     className="mt-1 block w-full focus:border-indigo-700" 
                                     value={data.address}
+                                    rows={10}
+                                    cols={10}
                                     onChange={(e) => setData('address', e.target.value)}
                                 />
 

@@ -165,6 +165,8 @@ export default function Create({auth, code, patient_categories}: PageProps & Pat
                                     name="address"
                                     className="mt-1 block w-full focus:border-indigo-700" 
                                     value={data.address}
+                                    rows={10}
+                                    cols={10}
                                     onChange={(e) => setData('address', e.target.value)}
                                 />
 

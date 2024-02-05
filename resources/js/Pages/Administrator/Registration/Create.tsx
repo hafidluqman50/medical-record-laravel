@@ -22,15 +22,27 @@ type FormCreateProps = {
     number_register:string
 }
 
+interface RegistrationForm {
+    number_register:string
+    patient_id:number|null
+    doctor_id:number|null
+    body_height:number|null
+    body_weight:number|null
+    body_temp:number|null
+    blood_pressure:string
+    complains_of_pain:string
+    supporting_examinations:string
+}
+
 export default function Create({auth, patients, doctors, number_register}: PageProps & FormCreateProps) {
 
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, post, processing, errors, reset } = useForm<RegistrationForm>({
         number_register:number_register,
-        patient_id:0,
-        doctor_id:0,
-        body_height:0,
-        body_weight:0,
-        body_temp:0,
+        patient_id:null,
+        doctor_id:null,
+        body_height:null,
+        body_weight:null,
+        body_temp:null,
         blood_pressure:'',
         complains_of_pain:'',
         supporting_examinations:'',
@@ -121,7 +133,7 @@ export default function Create({auth, patients, doctors, number_register}: PageP
                                         id="body_height"
                                         type="number"
                                         name="body_height"
-                                        value={data.body_height}
+                                        value={data.body_height == null ? '' : data.body_height}
                                         className="mt-1 block w-full"
                                         autoComplete="body_height"
                                         onChange={(e) => setData('body_height', parseFloat(e.target.value))}
@@ -139,7 +151,7 @@ export default function Create({auth, patients, doctors, number_register}: PageP
                                     id="body_weight"
                                     type="number"
                                     name="body_weight"
-                                    value={data.body_weight}
+                                    value={data.body_weight == null ? '' : data.body_weight}
                                     className="mt-1 block w-full"
                                     autoComplete="body_weight"
                                     onChange={(e) => setData('body_weight', parseFloat(e.target.value))}
@@ -157,7 +169,7 @@ export default function Create({auth, patients, doctors, number_register}: PageP
                                     id="body_temp"
                                     type="number"
                                     name="body_temp"
-                                    value={data.body_temp}
+                                    value={data.body_temp == null ? '' : data.body_temp}
                                     className="mt-1 block w-full"
                                     autoComplete="body_temp"
                                     onChange={(e) => setData('body_temp', parseFloat(e.target.value))}
