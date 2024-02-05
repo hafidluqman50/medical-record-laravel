@@ -23,19 +23,27 @@ interface MedicalSupplierForm {
     address:string
 }
 
-export default function Create({auth}: PageProps) {
+interface MedicalSupplier extends MedicalSupplierForm {
+    id:number
+}
 
-    const { data, setData, post, processing, errors, reset } = useForm<MedicalSupplierForm>({
-        name: '',
-        abbreviation_name:'',
-        phone_number:'',
-        address:''
+type EditFormProps = {
+    medical_supplier:MedicalSupplier
+}
+
+export default function Edit({auth, medical_supplier}: PageProps & EditFormProps) {
+
+    const { data, setData, put, processing, errors, reset } = useForm<MedicalSupplierForm>({
+        name:medical_supplier.name,
+        abbreviation_name:medical_supplier.abbreviation_name,
+        phone_number:medical_supplier.phone_number,
+        address:medical_supplier.address
     });
 
     const submitForm: FormEventHandler = (e) => {
         e.preventDefault()
 
-        post(route('administrator.medical-suppliers.store'));
+        put(route('administrator.medical-suppliers.update', medical_supplier.id));
     }
 
     return(
@@ -121,7 +129,7 @@ export default function Create({auth}: PageProps) {
                             </div>
 
                             <div className="mt-4 w-full border-t-2 border-slate-200 py-4">
-                                <Button disabled={processing}>Simpan</Button>
+                                <Button variant="warning" disabled={processing}>Edit</Button>
                             </div>
 
                         </form>

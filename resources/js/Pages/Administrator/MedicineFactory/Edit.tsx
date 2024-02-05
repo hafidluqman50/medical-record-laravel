@@ -16,26 +16,32 @@ import {
 import { Textarea } from "@/Components/ui/textarea"
 import { Button } from '@/Components/ui/button'
 
-interface MedicalSupplierForm {
+interface MedicineFactoryForm {
     name:string
-    abbreviation_name:string
     phone_number:string
     address:string
 }
 
-export default function Create({auth}: PageProps) {
+interface MedicineFactory extends MedicineFactoryForm {
+    id:number
+}
 
-    const { data, setData, post, processing, errors, reset } = useForm<MedicalSupplierForm>({
-        name: '',
-        abbreviation_name:'',
-        phone_number:'',
-        address:''
+type EditFormProps = {
+    medicine_factory:MedicineFactory
+}
+
+export default function Edit({auth, medicine_factory}: PageProps & EditFormProps) {
+
+    const { data, setData, put, processing, errors, reset } = useForm<MedicineFactoryForm>({
+        name:medicine_factory.name,
+        phone_number:medicine_factory.phone_number,
+        address:medicine_factory.address
     });
 
     const submitForm: FormEventHandler = (e) => {
         e.preventDefault()
 
-        post(route('administrator.medical-suppliers.store'));
+        put(route('administrator.medicine-factories.update', medicine_factory.id));
     }
 
     return(
@@ -43,16 +49,16 @@ export default function Create({auth}: PageProps) {
             user={auth.user}
             routeParent="data-obat"
             routeChild="data-golongan-obat"
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Form Supplier Obat</h2>}
+            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Form Pabrik Obat</h2>}
         >
-            <Head title="Form Supplier Obat" />
+            <Head title="Form Pabrik Obat" />
 
             <div className="py-12">
                 <div className="max-w-2xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg py-8 px-8">
                         <div className="border-b-2 mb-4 py-4 border-slate-200">
                             <Button variant="secondary" asChild>
-                                <Link href={route('administrator.medical-suppliers')}>Kembali</Link>
+                                <Link href={route('administrator.medicine-factories')}>Kembali</Link>
                             </Button>
                         </div>
                         <form onSubmit={submitForm}>
@@ -71,22 +77,6 @@ export default function Create({auth}: PageProps) {
                                 />
 
                                 <InputError message={errors.name} className="mt-2" />
-                            </div>
-
-                            <div className="mt-4">
-                                <InputLabel htmlFor="abbreviation_name" value="Singkatan Nama Supplier" />
-
-                                <TextInput
-                                    id="abbreviation_name"
-                                    type="text"
-                                    name="abbreviation_name"
-                                    value={data.abbreviation_name}
-                                    className="mt-1 block w-full"
-                                    autoComplete="abbreviation_name"
-                                    onChange={(e) => setData('abbreviation_name', e.target.value)}
-                                />
-
-                                <InputError message={errors.abbreviation_name} className="mt-2" />
                             </div>
 
                             <div className="mt-4">
@@ -121,7 +111,7 @@ export default function Create({auth}: PageProps) {
                             </div>
 
                             <div className="mt-4 w-full border-t-2 border-slate-200 py-4">
-                                <Button disabled={processing}>Simpan</Button>
+                                <Button variant="warning" disabled={processing}>Edit</Button>
                             </div>
 
                         </form>

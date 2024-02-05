@@ -4,9 +4,11 @@ use App\Http\Controllers\Administrator\DashboardController;
 use App\Http\Controllers\Administrator\DoctorController;
 use App\Http\Controllers\Administrator\DrugClassificationController;
 use App\Http\Controllers\Administrator\MedicalSupplierController;
+use App\Http\Controllers\Administrator\MedicineFactoryController;
 use App\Http\Controllers\Administrator\PatientController;
 use App\Http\Controllers\Administrator\PatientCategoryController;
 use App\Http\Controllers\Administrator\RegistrationController;
+use App\Http\Controllers\Administrator\TransactionUpdsController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'auth'], function() {
@@ -65,5 +67,18 @@ Route::group(['middleware' => 'auth'], function() {
         Route::get('/edit/{id}', [MedicalSupplierController::class, 'edit'])->name('administrator.medical-suppliers.edit');
         Route::put('/update/{id}', [MedicalSupplierController::class, 'update'])->name('administrator.medical-suppliers.update');
         Route::delete('/delete/{id}', [MedicalSupplierController::class, 'delete'])->name('administrator.medical-suppliers.delete');
+    });
+
+    Route::group(['prefix' => 'medicine-factories'], function() {
+        Route::get('/', [MedicineFactoryController::class, 'index'])->name('administrator.medicine-factories');
+        Route::get('/create', [MedicineFactoryController::class, 'create'])->name('administrator.medicine-factories.create');
+        Route::post('/store', [MedicineFactoryController::class, 'store'])->name('administrator.medicine-factories.store');
+        Route::get('/edit/{id}', [MedicineFactoryController::class, 'edit'])->name('administrator.medicine-factories.edit');
+        Route::put('/update/{id}', [MedicineFactoryController::class, 'update'])->name('administrator.medicine-factories.update');
+        Route::delete('/delete/{id}', [MedicineFactoryController::class, 'delete'])->name('administrator.medicine-factories.delete');
+    });
+
+    Route::group(['prefix' => 'transaction-upds'], function() {
+        Route::get('/', [TransactionUpdsController::class, 'index'])->name('administrator.transaction-upds');
     });
 });
