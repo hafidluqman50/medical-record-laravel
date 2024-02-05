@@ -1,7 +1,12 @@
+import React from 'react'
+
 import {
   ColumnDef,
+  ColumnFiltersState,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table"
 
@@ -14,23 +19,81 @@ import {
   TableRow,
 } from "@/Components/ui/table"
 
+import { Button } from '@/Components/ui/button'
+
+import { Input } from '@/Components/ui/input'
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/Components/ui/select"
+
+interface ColumnLists {
+    columnFilter:string
+    columnName:string
+}
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
+  columnLists: ColumnLists[]
   data: TData[]
 }
 
 export function DataTable<TData, TValue>({
   columns,
+  columnLists,
   data,
 }: DataTableProps<TData, TValue>) {
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  )
+  const [selectColumn, setSelectColumn] = React.useState<string>(columnLists[0].columnFilter)
+
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    getFilteredRowModel: getFilteredRowModel(),
+    state: {
+      columnFilters
+    },
   })
 
+  const selectColumnAct = (value: string) => {
+    setSelectColumn(value)
+  }
+
   return (
-      <Table>
+        <>
+        <div className="grid grid-cols-2 items-end gap-7 py-4">
+            <Select onValueChange={selectColumnAct}>
+                <SelectTrigger className="w-full">
+                    <SelectValue placeholder="=== Filter Kolom ===" />
+                </SelectTrigger>
+                <SelectContent>
+                        {
+                            columnLists.map((column, key) => (
+                                <SelectItem key={key} value={column.columnFilter}>{column.columnName}</SelectItem>
+                            ))
+                        }
+                </SelectContent>
+            </Select>
+            <Input
+                placeholder={`Filter ${selectColumn[0].toUpperCase()}${selectColumn.substring(1)}...`}
+                value={(table.getColumn(selectColumn)?.getFilterValue() as string) ?? ""}
+                onChange={(event) => 
+                    table.getColumn(selectColumn)?.setFilterValue(event.target.value)
+                }
+                className="max-w-md"
+                autoFocus
+            />
+      </div>
+      <Table className="border border-slate-100">
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
@@ -71,5 +134,24 @@ export function DataTable<TData, TValue>({
           )}
         </TableBody>
       </Table>
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
+          Previous
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
+          Next
+        </Button>
+      </div>
+      </>
   )
 }

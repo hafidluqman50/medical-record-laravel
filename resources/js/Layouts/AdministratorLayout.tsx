@@ -30,7 +30,7 @@ export default function Authenticated({ user, header, routeParent = null, routeC
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
 
     return (
-        <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col justify-between">
             <nav className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
                 <div className="max-w-7xl mx-auto px-4 py-1 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
@@ -101,7 +101,27 @@ export default function Authenticated({ user, header, routeParent = null, routeC
                                     Pembelian
                                 </NavLink>
                                 <NavLink href='#' active={routeChild == 'penjualan'}>
-                                    Penjualan
+                                    <DropdownMenu>
+                                      <DropdownMenuTrigger>
+                                        Penjualan
+                                      </DropdownMenuTrigger>
+                                      <DropdownMenuContent className="w-56">
+                                        <DropdownMenuGroup>
+                                          <DropdownMenuSub>
+                                            <DropdownMenuSubTrigger>
+                                                Penjualan Kasir
+                                                <DropdownMenuSubContent>
+                                                  <DropdownMenuItem>
+                                                    <NavLink href={route('administrator.transaction-upds')} active={routeChild == 'penjualan-upds'}>
+                                                        Penjualan UPDS
+                                                    </NavLink>
+                                                  </DropdownMenuItem>
+                                                </DropdownMenuSubContent>
+                                            </DropdownMenuSubTrigger>
+                                          </DropdownMenuSub>
+                                        </DropdownMenuGroup>
+                                      </DropdownMenuContent>
+                                    </DropdownMenu>
                                 </NavLink>
                                 <NavLink href={route('administrator.registrations')} active={route().current('administrator.registrations')}>
                                     Pendaftaran
@@ -212,7 +232,12 @@ export default function Authenticated({ user, header, routeParent = null, routeC
                 </header>
             )}
 
-            <main>{children}</main>
+            <main className="mb-auto">{children}</main>
+            <footer className="bg-white p-5">
+                <p className="text-center font-medium">
+                    &copy; Copyright Jupiter IT Solutions - {new Date().getFullYear()}
+                </p>
+            </footer>
         </div>
     );
 }
