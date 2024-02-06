@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\DrugClassificationController;
 use App\Http\Controllers\Api\DoctorController;
+use App\Http\Controllers\Api\MedicineController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,4 +23,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::group(['prefix' => 'doctors'], function() {
     Route::get('/', [DoctorController::class, 'getAll']);
+});
+
+Route::group(['prefix' => 'drug-classifications'], function () {
+    Route::get('/{id}', [DrugClassificationController::class, 'getById'])->name('api.drug-classifications.get-by-id');
+});
+
+Route::group(['prefix' => 'medicines'], function() {
+    Route::get('/', [MedicineController::class, 'getAll'])->name('api.medicines.get-all');
+    Route::get('/{id}', [MedicineController::class, 'getById'])->name('api.medicines.get-by-id');
 });

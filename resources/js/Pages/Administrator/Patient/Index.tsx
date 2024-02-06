@@ -103,128 +103,128 @@ export default function Index({auth, app, patients, page_num}: PageProps & Patie
                           </div>
                         </Alert>
                     )}
-                            <div className="flex">
-                                <div className="grow">
-                                    <Button className="mb-2" asChild>
-                                        <Link href={route('administrator.patients.create')}>Tambah Pasien</Link>
-                                    </Button>
-                                </div>
-                                <div className="w-1/3 flex-none flex space-x-4">
-                                    <Input
-                                        type="search" 
-                                        name="search_data"
-                                        placeholder="Cari Pasien" 
-                                        value={searchData}
-                                        onChange={(e) => setSearchData(e.target.value)}
-                                    />
-                                    <Button className="mb-2" variant="secondary" onClick={search}>
-                                        Cari
-                                    </Button>
-                                </div>
+                        <div className="flex">
+                            <div className="grow">
+                                <Button className="mb-2" asChild>
+                                    <Link href={route('administrator.patients.create')}>Tambah Pasien</Link>
+                                </Button>
                             </div>
-                            <Table className="border-collapse border border-slate-200">
-                              <TableHeader>
+                            <div className="w-1/3 flex-none flex space-x-4">
+                                <Input
+                                    type="search" 
+                                    name="search_data"
+                                    placeholder="Cari Pasien" 
+                                    value={searchData}
+                                    onChange={(e) => setSearchData(e.target.value)}
+                                />
+                                <Button className="mb-2" variant="secondary" onClick={search}>
+                                    Cari
+                                </Button>
+                            </div>
+                        </div>
+                        <Table className="border-collapse border border-slate-200">
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className="border border-slate-200">No</TableHead>
+                              <TableHead className="border border-slate-200">Kode Pasien</TableHead>
+                              <TableHead className="border border-slate-200">Nama Pasien</TableHead>
+                              <TableHead className="border border-slate-200">Nomor Telepon</TableHead>
+                              <TableHead className="border border-slate-200">Alamat</TableHead>
+                              <TableHead className="border border-slate-200">#</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {
+                                patients.data.length == 0 ? 
                                 <TableRow>
-                                  <TableHead className="border border-slate-200">No</TableHead>
-                                  <TableHead className="border border-slate-200">Kode Pasien</TableHead>
-                                  <TableHead className="border border-slate-200">Nama Pasien</TableHead>
-                                  <TableHead className="border border-slate-200">Nomor Telepon</TableHead>
-                                  <TableHead className="border border-slate-200">Alamat</TableHead>
-                                  <TableHead className="border border-slate-200">#</TableHead>
-                                </TableRow>
-                              </TableHeader>
-                              <TableBody>
-                                {
-                                    patients.data.length == 0 ? 
-                                    <TableRow>
-                                        <TableCell colSpan={7} align="center">
-                                            Empty Data!
-                                        </TableCell>
-                                    </TableRow>
-                                    : patients.data.map((row, key) => (
-                                        <TableRow key={row.id}>
-                                            <TableCell className="border border-slate-200">
-                                                {page_num+key}
-                                            </TableCell>
-                                            <TableCell className="border border-slate-200">
-                                                {row.code}
-                                            </TableCell>
-                                            <TableCell className="border border-slate-200">
-                                                {row.name}
-                                            </TableCell>
-                                            <TableCell className="border border-slate-200">
-                                                {row.phone_number}
-                                            </TableCell>
-                                            <TableCell className="border border-slate-200">
-                                                {row.address}
-                                            </TableCell>
-                                            <TableCell className="border border-slate-200">
-                                                <div className="flex space-x-4">
-                                                    <Button className="bg-amber-500 text-white hover:bg-amber-500" asChild>
-                                                        <Link href={route('administrator.patients.edit', row.id)}>Edit</Link>
-                                                    </Button>
-                                                    <AlertDialog>
-                                                      <AlertDialogTrigger asChild>
-                                                        <Button variant="destructive">Delete</Button>
-                                                      </AlertDialogTrigger>
-                                                      <AlertDialogContent>
-                                                        <AlertDialogHeader>
-                                                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                                          <AlertDialogDescription>
-                                                            This action cannot be undone. This will delete your patients data from our servers.
-                                                          </AlertDialogDescription>
-                                                        </AlertDialogHeader>
-                                                        <AlertDialogFooter>
-                                                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                          <AlertDialogAction onClick={() => submitDelete(row.id)}>Continue</AlertDialogAction>
-                                                        </AlertDialogFooter>
-                                                      </AlertDialogContent>
-                                                    </AlertDialog>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                }
-                              </TableBody>
-                              <TableFooter>
-                                <TableRow>
-                                    <TableCell colSpan={8}>
-                                        <Pagination>
-                                            <PaginationContent>    
-                                        {
-                                            patients.links.map((pagination, key) => (
-                                                <div key={key}>
-                                                {   
-                                                    pagination.label.includes('Previous') ? 
-                                                    <Link href={pagination.url === undefined ? '#' : pagination.url}>
-                                                        <PaginationPrevious/>
-                                                    </Link> : ''
-                                                }
-                                                {
-                                                    !pagination.label.includes('Previous') && !pagination.label.includes('Next') ? 
-                                                    <Link href={pagination.url === undefined ? '#' : pagination.url}>
-                                                        <PaginationItem key={key}>
-                                                          <PaginationLink isActive={pagination.active}>
-                                                            {pagination.label}
-                                                          </PaginationLink>
-                                                        </PaginationItem>
-                                                    </Link>   :''
-                                                }
-                                                {
-                                                    pagination.label.includes('Next') ?
-                                                    <Link href={pagination.url === undefined ? '#' : pagination.url}>
-                                                        <PaginationNext/>
-                                                    </Link> : ''
-                                                }
-                                                </div>
-                                            ))
-                                        }
-                                            </PaginationContent>
-                                        </Pagination>
+                                    <TableCell colSpan={7} align="center">
+                                        Empty Data!
                                     </TableCell>
                                 </TableRow>
-                              </TableFooter>
-                            </Table>
+                                : patients.data.map((row, key) => (
+                                    <TableRow key={row.id}>
+                                        <TableCell className="border border-slate-200">
+                                            {page_num+key}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            {row.code}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            {row.name}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            {row.phone_number}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            {row.address}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            <div className="flex space-x-4">
+                                                <Button className="bg-amber-500 text-white hover:bg-amber-500" asChild>
+                                                    <Link href={route('administrator.patients.edit', row.id)}>Edit</Link>
+                                                </Button>
+                                                <AlertDialog>
+                                                  <AlertDialogTrigger asChild>
+                                                    <Button variant="destructive">Delete</Button>
+                                                  </AlertDialogTrigger>
+                                                  <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                      <AlertDialogDescription>
+                                                        This action cannot be undone. This will delete your patients data from our servers.
+                                                      </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                      <AlertDialogAction onClick={() => submitDelete(row.id)}>Continue</AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                  </AlertDialogContent>
+                                                </AlertDialog>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            }
+                          </TableBody>
+                          <TableFooter>
+                            <TableRow>
+                                <TableCell colSpan={8}>
+                                    <Pagination>
+                                        <PaginationContent>    
+                                    {
+                                        patients.links.map((pagination, key) => (
+                                            <div key={key}>
+                                            {   
+                                                pagination.label.includes('Previous') ? 
+                                                <Link href={pagination.url === undefined ? '#' : pagination.url}>
+                                                    <PaginationPrevious/>
+                                                </Link> : ''
+                                            }
+                                            {
+                                                !pagination.label.includes('Previous') && !pagination.label.includes('Next') ? 
+                                                <Link href={pagination.url === undefined ? '#' : pagination.url}>
+                                                    <PaginationItem key={key}>
+                                                      <PaginationLink isActive={pagination.active}>
+                                                        {pagination.label}
+                                                      </PaginationLink>
+                                                    </PaginationItem>
+                                                </Link>   :''
+                                            }
+                                            {
+                                                pagination.label.includes('Next') ?
+                                                <Link href={pagination.url === undefined ? '#' : pagination.url}>
+                                                    <PaginationNext/>
+                                                </Link> : ''
+                                            }
+                                            </div>
+                                        ))
+                                    }
+                                        </PaginationContent>
+                                    </Pagination>
+                                </TableCell>
+                            </TableRow>
+                          </TableFooter>
+                        </Table>
                     </div>
                 </div>
             </div>
