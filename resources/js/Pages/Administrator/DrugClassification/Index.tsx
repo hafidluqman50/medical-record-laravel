@@ -3,6 +3,7 @@ import axios from 'axios'
 import AdministratorLayout from '@/Layouts/AdministratorLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { PageProps, Doctor } from '@/types';
+import { DrugClassification } from './type';
 import { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from '@/Components/DataTable'
 import { SkeletonTable } from "@/Components/SkeletonTable"
@@ -49,13 +50,7 @@ import {
 import { Input } from '@/Components/ui/input'
 
 interface DrugClassifications {
-    data:Array<{
-        id: number,
-        name:string,
-        is_prekursor:number,
-        is_narcotic:number,
-        is_psychotropic:number
-    }>;
+    data:Array<DrugClassification>;
     links:Array<{
         url?:string,
         label:string,
@@ -121,131 +116,131 @@ export default function Index({auth, app, drug_classifications, page_num}: PageP
                           </div>
                         </Alert>
                     )}
-                            <div className="flex">
-                                <div className="grow">
-                                    <Button className="mb-2" asChild>
-                                        <Link href={route('administrator.drug-classifications.create')}>Tambah Golongan Obat</Link>
-                                    </Button>
-                                </div>
-                                <div className="w-1/3 flex-none flex space-x-4">
-                                    <Input
-                                        type="search" 
-                                        name="search_data"
-                                        placeholder="Cari Golongan Obat" 
-                                        value={searchData}
-                                        onChange={(e) => setSearchData(e.target.value)}
-                                    />
-                                    <Button className="mb-2" variant="secondary" onClick={search}>
-                                        Cari
-                                    </Button>
-                                </div>
+                        <div className="flex">
+                            <div className="grow">
+                                <Button className="mb-2" asChild>
+                                    <Link href={route('administrator.drug-classifications.create')}>Tambah Golongan Obat</Link>
+                                </Button>
                             </div>
-                            <Table className="border-collapse border border-slate-200">
-                              <TableHeader>
+                            <div className="w-1/3 flex-none flex space-x-4">
+                                <Input
+                                    type="search" 
+                                    name="search_data"
+                                    placeholder="Cari Golongan Obat" 
+                                    value={searchData}
+                                    onChange={(e) => setSearchData(e.target.value)}
+                                />
+                                <Button className="mb-2" variant="secondary" onClick={search}>
+                                    Cari
+                                </Button>
+                            </div>
+                        </div>
+                        <Table className="border-collapse border border-slate-200">
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className="border border-slate-200">No</TableHead>
+                              <TableHead className="border border-slate-200">Nama Kategori</TableHead>
+                              <TableHead className="border border-slate-200">Prekursor</TableHead>
+                              <TableHead className="border border-slate-200">Narkotika</TableHead>
+                              <TableHead className="border border-slate-200">Psikotropika</TableHead>
+                              <TableHead className="border border-slate-200">#</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {
+                                drug_classifications.data.length == 0 ? 
                                 <TableRow>
-                                  <TableHead className="border border-slate-200">No</TableHead>
-                                  <TableHead className="border border-slate-200">Nama Kategori</TableHead>
-                                  <TableHead className="border border-slate-200">Prekursor</TableHead>
-                                  <TableHead className="border border-slate-200">Narkotika</TableHead>
-                                  <TableHead className="border border-slate-200">Psikotropika</TableHead>
-                                  <TableHead className="border border-slate-200">#</TableHead>
-                                </TableRow>
-                              </TableHeader>
-                              <TableBody>
-                                {
-                                    drug_classifications.data.length == 0 ? 
-                                    <TableRow>
-                                        <TableCell colSpan={6} align="center">
-                                            Empty Data!
-                                        </TableCell>
-                                    </TableRow>
-                                    : drug_classifications.data.map((row, key) => (
-                                        <TableRow key={row.id}>
-                                            <TableCell className="border border-slate-200">
-                                                {page_num+key}
-                                            </TableCell>
-                                            <TableCell className="border border-slate-200">
-                                                {row.name}
-                                            </TableCell>
-                                            <TableCell className="border border-slate-200">
-                                                {row.is_prekursor ? 'YA' : 'TIDAK'}
-                                            </TableCell>
-                                            <TableCell className="border border-slate-200">
-                                                {row.is_narcotic ? 'YA' : 'TIDAK'}
-                                            </TableCell>
-                                            <TableCell className="border border-slate-200">
-                                                {row.is_psychotropic ? 'YA' : 'TIDAK'}
-                                            </TableCell>
-                                            <TableCell className="border border-slate-200">
-                                                <div className="flex space-x-4">
-                                                    <Button className="bg-amber-500 text-white hover:bg-amber-500" asChild>
-                                                        <Link href={route('administrator.drug-classifications.edit', row.id)}>Edit</Link>
-                                                    </Button>
-                                                    <AlertDialog>
-                                                      <AlertDialogTrigger asChild>
-                                                        <Button variant="destructive">Delete</Button>
-                                                      </AlertDialogTrigger>
-                                                      <AlertDialogContent>
-                                                        <AlertDialogHeader>
-                                                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                                          <AlertDialogDescription>
-                                                            This action cannot be undone. This will delete your patient category data from our servers.
-                                                          </AlertDialogDescription>
-                                                        </AlertDialogHeader>
-                                                        <AlertDialogFooter>
-                                                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                          <AlertDialogAction onClick={() => submitDelete(row.id)}>Continue</AlertDialogAction>
-                                                        </AlertDialogFooter>
-                                                      </AlertDialogContent>
-                                                    </AlertDialog>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                }
-                              </TableBody>
-                              <TableFooter>
-                                <TableRow>
-                                    <TableCell colSpan={6}>
-                                        <Pagination>
-                                            <PaginationContent>    
-                                        {
-                                            drug_classifications.links.map((pagination, key) => (
-                                                
-                                                <div key={key}>
-                                                {   
-                                                    pagination.label.includes('Previous') ? 
-                                                    <Link href={pagination.url === undefined ? '#' : pagination.url}>
-                                                        <PaginationPrevious/>
-                                                    </Link> : ''
-                                                }
-                                                {
-                                                    !pagination.label.includes('Previous') && !pagination.label.includes('Next') ? 
-
-                                                    <Link href={pagination.url === undefined ? '#' : pagination.url}>
-                                                        <PaginationItem key={key}>
-                                                          <PaginationLink isActive={pagination.active}>
-                                                            {pagination.label}
-                                                          </PaginationLink>
-                                                        </PaginationItem>
-                                                    </Link>
-                                                    : ''
-                                                }
-                                                {
-                                                    pagination.label.includes('Next') ?
-                                                    <Link href={pagination.url === undefined ? '#' : pagination.url}>
-                                                        <PaginationNext/>
-                                                    </Link> : ''
-                                                }
-                                                </div>
-                                            ))
-                                        }
-                                            </PaginationContent>
-                                        </Pagination>
+                                    <TableCell colSpan={6} align="center">
+                                        Empty Data!
                                     </TableCell>
                                 </TableRow>
-                              </TableFooter>
-                            </Table>
+                                : drug_classifications.data.map((row, key) => (
+                                    <TableRow key={row.id}>
+                                        <TableCell className="border border-slate-200">
+                                            {page_num+key}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            {row.name}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            {row.is_prekursor ? 'YA' : 'TIDAK'}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            {row.is_narcotic ? 'YA' : 'TIDAK'}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            {row.is_psychotropic ? 'YA' : 'TIDAK'}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            <div className="flex space-x-4">
+                                                <Button className="bg-amber-500 text-white hover:bg-amber-500" asChild>
+                                                    <Link href={route('administrator.drug-classifications.edit', row.id)}>Edit</Link>
+                                                </Button>
+                                                <AlertDialog>
+                                                  <AlertDialogTrigger asChild>
+                                                    <Button variant="destructive">Delete</Button>
+                                                  </AlertDialogTrigger>
+                                                  <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                      <AlertDialogDescription>
+                                                        This action cannot be undone. This will delete your patient category data from our servers.
+                                                      </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                      <AlertDialogAction onClick={() => submitDelete(row.id)}>Continue</AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                  </AlertDialogContent>
+                                                </AlertDialog>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            }
+                          </TableBody>
+                          <TableFooter>
+                            <TableRow>
+                                <TableCell colSpan={6}>
+                                    <Pagination>
+                                        <PaginationContent>    
+                                    {
+                                        drug_classifications.links.map((pagination, key) => (
+                                            
+                                            <div key={key}>
+                                            {   
+                                                pagination.label.includes('Previous') ? 
+                                                <Link href={pagination.url === undefined ? '#' : pagination.url}>
+                                                    <PaginationPrevious/>
+                                                </Link> : ''
+                                            }
+                                            {
+                                                !pagination.label.includes('Previous') && !pagination.label.includes('Next') ? 
+
+                                                <Link href={pagination.url === undefined ? '#' : pagination.url}>
+                                                    <PaginationItem key={key}>
+                                                      <PaginationLink isActive={pagination.active}>
+                                                        {pagination.label}
+                                                      </PaginationLink>
+                                                    </PaginationItem>
+                                                </Link>
+                                                : ''
+                                            }
+                                            {
+                                                pagination.label.includes('Next') ?
+                                                <Link href={pagination.url === undefined ? '#' : pagination.url}>
+                                                    <PaginationNext/>
+                                                </Link> : ''
+                                            }
+                                            </div>
+                                        ))
+                                    }
+                                        </PaginationContent>
+                                    </Pagination>
+                                </TableCell>
+                            </TableRow>
+                          </TableFooter>
+                        </Table>
                     </div>
                 </div>
             </div>

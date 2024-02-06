@@ -93,6 +93,11 @@ export default function Authenticated({ user, header, routeParent = null, routeC
                                                 Data Supplier Obat
                                             </NavLink>
                                           </DropdownMenuItem>
+                                          <DropdownMenuItem>
+                                            <NavLink href={route('administrator.medicines')} active={routeChild == 'data-obat'}>
+                                                Data Obat
+                                            </NavLink>
+                                          </DropdownMenuItem>
                                         </DropdownMenuGroup>
                                       </DropdownMenuContent>
                                     </DropdownMenu>

@@ -11,6 +11,8 @@ const buttonVariants = cva(
       variant: {
         default:
           "bg-sky-500 text-primary-foreground shadow hover:bg-sky-500/90",
+        success:
+          "bg-emerald-500 text-primary-foreground shadow hover:bg-emerald-500/90",
         warning:
           "bg-amber-500 text-black shadow hover:bg-amber-500/90",
         destructive:

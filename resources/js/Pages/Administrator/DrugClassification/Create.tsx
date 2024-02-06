@@ -6,6 +6,7 @@ import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { PageProps } from '@/types'
+import { DrugClassification } from './type'
 import {
   Select,
   SelectContent,

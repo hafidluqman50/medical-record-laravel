@@ -3,6 +3,7 @@
 use App\Http\Controllers\Administrator\DashboardController;
 use App\Http\Controllers\Administrator\DoctorController;
 use App\Http\Controllers\Administrator\DrugClassificationController;
+use App\Http\Controllers\Administrator\MedicineController;
 use App\Http\Controllers\Administrator\MedicalSupplierController;
 use App\Http\Controllers\Administrator\MedicineFactoryController;
 use App\Http\Controllers\Administrator\PatientController;
@@ -76,6 +77,15 @@ Route::group(['middleware' => 'auth'], function() {
         Route::get('/edit/{id}', [MedicineFactoryController::class, 'edit'])->name('administrator.medicine-factories.edit');
         Route::put('/update/{id}', [MedicineFactoryController::class, 'update'])->name('administrator.medicine-factories.update');
         Route::delete('/delete/{id}', [MedicineFactoryController::class, 'delete'])->name('administrator.medicine-factories.delete');
+    });
+
+    Route::group(['prefix' => 'medicines'], function() {
+        Route::get('/', [MedicineController::class, 'index'])->name('administrator.medicines');
+        Route::get('/create', [MedicineController::class, 'create'])->name('administrator.medicines.create');
+        Route::post('/store', [MedicineController::class, 'store'])->name('administrator.medicines.store');
+        Route::get('/edit/{id}', [MedicineController::class, 'edit'])->name('administrator.medicines.edit');
+        Route::put('/update/{id}', [MedicineController::class, 'update'])->name('administrator.medicines.update');
+        Route::delete('/delete/{id}', [MedicineController::class, 'delete'])->name('administrator.medicines.delete');
     });
 
     Route::group(['prefix' => 'transaction-upds'], function() {
