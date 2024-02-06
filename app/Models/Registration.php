@@ -50,6 +50,8 @@ class Registration extends Model
         if ($db == 0) {
             $db = 1;
             $result = $base.'0001';
+        } else {
+            $db+=1;
         }
         return $generate_code = $base.str_pad($db,4,'0000',STR_PAD_LEFT);
     }
