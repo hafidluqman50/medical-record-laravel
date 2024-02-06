@@ -1231,6 +1231,10 @@ body {
   width: 75%;
 }
 
+.w-3\/6 {
+  width: 50%;
+}
+
 .w-4 {
   width: 1rem;
 }
@@ -1285,10 +1289,6 @@ body {
 
 .w-screen {
   width: 100vw;
-}
-
-.w-3\/6 {
-  width: 50%;
 }
 
 .min-w-\[12rem\] {
@@ -2033,12 +2033,12 @@ body {
   padding-top: 2rem;
 }
 
-.pt-\[2\%\] {
-  padding-top: 2%;
-}
-
 .pt-\[1\%\] {
   padding-top: 1%;
+}
+
+.pt-\[2\%\] {
+  padding-top: 2%;
 }
 
 .text-left {
@@ -2490,6 +2490,60 @@ body {
   animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
 }
 
+.receipt {
+  width:70mm;
+  font-size: 14px;
+  padding: 0;
+  margin: 0;
+  font-family: 'Arial';
+  line-height: 23px;
+  text-transform: uppercase;
+}
+
+.left {
+  float: left;
+}
+
+.right {
+  float: right;
+}
+
+.padding-5 {
+  padding: 5mm;
+}
+
+.title  {
+  font-size: 16px;
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+.subtitle  {
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+.hr {
+  border-top: 1px dashed #000;
+  margin: 5px 0;
+}
+
+.tfoot > tr td:first-child {
+  text-align: right;
+  padding-right: 10px;
+}
+
+@media print {
+  body.receipt {
+    width:70mm;
+  }
+
+  .btn-hide {
+    display:none!important;
+  }
+}
+
 .selection\:bg-red-500 *::-moz-selection {
   --tw-bg-opacity: 1;
   background-color: rgb(239 68 68 / var(--tw-bg-opacity));
@@ -2603,6 +2657,10 @@ body {
   background-color: rgb(16 185 129 / 0.8);
 }
 
+.hover\:bg-emerald-500\/90:hover {
+  background-color: rgb(16 185 129 / 0.9);
+}
+
 .hover\:bg-gray-100:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(243 244 246 / var(--tw-bg-opacity));
@@ -2641,10 +2699,6 @@ body {
 
 .hover\:bg-sky-500\/90:hover {
   background-color: rgb(14 165 233 / 0.9);
-}
-
-.hover\:bg-emerald-500\/90:hover {
-  background-color: rgb(16 185 129 / 0.9);
 }
 
 .hover\:text-accent-foreground:hover {

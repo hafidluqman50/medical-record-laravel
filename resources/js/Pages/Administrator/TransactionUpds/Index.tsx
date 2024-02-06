@@ -12,7 +12,8 @@ import {
     KeyboardEvent, 
     useRef, 
     Ref,
-    ChangeEventHandler 
+    ChangeEventHandler,
+    FormEventHandler
 } from 'react'
 
 import { Input } from '@/Components/ui/input'
@@ -176,7 +177,11 @@ const columnLists: ColumnLists[] = [
   }
 ]
 
-export default function TransactionUpds() {
+type TransactionUpdsPageProps = {
+    kode_transaksi:string
+}
+
+export default function TransactionUpds({kode_transaksi}: TransactionUpdsPageProps) {
 
     const medicine_id: string[] = []
     const price: number[]       = []
@@ -197,7 +202,9 @@ export default function TransactionUpds() {
         diskon_grand:0,
         diskon_bayar:0,
         bayar:0,
-        kembalian:0
+        kembalian:0,
+        kode_transaksi,
+        jenis_pembayaran:'tunai'
     });
 
     const [open, setOpen]                             = useState<boolean>(false)
@@ -209,14 +216,16 @@ export default function TransactionUpds() {
     const [rowObat, setRowObat]   = useState<RowObat[]>([])
     const [jualObat, setJualObat] = useState<any>([])
 
-    const obatId      = useRef<any>()
-    const kodeObat    = useRef<any>()
-    const namaObat    = useRef<any>()
-    const hargaObat   = useRef<any>()
-    const satuanObat  = useRef<any>()
-    const jumlahHarga = useRef<any>()
-    const qtyObat     = useRef<any>()
-    const diskonObat  = useRef<any>()
+    const obatId         = useRef<any>()
+    const kodeObat       = useRef<any>()
+    const namaObat       = useRef<any>()
+    const hargaObat      = useRef<any>()
+    const satuanObat     = useRef<any>()
+    const jumlahHarga    = useRef<any>()
+    const qtyObat        = useRef<any>()
+    const diskonObat     = useRef<any>()
+    const bayarTransaksi = useRef<any>()
+    const submitBayarRef = useRef<any>()
 
     const openEnterDialog = async(event: any): Promise<void> => {
         if(event.keyCode === 13) {
@@ -338,7 +347,6 @@ export default function TransactionUpds() {
                 ...result
             ])
 
-
             let medicineIdData    = data.medicine_id
             let qtyData           = data.qty
             let priceData         = data.price
@@ -373,7 +381,9 @@ export default function TransactionUpds() {
                 diskon_grand:diskonGrandData,
                 diskon_bayar:data.diskon_bayar,
                 bayar:data.bayar,
-                kembalian:data.kembalian
+                kembalian:data.kembalian,
+                kode_transaksi:data.kode_transaksi,
+                jenis_pembayaran:data.jenis_pembayaran
             })
 
             kodeObat.current.value = ""
@@ -418,17 +428,56 @@ export default function TransactionUpds() {
                 diskon_grand:diskonGrandData,
                 diskon_bayar:data.diskon_bayar,
                 bayar:data.bayar,
-                kembalian:data.kembalian
+                kembalian:data.kembalian,
+                kode_transaksi:data.kode_transaksi,
+                jenis_pembayaran:data.jenis_pembayaran
             })
         }
     }
 
     const calculateBayar = (event: any): void => {
+        event.preventDefault()
+
+        setData(data => ({...data, bayar:event.target.value}))
+        const total_grand = data.total_grand
+
+        let calculate = total_grand - parseInt(event.target.value)
+
+        setData(data => ({...data, kembalian:calculate}))
+
+        if(event.keyCode == 13) {
+
+            post(route('administrator.transaction-upds.store'))
+            submitBayarRef.current.focus()
+        }
 
     }
 
+    const calculateDiskon = (event: any): void => {
+        event.preventDefault()
+
+        if(event.keyCode == 13)
+        {
+            setData(data => ({...data, diskon_bayar:event.target.value}))
+            
+            const total_grand = data.total_grand
+
+            let calculate = 0
+
+            if(event.target.value.includes('%')) {
+                calculate = total_grand - ((total_grand * parseInt(event.target.value)) / 100)
+            } else {
+                calculate = total_grand - parseInt(event.target.value)
+            }
+
+            setData(data => ({...data, total_grand:calculate}))
+
+            bayarTransaksi.current.focus()
+        }
+    }
+
     const submitTransaction = (): void => {
-        post(route('administrator.transaction-upds.store'))
+        console.log('test')
     }
 
     useEffect(() => {
@@ -538,13 +587,13 @@ export default function TransactionUpds() {
                         <DialogTitle>Pembayaran</DialogTitle>
                     </DialogHeader>
                 <Separator />
-                <form>
+                <form onSubmit={(event) => event.preventDefault()}>
                     <div className="flex">
                         <div className="w-3/6">
                             <Label htmlFor="kode-transaksi">Jenis Bayar</Label>
                         </div>
                         <div className="w-full">
-                            <Select defaultValue="tunai">
+                            <Select defaultValue={data.jenis_pembayaran} onValueChange={(value) => setData('jenis_pembayaran', value)}>
                               <SelectTrigger className="w-full">
                                 <SelectValue placeholder="=== Pilih Jenis Pembayaran ===" />
                               </SelectTrigger>
@@ -568,7 +617,7 @@ export default function TransactionUpds() {
                             <Label htmlFor="kode-transaksi">Diskon</Label>
                         </div>
                         <div className="w-full">
-                            <Input type="text" name="diskon" />
+                            <Input type="text" name="diskon" onChange={calculateDiskon} onKeyUp={calculateDiskon} />
                         </div>
                     </div>
                     <div className="flex mt-4">
@@ -584,7 +633,14 @@ export default function TransactionUpds() {
                             <Label htmlFor="kode-transaksi">Bayar</Label>
                         </div>
                         <div className="w-full">
-                            <Input type="text" name="bayar" value={data.bayar} onKeyUp={calculateBayar} />
+                            <Input 
+                                ref={bayarTransaksi} 
+                                type="number" 
+                                name="bayar" 
+                                value={data.bayar} 
+                                onChange={calculateBayar} 
+                                onKeyUp={calculateBayar} 
+                            />
                         </div>
                     </div>
                     <div className="flex mt-4 mb-4">
@@ -596,7 +652,13 @@ export default function TransactionUpds() {
                         </div>
                     </div>
                     <Separator />
-                    <Button variant="success" className="mt-4" disabled={processing}>Bayar</Button>
+                    <Button 
+                        ref={submitBayarRef} 
+                        variant="success" 
+                        className="mt-4" 
+                        disabled={processing}
+                        onClick={submitTransaction}
+                    >Bayar</Button>
                 </form>
                 </DialogContent>
             </Dialog>
@@ -633,7 +695,7 @@ export default function TransactionUpds() {
                             <Label htmlFor="kode-transaksi">Transaksi : </Label>
                         </div>
                         <div>
-                            <Input className="bg-slate-200" type="text" readOnly/>
+                            <Input className="bg-slate-200" type="text" value={data.kode_transaksi} readOnly/>
                         </div>
                     </div>
                     <div className="flex space-x-2">

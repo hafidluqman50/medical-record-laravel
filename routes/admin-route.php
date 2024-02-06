@@ -90,5 +90,7 @@ Route::group(['middleware' => 'auth'], function() {
 
     Route::group(['prefix' => 'transaction-upds'], function() {
         Route::get('/', [TransactionUpdsController::class, 'index'])->name('administrator.transaction-upds');
+        Route::post('/', [TransactionUpdsController::class, 'store'])->name('administrator.transaction-upds.store');
+        Route::get('/{id}/print', [TransactionUpdsController::class, 'printInvoice'])->name('administrator.transaction-upds.print-invoice');
     });
 });
