@@ -10,6 +10,7 @@ use App\Http\Controllers\Administrator\PatientController;
 use App\Http\Controllers\Administrator\PatientCategoryController;
 use App\Http\Controllers\Administrator\RegistrationController;
 use App\Http\Controllers\Administrator\TransactionUpdsController;
+use App\Http\Controllers\Administrator\TransactionHvController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'auth'], function() {
@@ -92,5 +93,11 @@ Route::group(['middleware' => 'auth'], function() {
         Route::get('/', [TransactionUpdsController::class, 'index'])->name('administrator.transaction-upds');
         Route::post('/', [TransactionUpdsController::class, 'store'])->name('administrator.transaction-upds.store');
         Route::get('/{id}/print', [TransactionUpdsController::class, 'printInvoice'])->name('administrator.transaction-upds.print-invoice');
+    });
+
+    Route::group(['prefix' => 'transaction-hv'], function() {
+        Route::get('/', [TransactionHvController::class, 'index'])->name('administrator.transaction-hv');
+        Route::post('/', [TransactionHvController::class, 'store'])->name('administrator.transaction-hv.store');
+        Route::get('/{id}/print', [TransactionHvController::class, 'printInvoice'])->name('administrator.transaction-hv.print-invoice');
     });
 });

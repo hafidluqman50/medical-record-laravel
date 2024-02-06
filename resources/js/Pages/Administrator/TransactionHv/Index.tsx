@@ -181,7 +181,7 @@ type TransactionUpdsPageProps = {
     kode_transaksi:string
 }
 
-export default function TransactionUpds({kode_transaksi}: TransactionUpdsPageProps) {
+export default function TransactionHv({kode_transaksi}: TransactionUpdsPageProps) {
 
     const medicine_id: string[] = []
     const price: number[]       = []
@@ -275,9 +275,9 @@ export default function TransactionUpds({kode_transaksi}: TransactionUpdsPagePro
                 '_blank'
             )
         }
-        else if(event.keyCode == 114) {
+        else if(event.keyCode == 113) {
             window.open(
-                route('administrator.transaction-hv'),
+                route('administrator.transaction-upds'),
                 '_blank'
             )
         }
@@ -493,7 +493,7 @@ export default function TransactionUpds({kode_transaksi}: TransactionUpdsPagePro
     return(
         <TransactionLayout
             title="Penjualan UPDS"
-            bgColor="bg-sky-500"
+            bgColor="bg-emerald-500"
         >
 
             <Dialog open={open} onOpenChange={setOpen}>
@@ -686,9 +686,9 @@ export default function TransactionUpds({kode_transaksi}: TransactionUpdsPagePro
                 <Link href='#'>
                     <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">RESEP [F1]</Button>
                 </Link>
-                <a href={route('administrator.transaction-hv')} target="_blank">
+                <a href={route('administrator.transaction-upds')} target="_blank">
                     <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">
-                        HV/OTC [F3]
+                        UPDS [F2]
                     </Button>
                 </a>
                 <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">BATAL [F7]</Button>
@@ -759,7 +759,7 @@ export default function TransactionUpds({kode_transaksi}: TransactionUpdsPagePro
                             <Label htmlFor="kode-transaksi"><u>F</u>aktor : </Label>
                         </div>
                         <div>
-                            <Input className="bg-slate-200" type="text" value="UPDS" readOnly/>
+                            <Input className="bg-slate-200" type="text" value="HV" readOnly/>
                         </div>
                     </div>
                     <div className="flex space-x-4">
