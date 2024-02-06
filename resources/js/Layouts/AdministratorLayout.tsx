@@ -117,8 +117,13 @@ export default function Authenticated({ user, header, routeParent = null, routeC
                                                 Penjualan Kasir
                                                 <DropdownMenuSubContent>
                                                   <DropdownMenuItem>
-                                                    <NavLink href={route('administrator.transaction-upds')} active={routeChild == 'penjualan-upds'}>
+                                                    <NavLink href={route('administrator.transaction-upds')}>
                                                         Penjualan UPDS
+                                                    </NavLink>
+                                                  </DropdownMenuItem>
+                                                  <DropdownMenuItem>
+                                                    <NavLink href={route('administrator.transaction-hv')}>
+                                                        Penjualan HV
                                                     </NavLink>
                                                   </DropdownMenuItem>
                                                 </DropdownMenuSubContent>
