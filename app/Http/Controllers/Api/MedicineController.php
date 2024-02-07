@@ -43,19 +43,14 @@ class MedicineController extends Controller
 
         $medicine = Medicine::with('medicineFactory')->where('id', $id)->first();
 
-        // $harga_modal     = format_rupiah($medicine->capital_price);
-        // $harga_modal_ppn = format_rupiah($medicine->capital_price_vat);
-        // $hja_net         = format_rupiah($medicine->sell_price);
-
-        // unset(
-        //     $medicine->capital_price,
-        //     $medicine->capital_price_vat,
-        //     $medicine->sell_price,
-        // );
-
-        //  $medicine->capital_price = $harga_modal;
-        //  $medicine->capital_price_vat = $harga_modal_ppn;
-        //  $medicine->sell_price = $hja_net;
+        if ($medicine->sell_price != 0) {
+            $medicine->price      = $medicine->sell_price;
+            $medicine->is_hja_net = true;
+        }
+        else {
+            $medicine->price      = $medicine->capital_price_vat;
+            $medicine->is_hja_net = false;
+        }
 
         return response()->json(compact('medicine'));
     }
