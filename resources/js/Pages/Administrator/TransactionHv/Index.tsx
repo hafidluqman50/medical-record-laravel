@@ -517,7 +517,9 @@ export default function TransactionHv({kode_transaksi, price_parameter}: Transac
         >
 
             <Dialog open={open} onOpenChange={setOpen}>
-              <DialogContent className="max-w-5xl">
+              <DialogContent onCloseAutoFocus={(event) => {
+                    qtyObat.current.focus()
+                }}  className="max-w-5xl">
                 <DialogHeader>
                   <DialogTitle>List Obat</DialogTitle>
                 </DialogHeader>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Administrator;
 
 use App\Models\Medicine;
+use App\Models\PriceParameter;
 use App\Models\Transaction;
 use App\Models\TransactionDetail;
 use App\Http\Controllers\Controller;
@@ -19,7 +20,9 @@ class TransactionHvController extends Controller
     {
         $kode_transaksi = Transaction::generateCode('HV');
 
-        return Inertia::render('Administrator/TransactionHv/Index', compact('kode_transaksi'));
+        $price_parameter = PriceParameter::where('label','Tunai')->firstOrFail();
+
+        return Inertia::render('Administrator/TransactionHv/Index', compact('kode_transaksi', 'price_parameter'));
     }
 
     public function store(Request $request): RedirectResponse
