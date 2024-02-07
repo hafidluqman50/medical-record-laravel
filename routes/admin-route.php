@@ -9,6 +9,7 @@ use App\Http\Controllers\Administrator\MedicineFactoryController;
 use App\Http\Controllers\Administrator\PatientController;
 use App\Http\Controllers\Administrator\PatientCategoryController;
 use App\Http\Controllers\Administrator\PriceParameterController;
+use App\Http\Controllers\Administrator\PpnController;
 use App\Http\Controllers\Administrator\RegistrationController;
 use App\Http\Controllers\Administrator\TransactionUpdsController;
 use App\Http\Controllers\Administrator\TransactionHvController;
@@ -44,6 +45,14 @@ Route::group(['middleware' => 'auth'], function() {
         Route::get('/edit/{id}', [PatientController::class, 'edit'])->name('administrator.patients.edit');
         Route::put('/update/{id}', [PatientController::class, 'update'])->name('administrator.patients.update');
         Route::delete('/delete/{id}', [PatientController::class, 'delete'])->name('administrator.patients.delete');
+    });
+
+    Route::group(['prefix' => 'ppn'], function() {
+        Route::get('/', [PpnController::class, 'index'])->name('administrator.ppn');
+        Route::get('/create', [PpnController::class, 'create'])->name('administrator.ppn.create');
+        Route::post('/store', [PpnController::class, 'store'])->name('administrator.ppn.store');
+        Route::get('/edit/{id}', [PpnController::class, 'edit'])->name('administrator.ppn.edit');
+        Route::put('/update/{id}', [PpnController::class, 'update'])->name('administrator.ppn.update');
     });
   
     Route::group(['prefix' => 'registrations'], function() {

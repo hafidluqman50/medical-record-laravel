@@ -40,6 +40,7 @@ export type PageProps<T extends Record<string, unknown> = Record<string, unknown
     session:{
         success:string;
         error:string;
+        fail:string;
     }
     auth: {
         user: User;
