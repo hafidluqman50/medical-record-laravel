@@ -17,7 +17,7 @@ class TransactionHvController extends Controller
 {
     public function index(): Response
     {
-        $kode_transaksi = Transaction::generateCode();
+        $kode_transaksi = Transaction::generateCode('HV');
 
         return Inertia::render('Administrator/TransactionHv/Index', compact('kode_transaksi'));
     }

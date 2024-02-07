@@ -8,6 +8,7 @@ use App\Http\Controllers\Administrator\MedicalSupplierController;
 use App\Http\Controllers\Administrator\MedicineFactoryController;
 use App\Http\Controllers\Administrator\PatientController;
 use App\Http\Controllers\Administrator\PatientCategoryController;
+use App\Http\Controllers\Administrator\PriceParameterController;
 use App\Http\Controllers\Administrator\RegistrationController;
 use App\Http\Controllers\Administrator\TransactionUpdsController;
 use App\Http\Controllers\Administrator\TransactionHvController;
@@ -87,6 +88,15 @@ Route::group(['middleware' => 'auth'], function() {
         Route::get('/edit/{id}', [MedicineController::class, 'edit'])->name('administrator.medicines.edit');
         Route::put('/update/{id}', [MedicineController::class, 'update'])->name('administrator.medicines.update');
         Route::delete('/delete/{id}', [MedicineController::class, 'delete'])->name('administrator.medicines.delete');
+    });
+
+    Route::group(['prefix' => 'price-parameters'], function() {
+        Route::get('/', [PriceParameterController::class, 'index'])->name('administrator.price-parameters');
+        Route::get('/create', [PriceParameterController::class, 'create'])->name('administrator.price-parameters.create');
+        Route::post('/store', [PriceParameterController::class, 'store'])->name('administrator.price-parameters.store');
+        Route::get('/edit/{id}', [PriceParameterController::class, 'edit'])->name('administrator.price-parameters.edit');
+        Route::put('/update/{id}', [PriceParameterController::class, 'update'])->name('administrator.price-parameters.update');
+        Route::delete('/delete/{id}', [PriceParameterController::class, 'delete'])->name('administrator.price-parameters.delete');
     });
 
     Route::group(['prefix' => 'transaction-upds'], function() {

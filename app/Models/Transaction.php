@@ -56,10 +56,10 @@ class Transaction extends Model
         return $this->hasMany(TransactionDetail::class, 'transaction_id', 'id');
     }
 
-    public static function generateCode(): string
+    public static function generateCode(string $prefix = 'UP'): string
     {
         $db = self::count();
-        $base = 'TRX-UP-'.date('dmy');
+        $base = 'TRX-'.$prefix.'-'.date('dmy');
         if ($db == 0) {
             $db = 1;
             $result = $base.'0001';
