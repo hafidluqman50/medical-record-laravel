@@ -32,7 +32,7 @@ export default function Authenticated({ user, header, routeParent = null, routeC
     return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col justify-between">
             <nav className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
-                <div className="max-w-7xl mx-auto px-4 py-1 sm:px-6 lg:px-8">
+                <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
                         <div className="flex">
                             <div className="shrink-0 flex items-center">
@@ -98,6 +98,11 @@ export default function Authenticated({ user, header, routeParent = null, routeC
                                                 Data Obat
                                             </NavLink>
                                           </DropdownMenuItem>
+                                          <DropdownMenuItem>
+                                            <NavLink href={route('administrator.price-parameters')} active={routeChild == 'data-parameter-harga'}>
+                                                Data Parameter Harga
+                                            </NavLink>
+                                          </DropdownMenuItem>
                                         </DropdownMenuGroup>
                                       </DropdownMenuContent>
                                     </DropdownMenu>
@@ -123,7 +128,7 @@ export default function Authenticated({ user, header, routeParent = null, routeC
                                                   </DropdownMenuItem>
                                                   <DropdownMenuItem>
                                                     <NavLink href={route('administrator.transaction-hv')}>
-                                                        Penjualan HV
+                                                        Penjualan HV (Obat Bebas)
                                                     </NavLink>
                                                   </DropdownMenuItem>
                                                 </DropdownMenuSubContent>

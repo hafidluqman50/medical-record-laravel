@@ -50,6 +50,8 @@ import { DataTable } from "@/Components/DataTable"
 
 import { ColumnDef } from "@tanstack/react-table"
 
+import { PriceParameter } from '@/Pages/Administrator/PriceParameter/type'
+
 interface RowObat {
     name:string
     unit_medicine:string
@@ -179,9 +181,10 @@ const columnLists: ColumnLists[] = [
 
 type TransactionUpdsPageProps = {
     kode_transaksi:string
+    price_parameter:PriceParameter
 }
 
-export default function TransactionHv({kode_transaksi}: TransactionUpdsPageProps) {
+export default function TransactionHv({kode_transaksi, price_parameter}: TransactionUpdsPageProps) {
 
     const medicine_id: string[] = []
     const price: number[]       = []
@@ -212,6 +215,8 @@ export default function TransactionHv({kode_transaksi}: TransactionUpdsPageProps
     const [bayarDialog, setBayarDialog]               = useState<boolean>(false)
     const [diskon, setDiskon]                         = useState<number>(0)
     const [subTotal, setSubTotal]                     = useState<number>(0)
+    const [isHjaNet, setIsHjaNet]                     = useState<boolean>(false)
+    const [priceMedicine, setPriceMedicine]           = useState<number>(0)
 
     const [rowObat, setRowObat]   = useState<RowObat[]>([])
     const [jualObat, setJualObat] = useState<any>([])
@@ -254,10 +259,14 @@ export default function TransactionHv({kode_transaksi}: TransactionUpdsPageProps
             try {
                 const { data } = await axios.get(route('api.medicines.get-by-id', event.target.value))
                 setOpen(false)
+                setIsHjaNet(data.medicine.is_hja_net)
+                setPriceMedicine(data.medicine.price)
+                console.log(data.medicine)
+
                 obatId.current.value     = data.medicine.id
                 kodeObat.current.value   = data.medicine.code
                 namaObat.current.value   = data.medicine.name
-                hargaObat.current.value  = data.medicine.sell_price
+                hargaObat.current.value  = data.medicine.price
                 satuanObat.current.value = data.medicine.unit_medicine
                 qtyObat.current.value    = ""
                
@@ -275,9 +284,9 @@ export default function TransactionHv({kode_transaksi}: TransactionUpdsPageProps
                 '_blank'
             )
         }
-        else if(event.keyCode == 113) {
+        else if(event.keyCode == 114) {
             window.open(
-                route('administrator.transaction-upds'),
+                route('administrator.transaction-hv'),
                 '_blank'
             )
         }
@@ -300,7 +309,13 @@ export default function TransactionHv({kode_transaksi}: TransactionUpdsPageProps
             jumlah = 0
         }
         else {
-            jumlah = parseInt(qtyObat.current.value) * parseInt(hargaObat.current.value)
+            if(isHjaNet) {
+                jumlah = parseInt(qtyObat.current.value) * parseInt(hargaObat.current.value)
+            } else {
+                jumlah = Math.round(
+                        (parseInt(qtyObat.current.value) * parseInt(hargaObat.current.value) * price_parameter.upds) / price_parameter.pembulatan
+                    ) * price_parameter.pembulatan
+            }
         }
 
         jumlahHarga.current.value = jumlah
@@ -314,21 +329,21 @@ export default function TransactionHv({kode_transaksi}: TransactionUpdsPageProps
     const diskonObatAct = (event: any): void => {
         let jumlah: number    = 0
         let diskon: number    = 0
-        let calculate: number = 0
+        let calculate: number = Math.round(
+                        (parseInt(qtyObat.current.value) * parseInt(hargaObat.current.value) * price_parameter.upds) / price_parameter.pembulatan
+                    ) * price_parameter.pembulatan
 
         if(diskonObat.current.value == "") {
             jumlah = 0
         }
         else {
             if(diskonObat.current.value.includes('%')) {
-                calculate = parseInt(qtyObat.current.value) * parseInt(hargaObat.current.value)
-                diskon = (calculate * parseInt(diskonObat.current.value)) / 100
-                jumlah = calculate - diskon
+                diskon = Math.round(((calculate * parseInt(diskonObat.current.value)) / 100) / price_parameter.pembulatan) * price_parameter.pembulatan
+                jumlah = Math.round((calculate - diskon) / price_parameter.pembulatan) * price_parameter.pembulatan
             }
             else {
-                calculate = parseInt(qtyObat.current.value) * parseInt(hargaObat.current.value)
                 diskon = parseInt(diskonObat.current.value)
-                jumlah = calculate - diskon
+                jumlah = Math.round((calculate - diskon) / price_parameter.pembulatan) * price_parameter.pembulatan
             }
         }
 
@@ -375,7 +390,7 @@ export default function TransactionHv({kode_transaksi}: TransactionUpdsPageProps
 
             totalData = [...data.total, jumlahHarga.current.value]
 
-            setData({
+            setData(data => ({...data,
                 medicine_id:medicineIdData,
                 qty:qtyData,
                 price:priceData,
@@ -384,13 +399,8 @@ export default function TransactionHv({kode_transaksi}: TransactionUpdsPageProps
                 total:totalData,
                 sub_total_grand:subTotalGrandData,
                 total_grand:totalGrandData,
-                diskon_grand:diskonGrandData,
-                diskon_bayar:data.diskon_bayar,
-                bayar:data.bayar,
-                kembalian:data.kembalian,
-                kode_transaksi:data.kode_transaksi,
-                jenis_pembayaran:data.jenis_pembayaran
-            })
+                diskon_grand:diskonGrandData
+            }))
 
             kodeObat.current.value = ""
             namaObat.current.value = ""
@@ -422,7 +432,7 @@ export default function TransactionHv({kode_transaksi}: TransactionUpdsPageProps
             const totalGrandData    = data.total_grand - data.total[event.target.value]
             const diskonGrandData   = data.diskon_grand - data.disc[event.target.value]
 
-            setData({
+            setData(data => ({...data,
                 medicine_id:medicineIdData,
                 qty:qtyData,
                 price:priceData,
@@ -431,13 +441,8 @@ export default function TransactionHv({kode_transaksi}: TransactionUpdsPageProps
                 total:totalData,
                 sub_total_grand:subTotalGrandData,
                 total_grand:totalGrandData,
-                diskon_grand:diskonGrandData,
-                diskon_bayar:data.diskon_bayar,
-                bayar:data.bayar,
-                kembalian:data.kembalian,
-                kode_transaksi:data.kode_transaksi,
-                jenis_pembayaran:data.jenis_pembayaran
-            })
+                diskon_grand:diskonGrandData
+            }))
         }
     }
 
@@ -455,6 +460,7 @@ export default function TransactionHv({kode_transaksi}: TransactionUpdsPageProps
 
             post(route('administrator.transaction-upds.store'))
             submitBayarRef.current.focus()
+
         }
 
     }
@@ -471,9 +477,9 @@ export default function TransactionHv({kode_transaksi}: TransactionUpdsPageProps
             let calculate = 0
 
             if(event.target.value.includes('%')) {
-                calculate = total_grand - ((total_grand * parseInt(event.target.value)) / 100)
+                calculate = Math.round((total_grand - ((total_grand * parseInt(event.target.value)) / 100)) / price_parameter.pembulatan) * price_parameter.pembulatan
             } else {
-                calculate = total_grand - parseInt(event.target.value)
+                calculate = Math.round((total_grand - parseInt(event.target.value)) / price_parameter.pembulatan) * price_parameter.pembulatan
             }
 
             setData(data => ({...data, total_grand:calculate}))
@@ -487,7 +493,12 @@ export default function TransactionHv({kode_transaksi}: TransactionUpdsPageProps
     }
 
     useEffect(() => {
+        
         document.addEventListener('keydown',onKeyDownAct)
+
+        return () => {
+            document.removeEventListener('keydown',onKeyDownAct)
+        }
     },[])
 
     return(
@@ -670,11 +681,11 @@ export default function TransactionHv({kode_transaksi}: TransactionUpdsPageProps
             </Dialog>
 
             <div className="flex justify-center space-x-2 mb-3">
-                <a href={route('administrator.dashboard')} target="_blank">
+                <Link href={route('administrator.dashboard')}>
                     <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">
                         DASHBOARD [CTRL+ALT+P]
                     </Button>
-                </a>
+                </Link>
                 <Button 
                     size="lg" 
                     variant="secondary" 
