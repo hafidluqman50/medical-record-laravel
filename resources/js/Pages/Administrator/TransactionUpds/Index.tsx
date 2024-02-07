@@ -290,6 +290,15 @@ export default function TransactionUpds({kode_transaksi, price_parameter}: Trans
                 '_blank'
             )
         }
+        else if(event.keyCode == 118) {
+            event.preventDefault()
+
+            setRowObat([])
+            setIsHjaNet(false)
+            setPriceMedicine(0)
+            setJualObat([])
+            reset()
+        }
         else if(event.altKey && event.keyCode == 81) {
             document.getElementById('qty-jual-obat')!.focus()
         }
