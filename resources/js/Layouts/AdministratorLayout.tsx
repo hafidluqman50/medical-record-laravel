@@ -147,7 +147,7 @@ export default function Authenticated({ user, header, routeParent = null, routeC
                                 <NavLink href='#'>
                                     Stok Opnem
                                 </NavLink>
-                                <NavLink href='#'>
+                                <NavLink href={route('administrator.users')} active={route().current('administrator.users')}>
                                     Data Petugas
                                 </NavLink>
                             </div>
