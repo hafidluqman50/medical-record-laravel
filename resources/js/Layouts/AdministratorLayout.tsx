@@ -67,6 +67,11 @@ export default function Authenticated({ user, header, routeParent = null, routeC
                                                 Data Pasien
                                             </NavLink>
                                           </DropdownMenuItem>
+                                          <DropdownMenuItem>
+                                            <NavLink href={route('administrator.ppn')} active={routeChild == 'data-ppn'}>
+                                                Data Ppn
+                                            </NavLink>
+                                          </DropdownMenuItem>
                                         </DropdownMenuGroup>
                                       </DropdownMenuContent>
                                     </DropdownMenu>

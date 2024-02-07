@@ -6,6 +6,7 @@ use App\Models\DrugClassification;
 use App\Models\Medicine;
 use App\Models\MedicalSupplier;
 use App\Models\MedicineFactory;
+use App\Models\Ppn;
 use App\Http\Controllers\Controller;
 use DB;
 use Exception;
@@ -55,8 +56,9 @@ class MedicineController extends Controller
         $medical_suppliers    = MedicalSupplier::all();
         $medicine_factories   = MedicineFactory::all();
         $code                 = Medicine::generateCode();
+        $ppn                  = Ppn::firstOrFail();
 
-        return Inertia::render('Administrator/Medicine/Create', compact('code', 'drug_classifications', 'medical_suppliers', 'medicine_factories'));
+        return Inertia::render('Administrator/Medicine/Create', compact('code', 'drug_classifications', 'medical_suppliers', 'medicine_factories', 'ppn'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -113,8 +115,9 @@ class MedicineController extends Controller
         $medicine_factories   = MedicineFactory::all();
         $medicine             = Medicine::with('drugClassification')
                                 ->where('id',$id)->where('data_location','gudang')->firstOrFail();
+        $ppn                  = Ppn::firstOrFail();
 
-        return Inertia::render('Administrator/Medicine/Edit', compact('medicine', 'drug_classifications', 'medical_suppliers', 'medicine_factories'));
+        return Inertia::render('Administrator/Medicine/Edit', compact('medicine', 'drug_classifications', 'medical_suppliers', 'medicine_factories', 'ppn'));
     }
 
     public function update(Request $request, int $id): RedirectResponse
