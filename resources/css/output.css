@@ -1719,6 +1719,11 @@ body {
   background-color: hsl(var(--border));
 }
 
+.bg-cyan-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(6 182 212 / var(--tw-bg-opacity));
+}
+
 .bg-destructive {
   background-color: hsl(var(--destructive));
 }
@@ -2643,6 +2648,11 @@ body {
 
 .hover\:bg-amber-500\/90:hover {
   background-color: rgb(245 158 11 / 0.9);
+}
+
+.hover\:bg-cyan-500:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(6 182 212 / var(--tw-bg-opacity));
 }
 
 .hover\:bg-destructive\/80:hover {
