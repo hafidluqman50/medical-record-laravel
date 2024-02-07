@@ -269,8 +269,7 @@ export default function TransactionUpds({kode_transaksi, price_parameter}: Trans
                 hargaObat.current.value  = data.medicine.price
                 satuanObat.current.value = data.medicine.unit_medicine
                 qtyObat.current.value    = ""
-               
-               document.getElementById('qty-jual-obat')!.focus()
+                qtyObat.current.focus()
             } catch(error) {
                 console.error(error)
             }
@@ -517,7 +516,9 @@ export default function TransactionUpds({kode_transaksi, price_parameter}: Trans
         >
 
             <Dialog open={open} onOpenChange={setOpen}>
-              <DialogContent className="max-w-5xl">
+              <DialogContent onCloseAutoFocus={(event) => {
+                    qtyObat.current.focus()
+                }} className="max-w-5xl">
                 <DialogHeader>
                   <DialogTitle>List Obat</DialogTitle>
                 </DialogHeader>
