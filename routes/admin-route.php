@@ -12,6 +12,7 @@ use App\Http\Controllers\Administrator\PriceParameterController;
 use App\Http\Controllers\Administrator\RegistrationController;
 use App\Http\Controllers\Administrator\TransactionUpdsController;
 use App\Http\Controllers\Administrator\TransactionHvController;
+use App\Http\Controllers\Administrator\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'auth'], function() {
@@ -109,5 +110,15 @@ Route::group(['middleware' => 'auth'], function() {
         Route::get('/', [TransactionHvController::class, 'index'])->name('administrator.transaction-hv');
         Route::post('/', [TransactionHvController::class, 'store'])->name('administrator.transaction-hv.store');
         Route::get('/{id}/print', [TransactionHvController::class, 'printInvoice'])->name('administrator.transaction-hv.print-invoice');
+    });
+
+    Route::group(['prefix' => 'users'], function() {
+        Route::get('/', [UserController::class, 'index'])->name('administrator.users');
+        Route::get('/create', [UserController::class, 'create'])->name('administrator.users.create');
+        Route::post('/store', [UserController::class, 'store'])->name('administrator.users.store');
+        Route::get('/edit/{id}', [UserController::class, 'edit'])->name('administrator.users.edit');
+        Route::put('/update/{id}', [UserController::class, 'update'])->name('administrator.users.update');
+        Route::put('/update-status/{id}', [UserController::class, 'updateStatus'])->name('administrator.users.update-status');
+        Route::delete('/delete/{id}', [UserController::class, 'delete'])->name('administrator.users.delete');
     });
 });
