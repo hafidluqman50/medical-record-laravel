@@ -128,6 +128,7 @@ export default function Create({auth, patients, doctors, number_register}: PageP
 
                             <div className="mt-4">
                                 <InputLabel htmlFor="body_height" value="Tinggi Badan" />
+                                
                                 <div className="flex">
                                     <TextInput
                                         id="body_height"
@@ -146,17 +147,18 @@ export default function Create({auth, patients, doctors, number_register}: PageP
 
                             <div className="mt-4">
                                 <InputLabel htmlFor="body_weight" value="Berat Badan" />
+
                                 <div className="flex">
-                                <TextInput
-                                    id="body_weight"
-                                    type="number"
-                                    name="body_weight"
-                                    value={data.body_weight == null ? '' : data.body_weight}
-                                    className="mt-1 block w-full"
-                                    autoComplete="body_weight"
-                                    onChange={(e) => setData('body_weight', parseFloat(e.target.value))}
-                                />
-                                <Button variant="ghost" className="mt-1" type="button" disabled>Kg</Button>
+                                    <TextInput
+                                        id="body_weight"
+                                        type="number"
+                                        name="body_weight"
+                                        value={data.body_weight == null ? '' : data.body_weight}
+                                        className="mt-1 block w-full"
+                                        autoComplete="body_weight"
+                                        onChange={(e) => setData('body_weight', parseFloat(e.target.value))}
+                                    />
+                                    <Button variant="ghost" className="mt-1" type="button" disabled>Kg</Button>
                                 </div>
 
                                 <InputError message={errors.body_weight} className="mt-2" />
@@ -164,17 +166,18 @@ export default function Create({auth, patients, doctors, number_register}: PageP
 
                             <div className="mt-4">
                                 <InputLabel htmlFor="body_temp" value="Suhu Badan" />
+
                                 <div className="flex">
-                                <TextInput
-                                    id="body_temp"
-                                    type="number"
-                                    name="body_temp"
-                                    value={data.body_temp == null ? '' : data.body_temp}
-                                    className="mt-1 block w-full"
-                                    autoComplete="body_temp"
-                                    onChange={(e) => setData('body_temp', parseFloat(e.target.value))}
-                                />
-                                <Button variant="ghost" className="mt-1" type="button" disabled>&deg;C</Button>
+                                    <TextInput
+                                        id="body_temp"
+                                        type="number"
+                                        name="body_temp"
+                                        value={data.body_temp == null ? '' : data.body_temp}
+                                        className="mt-1 block w-full"
+                                        autoComplete="body_temp"
+                                        onChange={(e) => setData('body_temp', parseFloat(e.target.value))}
+                                    />
+                                    <Button variant="ghost" className="mt-1" type="button" disabled>&deg;C</Button>
                                 </div>
 
                                 <InputError message={errors.body_temp} className="mt-2" />
@@ -182,17 +185,18 @@ export default function Create({auth, patients, doctors, number_register}: PageP
 
                             <div className="mt-4">
                                 <InputLabel htmlFor="blood_pressure" value="Tekanan Darah" />
+
                                 <div className="flex">
-                                <TextInput
-                                    id="blood_pressure"
-                                    type="text"
-                                    name="blood_pressure"
-                                    value={data.blood_pressure}
-                                    className="mt-1 block w-full"
-                                    autoComplete="blood_pressure"
-                                    onChange={(e) => setData('blood_pressure', e.target.value)}
-                                />
-                                <Button variant="ghost" className="mt-1" type="button" disabled>mmHg</Button>
+                                    <TextInput
+                                        id="blood_pressure"
+                                        type="text"
+                                        name="blood_pressure"
+                                        value={data.blood_pressure}
+                                        className="mt-1 block w-full"
+                                        autoComplete="blood_pressure"
+                                        onChange={(e) => setData('blood_pressure', e.target.value)}
+                                    />
+                                    <Button variant="ghost" className="mt-1" type="button" disabled>mmHg</Button>
                                 </div>
 
                                 <InputError message={errors.blood_pressure} className="mt-2" />

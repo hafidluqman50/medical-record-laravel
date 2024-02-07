@@ -12,6 +12,7 @@ import { Input } from '@/Components/ui/input'
 import { DrugClassification } from '@/Pages/Administrator/DrugClassification/type'
 import { MedicalSupplier } from '@/Pages/Administrator/MedicalSupplier/type'
 import { MedicineFactory } from '@/Pages/Administrator/MedicineFactory/type'
+import { Ppn } from '@/Pages/Administrator/Ppn/type'
 
 import { MedicineForm } from './type'
 
@@ -31,6 +32,7 @@ type MedicineCreateProps = {
     drug_classifications:DrugClassification[]
     medical_suppliers:MedicalSupplier[]
     medicine_factories:MedicineFactory[]
+    ppn:Ppn;
 }
 
 interface Result {
@@ -42,7 +44,7 @@ interface Result {
 }
 
 export default function Create({
-    auth, code, drug_classifications, medical_suppliers, medicine_factories
+    auth, code, drug_classifications, medical_suppliers, medicine_factories, ppn
 }: PageProps & MedicineCreateProps) {
 
     const [isPrekursor, setIsPrekursor] = useState<number>(0)
@@ -97,7 +99,19 @@ export default function Create({
 
     }
 
-    console.log(data)
+    const calculatePpn = (event: any): void => {
+        let value: number           = parseInt(event.target.value)
+        const { nilai_ppn }: Ppn = ppn
+        let result: number          = 0
+
+        result = value + ((value * nilai_ppn) / 100)
+
+        setData(data => ({
+            ...data,
+            capital_price: value,
+            capital_price_vat: result
+        }))
+    }
 
     return(
         <AdministratorLayout
@@ -469,7 +483,7 @@ export default function Create({
                                                 id="capital_price"
                                                 name="capital_price"
                                                 value={data.capital_price?.toString()}
-                                                onChange={(e) => setData('capital_price',parseInt(e.target.value))}
+                                                onChange={calculatePpn}
                                             />
 
                                             <InputError message={errors.capital_price} className="mt-2" />
