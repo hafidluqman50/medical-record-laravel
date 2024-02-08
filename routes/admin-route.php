@@ -11,8 +11,9 @@ use App\Http\Controllers\Administrator\PatientCategoryController;
 use App\Http\Controllers\Administrator\PriceParameterController;
 use App\Http\Controllers\Administrator\PpnController;
 use App\Http\Controllers\Administrator\RegistrationController;
-use App\Http\Controllers\Administrator\TransactionUpdsController;
 use App\Http\Controllers\Administrator\TransactionHvController;
+use App\Http\Controllers\Administrator\TransactionResepController;
+use App\Http\Controllers\Administrator\TransactionUpdsController;
 use App\Http\Controllers\Administrator\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -119,6 +120,12 @@ Route::group(['middleware' => 'auth'], function() {
         Route::get('/', [TransactionHvController::class, 'index'])->name('administrator.transaction-hv');
         Route::post('/', [TransactionHvController::class, 'store'])->name('administrator.transaction-hv.store');
         Route::get('/{id}/print', [TransactionHvController::class, 'printInvoice'])->name('administrator.transaction-hv.print-invoice');
+    });
+
+    Route::group(['prefix' => 'transaction-resep'], function() {
+        Route::get('/', [TransactionResepController::class, 'index'])->name('administrator.transaction-resep');
+        Route::post('/', [TransactionResepController::class, 'store'])->name('administrator.transaction-resep.store');
+        Route::get('/{id}/print', [TransactionResepController::class, 'printInvoice'])->name('administrator.transaction-resep.print-invoice');
     });
 
     Route::group(['prefix' => 'users'], function() {
