@@ -136,6 +136,11 @@ export default function Authenticated({ user, header, routeParent = null, routeC
                                                         Penjualan HV (Obat Bebas)
                                                     </NavLink>
                                                   </DropdownMenuItem>
+                                                  <DropdownMenuItem>
+                                                    <NavLink href={route('administrator.transaction-resep')}>
+                                                        Penjualan Resep Tunai
+                                                    </NavLink>
+                                                  </DropdownMenuItem>
                                                 </DropdownMenuSubContent>
                                             </DropdownMenuSubTrigger>
                                           </DropdownMenuSub>

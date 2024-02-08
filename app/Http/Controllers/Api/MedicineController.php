@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Medicine;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\ApiBaseController;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
-class MedicineController extends Controller
+class MedicineController extends ApiBaseController
 {
     public function getAll(Request $request): JsonResponse
     {

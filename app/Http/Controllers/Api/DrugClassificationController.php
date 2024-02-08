@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\DrugClassification;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\ApiBaseController;
 use DB;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
-class DrugClassificationController extends Controller
+class DrugClassificationController extends ApiBaseController
 {
     public function getById(int $id): JsonResponse
     {

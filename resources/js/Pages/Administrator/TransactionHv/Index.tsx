@@ -48,143 +48,17 @@ import {
 
 import { DataTable } from "@/Components/DataTable"
 
-import { ColumnDef } from "@tanstack/react-table"
+import {
+    type TransactionUpdsPageProps,
+    RowObat
+} from './typeProps'
 
-import { PriceParameter } from '@/Pages/Administrator/PriceParameter/type'
+import {
+    columns,
+    columnLists
+} from './columnDatatable'
 
-interface RowObat {
-    name:string
-    unit_medicine:string
-    sell_price:number
-    qty:number
-    sub_total:number
-    disc:number
-    total:number
-}
-
-type Payment = {
-  id: string
-  amount: number
-  status: "pending" | "processing" | "success" | "failed"
-  email: string
-}
-
-interface ColumnLists {
-    columnFilter:string
-    columnName:string
-}
- 
-const payments: Payment[] = [
-  {
-    id: "728ed52f",
-    amount: 100,
-    status: "pending",
-    email: "m@example.com",
-  },
-  {
-    id: "489e1d42",
-    amount: 125,
-    status: "processing",
-    email: "example@gmail.com",
-  },
-  {
-    id: "489e1d42",
-    amount: 125,
-    status: "processing",
-    email: "example@gmail.com",
-  },
-  {
-    id: "489e1d42",
-    amount: 125,
-    status: "processing",
-    email: "example@gmail.com",
-  },
-  {
-    id: "489e1d42",
-    amount: 125,
-    status: "processing",
-    email: "example@gmail.com",
-  },
-  {
-    id: "489e1d42",
-    amount: 125,
-    status: "processing",
-    email: "example@gmail.com",
-  },
-  {
-    id: "489e1d42",
-    amount: 125,
-    status: "processing",
-    email: "example@gmail.com",
-  },
-  {
-    id: "489e1d42",
-    amount: 125,
-    status: "processing",
-    email: "example@gmail.com",
-  },
-  {
-    id: "489e1d42",
-    amount: 125,
-    status: "processing",
-    email: "example@gmail.com",
-  },
-  {
-    id: "489e1d42",
-    amount: 125,
-    status: "processing",
-    email: "example@gmail.com",
-  },
-  {
-    id: "489e1d42",
-    amount: 125,
-    status: "processing",
-    email: "example@gmail.com",
-  },
-  {
-    id: "489e1d42",
-    amount: 125,
-    status: "processing",
-    email: "example@gmail.com",
-  }
-]
-
-const columns: ColumnDef<Payment>[] = [
-  {
-    accessorKey: "status",
-    header: "Status",
-  },
-  {
-    accessorKey: "email",
-    header: "Email",
-  },
-  {
-    accessorKey: "amount",
-    header: "Amount",
-  },
-]
-
-const columnLists: ColumnLists[] = [
-  {
-    columnFilter: "status",
-    columnName: "Status",
-  },
-  {
-    columnFilter: "email",
-    columnName: "Email",
-  },
-  {
-    columnFilter: "amount",
-    columnName: "Amount",
-  }
-]
-
-type TransactionUpdsPageProps = {
-    kode_transaksi:string
-    price_parameter:PriceParameter
-}
-
-export default function TransactionHv({kode_transaksi, price_parameter}: TransactionUpdsPageProps) {
+export default function TransactionHv({kode_transaksi, price_parameter, medicine_price_parameters}: TransactionUpdsPageProps) {
 
     const medicine_id: string[] = []
     const price: number[]       = []
@@ -518,7 +392,9 @@ export default function TransactionHv({kode_transaksi, price_parameter}: Transac
 
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogContent onCloseAutoFocus={(event) => {
-                    qtyObat.current.focus()
+                    if(kodeObat.current.value != "") {
+                        qtyObat.current.focus()
+                    }
                 }}  className="max-w-5xl">
                 <DialogHeader>
                   <DialogTitle>List Obat</DialogTitle>
@@ -568,44 +444,11 @@ export default function TransactionHv({kode_transaksi, price_parameter}: Transac
             </Dialog>
 
             <Dialog open={cekHargaObatDialog} onOpenChange={setCekHargaObatDialog}>
-              <DialogContent className="max-w-5xl">
+              <DialogContent className="max-w-7xl">
                 <DialogHeader>
                   <DialogTitle>Data Harga Obat</DialogTitle>
                 </DialogHeader>
-                  {/*<DataTable columns={columns} data={payments} columnLists={columnLists}/>*/}
-                  <Table className="border-collapse border border-slate-100 mt-4">
-                    <TableHeader>
-                        <TableRow>
-                          <TableHead className="border border-slate-100">No</TableHead>
-                          <TableHead className="border border-slate-100">Nama Obat</TableHead>
-                          <TableHead className="border border-slate-100">Pabrik</TableHead>
-                          <TableHead className="border border-slate-100">Kemasan</TableHead>
-                          <TableHead className="border border-slate-100">Hrg PPn</TableHead>
-                          <TableHead className="border border-slate-100">Hrg Hja</TableHead>
-                          <TableHead className="border border-slate-100">Stok</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        <TableRow>
-                            <TableCell className="border border-slate-100">1</TableCell>
-                            <TableCell className="border border-slate-100">Amoxilin</TableCell>
-                            <TableCell className="border border-slate-100">SANBE</TableCell>
-                            <TableCell className="border border-slate-100">PCS</TableCell>
-                            <TableCell className="border border-slate-100">Rp. 1.000.000,00</TableCell>
-                            <TableCell className="border border-slate-100">Rp. 2.000.000,00</TableCell>
-                            <TableCell className="border border-slate-100">100</TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell className="border border-slate-100">1</TableCell>
-                            <TableCell className="border border-slate-100">Amoxilin</TableCell>
-                            <TableCell className="border border-slate-100">SANBE</TableCell>
-                            <TableCell className="border border-slate-100">PCS</TableCell>
-                            <TableCell className="border border-slate-100">Rp. 1.000.000,00</TableCell>
-                            <TableCell className="border border-slate-100">Rp. 2.000.000,00</TableCell>
-                            <TableCell className="border border-slate-100">100</TableCell>
-                        </TableRow>
-                    </TableBody>
-                  </Table>
+                <DataTable columns={columns} data={medicine_price_parameters} columnLists={columnLists}/>
               </DialogContent>
             </Dialog>
 
@@ -705,9 +548,9 @@ export default function TransactionHv({kode_transaksi, price_parameter}: Transac
                 >
                     CEK HARGA OBAT [CTRL+ALT+O]
                 </Button>
-                <Link href='#'>
+                <a href={route('administrator.transaction-resep')} target="_blank">
                     <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">RESEP [F1]</Button>
-                </Link>
+                </a>
                 <a href={route('administrator.transaction-upds')} target="_blank">
                     <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">
                         UPDS [F2]
@@ -715,7 +558,12 @@ export default function TransactionHv({kode_transaksi, price_parameter}: Transac
                 </a>
                 <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">BATAL [F7]</Button>
                 <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">HAPUS [F8]</Button>
-                <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">BAYAR [F12]</Button>
+                <Button 
+                    size="lg" 
+                    variant="secondary" 
+                    className="shadow-sm shadow-slate-500/40"
+                    onClick={() => setBayarDialog(!bayarDialog)}
+                >BAYAR [F12]</Button>
             </div>
             <Separator className="bg-slate-200" />
             <div className="grid grid-cols-4 gap-4 mt-4 mb-4">

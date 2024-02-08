@@ -17,4 +17,13 @@ class DoctorController extends ApiBaseController
                     ->message('Success Get Doctors!')
                     ->ok();
     }
+
+    public function getById(int $id): JsonResponse
+    {
+        $doctor = Doctor::where('id', $id)->firstOrFail();
+
+        return $this->responseResult(compact('doctor'))
+                    ->message('Success Get Doctors!')
+                    ->ok();
+    }
 }
