@@ -26,6 +26,8 @@ class TransactionResepController extends Controller
 
         $price_parameter = PriceParameter::where('label', 'Tunai')->firstOrFail();
 
+        $patients = Patient::with(['patientCategory'])->get();
+
         $medicine_price_parameters = Medicine::with(['medicineFactory'])->get()->map(function(Medicine $medicine) use ($price_parameter) {
 
             $capital_price     = $medicine->capital_price;
@@ -52,10 +54,31 @@ class TransactionResepController extends Controller
             return $medicine;
         });
 
+        $medicines = Medicine::with(['medicineFactory'])->get()->map(function(Medicine $medicine) {
+
+            $capital_price     = $medicine->capital_price;
+            $capital_price_vat = $medicine->capital_price_vat;
+            $sell_price        = $medicine->sell_price;
+
+            unset(
+                $medicine->capital_price,
+                $medicine->capital_price_vat,
+                $medicine->sell_price
+            );
+
+            $medicine->capital_price     = format_rupiah($capital_price);
+            $medicine->capital_price_vat = format_rupiah($capital_price_vat);
+            $medicine->sell_price        = format_rupiah($sell_price);
+
+            return $medicine;
+        });
+
         $compact = compact(
                             'kode_transaksi', 
                             'price_parameter', 
-                            'medicine_price_parameters'
+                            'medicine_price_parameters',
+                            'medicines',
+                            'patients'
                         );
 
         return Inertia::render('Administrator/TransactionResep/Index', $compact);

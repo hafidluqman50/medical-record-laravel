@@ -69,10 +69,16 @@ import {
 
 import {
     columns,
-    columnLists
+    columnLists,
+    columnPatients,
+    columnListPatients,
+    columnMedicines,
+    columnListMedicines
 } from './columnDatatable'
 
-export default function TransactionResep({kode_transaksi, price_parameter, medicine_price_parameters}: TransactionResepPageProps) {
+export default function TransactionResep({
+    kode_transaksi, price_parameter, medicine_price_parameters, patients, medicines
+}: TransactionResepPageProps) {
 
     const { data, setData, post, processing, errors, reset } = useForm<ResepTunaiForm>({
         medicines: [],
@@ -99,6 +105,8 @@ export default function TransactionResep({kode_transaksi, price_parameter, medic
     const [cekHargaObatDialog, setCekHargaObatDialog] = useState<boolean>(false)
     const [openPasienDialog, setOpenPasienDialog]     = useState<boolean>(false)
     const [openDoctorDialog, setOpenDoctorDialog]     = useState<boolean>(false)
+    const [openPasienList, setOpenPasienList]         = useState<boolean>(false)
+    const [openMasterObat, setOpenMasterObat]         = useState<boolean>(false)
     /* END DIALOG USE STATE HOOKS */
 
     /* MECHANISM TRANSACTION USE STATE HOOKS */
@@ -206,6 +214,8 @@ export default function TransactionResep({kode_transaksi, price_parameter, medic
                 satuanObat.current.value    = data.medicine.unit_medicine
                 qtyObat.current.value       = ""
                 dosisRacikRef.current.value = isRacikan ? '' : 0
+
+                setJualObat([])
             } catch(error) {
                 console.error(error)
             }
@@ -393,6 +403,8 @@ export default function TransactionResep({kode_transaksi, price_parameter, medic
 
             setOpenPasienDialog(false)
 
+            setRowPatients([])
+
             setData(data => ({
                 ...data,
                 patient_id:responseData.data.data.patient.id
@@ -417,6 +429,8 @@ export default function TransactionResep({kode_transaksi, price_parameter, medic
             doctorNameRef.current.value = responseData.data.data.doctor.name
 
             setOpenDoctorDialog(false)
+
+            setRowDoctors([])
 
             setData(data => ({
                 ...data,
@@ -450,6 +464,14 @@ export default function TransactionResep({kode_transaksi, price_parameter, medic
 
     const submitTransaction = (): void => {
         console.log('test')
+    }
+
+    const batalAct = (): void => {
+        setRowObat([])
+        setIsHjaNet(false)
+        setPriceMedicine(0)
+        setJualObat([])
+        reset()
     }
 
     const onKeyDownAct = (event: any): void => {
@@ -591,6 +613,24 @@ export default function TransactionResep({kode_transaksi, price_parameter, medic
                   <DialogTitle>Data Harga Obat</DialogTitle>
                 </DialogHeader>
                 <DataTable columns={columns} data={medicine_price_parameters} columnLists={columnLists}/>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={openMasterObat} onOpenChange={setOpenMasterObat}>
+              <DialogContent className="max-w-7xl">
+                <DialogHeader>
+                  <DialogTitle>Data Master Obat</DialogTitle>
+                </DialogHeader>
+                <DataTable columns={columnMedicines} data={medicines} columnLists={columnListMedicines}/>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={openPasienList} onOpenChange={setOpenPasienList}>
+              <DialogContent className="max-w-7xl">
+                <DialogHeader>
+                  <DialogTitle>Data Pasien</DialogTitle>
+                </DialogHeader>
+                <DataTable columns={columnPatients} data={patients} columnLists={columnListPatients}/>
               </DialogContent>
             </Dialog>
 
@@ -858,7 +898,7 @@ export default function TransactionResep({kode_transaksi, price_parameter, medic
                         HV/OTC [F3]
                     </Button>
                 </a>
-                <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">BATAL [F7]</Button>
+                <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40" onClick={batalAct}>BATAL [F7]</Button>
                 <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">HAPUS [F8]</Button>
                 <Button 
                     size="lg" 
@@ -1057,7 +1097,7 @@ export default function TransactionResep({kode_transaksi, price_parameter, medic
             <Separator className="bg-slate-200" />
             <div className="grid grid-cols-3 place-items-center mt-4 w-full">
                 <div className="flex space-x-4">
-                    <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">Master Obat</Button>
+                    <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40" onClick={() => setOpenMasterObat(!openMasterObat)}>Master Obat</Button>
                     <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">Rekam Medis</Button>
                 </div>
                 <div className="flex w-full">
@@ -1069,7 +1109,7 @@ export default function TransactionResep({kode_transaksi, price_parameter, medic
                     </div>
                 </div>
                 <div className="flex space-x-4">
-                    <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">Pasien</Button>
+                    <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40" onClick={() => setOpenPasienList(!openPasienList)}>Pasien</Button>
                     <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">Transaksi</Button>
                 </div>
             </div>

@@ -1,4 +1,6 @@
 import { PriceParameter } from '@/Pages/Administrator/PriceParameter/type'
+import { Patient } from '@/Pages/Administrator/Patient/type'
+import { Medicine } from '@/Pages/Administrator/Medicine/type'
 
 export interface MedicinePriceParameters {
   id: string
@@ -19,6 +21,8 @@ export interface MedicinePriceParameters {
 export type TransactionResepPageProps = {
     kode_transaksi:string
     price_parameter:PriceParameter
+    patients:Patient[]
+    medicines:Medicine[]
     medicine_price_parameters: MedicinePriceParameters[]
 }
 

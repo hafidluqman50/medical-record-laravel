@@ -113,7 +113,50 @@ export default function Authenticated({ user, header, routeParent = null, routeC
                                     </DropdownMenu>
                                 </NavLink>
                                 <NavLink href='#' active={routeChild == 'pembelian'}>
-                                    Pembelian
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger>
+                                        Pembelian
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className="w-56">
+                                        <DropdownMenuGroup>
+                                          <DropdownMenuItem>
+                                            <NavLink href={'#'} active={routeChild == 'data-pemesanan'}>
+                                                Data Pemesanan
+                                            </NavLink>
+                                          </DropdownMenuItem>
+                                          <DropdownMenuItem>
+                                            <NavLink href={'#'} active={routeChild == 'data-pembelian-obat'}>
+                                                Data Pembelian Obat
+                                            </NavLink>
+                                          </DropdownMenuItem>
+                                          <DropdownMenuItem>
+                                            <NavLink href={'#'} active={routeChild == 'data-penerimaan-obat'}>
+                                                Data Penerimaan Obat
+                                            </NavLink>
+                                          </DropdownMenuItem>
+                                          <DropdownMenuItem>
+                                            <NavLink href={'#'} active={routeChild == 'data-distribusi-obat'}>
+                                                Data Distribusi Obat
+                                            </NavLink>
+                                          </DropdownMenuItem>
+                                          <DropdownMenuItem>
+                                            <NavLink href={'#'} active={routeChild == 'data-retur-obat'}>
+                                                Data Retur Pembelian
+                                            </NavLink>
+                                          </DropdownMenuItem>
+                                          <DropdownMenuItem>
+                                            <NavLink href={'#'} active={routeChild == 'kartu-stok'}>
+                                                Kartu Stok
+                                            </NavLink>
+                                          </DropdownMenuItem>
+                                          <DropdownMenuItem>
+                                            <NavLink href={'#'} active={routeChild == 'history-beli'}>
+                                                History Beli
+                                            </NavLink>
+                                          </DropdownMenuItem>
+                                        </DropdownMenuGroup>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                                 </NavLink>
                                 <NavLink href='#' active={routeChild == 'penjualan'}>
                                     <DropdownMenu>
@@ -144,6 +187,26 @@ export default function Authenticated({ user, header, routeParent = null, routeC
                                                 </DropdownMenuSubContent>
                                             </DropdownMenuSubTrigger>
                                           </DropdownMenuSub>
+                                          <DropdownMenuItem>
+                                            <NavLink href={'#'} active={routeChild == 'penjualan-kredit'}>
+                                                Penjualan Kredit
+                                            </NavLink>
+                                          </DropdownMenuItem>
+                                          <DropdownMenuItem>
+                                            <NavLink href={'#'} active={routeChild == 'penjualan-enggros'}>
+                                                Penjualan Enggros
+                                            </NavLink>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem>
+                                            <NavLink href={'#'} active={routeChild == 'retur-penjualan'}>
+                                                Retur Penjualan
+                                            </NavLink>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem>
+                                            <NavLink href={'#'} active={routeChild == 'data-penjualan'}>
+                                                Data Penjualan
+                                            </NavLink>
+                                        </DropdownMenuItem>
                                         </DropdownMenuGroup>
                                       </DropdownMenuContent>
                                     </DropdownMenu>
