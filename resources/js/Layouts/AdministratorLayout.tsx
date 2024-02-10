@@ -112,7 +112,7 @@ export default function Authenticated({ user, header, routeParent = null, routeC
                                       </DropdownMenuContent>
                                     </DropdownMenu>
                                 </NavLink>
-                                <NavLink href='#' active={routeChild == 'pembelian'}>
+                                <NavLink href='#' active={routeParent == 'pembelian'}>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger>
                                         Pembelian
@@ -158,7 +158,7 @@ export default function Authenticated({ user, header, routeParent = null, routeC
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                                 </NavLink>
-                                <NavLink href='#' active={routeChild == 'penjualan'}>
+                                <NavLink href='#' active={routeParent == 'penjualan'}>
                                     <DropdownMenu>
                                       <DropdownMenuTrigger>
                                         Penjualan
@@ -190,6 +190,11 @@ export default function Authenticated({ user, header, routeParent = null, routeC
                                           <DropdownMenuItem>
                                             <NavLink href={'#'} active={routeChild == 'penjualan-kredit'}>
                                                 Penjualan Kredit
+                                            </NavLink>
+                                          </DropdownMenuItem>
+                                          <DropdownMenuItem>
+                                            <NavLink href={route('administrator.customers')} active={routeChild == 'pelanggan-kredit'}>
+                                                Pelanggan Kredit
                                             </NavLink>
                                           </DropdownMenuItem>
                                           <DropdownMenuItem>

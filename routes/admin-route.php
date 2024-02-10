@@ -14,6 +14,7 @@ use App\Http\Controllers\Administrator\RegistrationController;
 use App\Http\Controllers\Administrator\TransactionHvController;
 use App\Http\Controllers\Administrator\TransactionResepController;
 use App\Http\Controllers\Administrator\TransactionUpdsController;
+use App\Http\Controllers\Administrator\CustomerController;
 use App\Http\Controllers\Administrator\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -128,13 +129,22 @@ Route::group(['middleware' => 'auth'], function() {
         Route::get('/{id}/print', [TransactionResepController::class, 'printInvoice'])->name('administrator.transaction-resep.print-invoice');
     });
 
+    Route::group(['prefix' => 'customers'], function() {
+        Route::get('/', [CustomerController::class, 'index'])->name('administrator.customers');
+        Route::get('/create', [CustomerController::class, 'create'])->name('administrator.customers.create');
+        Route::post('/store', [CustomerController::class, 'store'])->name('administrator.customers.store');
+        Route::get('/edit/{id}', [CustomerController::class, 'edit'])->name('administrator.customers.edit');
+        Route::put('/update/{id}', [CustomerController::class, 'update'])->name('administrator.customers.update');
+        Route::delete('/delete/{id}', [CustomerController::class, 'delete'])->name('administrator.customers.delete');
+    });
+
     Route::group(['prefix' => 'users'], function() {
         Route::get('/', [UserController::class, 'index'])->name('administrator.users');
         Route::get('/create', [UserController::class, 'create'])->name('administrator.users.create');
         Route::post('/store', [UserController::class, 'store'])->name('administrator.users.store');
         Route::get('/edit/{id}', [UserController::class, 'edit'])->name('administrator.users.edit');
         Route::put('/update/{id}', [UserController::class, 'update'])->name('administrator.users.update');
-        Route::put('/update-status/{id}', [UserController::class, 'updateStatus'])->name('administrator.users.update-status');
+        Route::patch('/update-status/{id}', [UserController::class, 'updateStatus'])->name('administrator.users.update-status');
         Route::delete('/delete/{id}', [UserController::class, 'delete'])->name('administrator.users.delete');
     });
 });
