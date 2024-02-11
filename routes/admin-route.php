@@ -11,6 +11,7 @@ use App\Http\Controllers\Administrator\PatientCategoryController;
 use App\Http\Controllers\Administrator\PriceParameterController;
 use App\Http\Controllers\Administrator\PpnController;
 use App\Http\Controllers\Administrator\RegistrationController;
+use App\Http\Controllers\Administrator\TransactionCreditController;
 use App\Http\Controllers\Administrator\TransactionHvController;
 use App\Http\Controllers\Administrator\TransactionResepController;
 use App\Http\Controllers\Administrator\TransactionUpdsController;
@@ -136,6 +137,12 @@ Route::group(['middleware' => 'auth'], function() {
         Route::get('/edit/{id}', [CustomerController::class, 'edit'])->name('administrator.customers.edit');
         Route::put('/update/{id}', [CustomerController::class, 'update'])->name('administrator.customers.update');
         Route::delete('/delete/{id}', [CustomerController::class, 'delete'])->name('administrator.customers.delete');
+    });
+
+    Route::group(['prefix' => 'transaction-credit'], function() {
+        Route::get('/', [TransactionCreditController::class, 'index'])->name('administrator.transaction-credit');
+        Route::post('/', [TransactionCreditController::class, 'store'])->name('administrator.transaction-credit.store');
+        Route::get('/{id}/print', [TransactionCreditController::class, 'printInvoice'])->name('administrator.transaction-credit.print-invoice');
     });
 
     Route::group(['prefix' => 'users'], function() {

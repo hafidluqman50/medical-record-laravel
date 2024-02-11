@@ -281,6 +281,7 @@ export default function TransactionResep({
                 unit_medicine: satuanObat.current.value,
                 sell_price: parseInt(hargaObat.current.value),
                 qty: parseInt(qtyObat.current.value),
+                prescription_packs: bungkusRef.current.value,
                 sub_total: subTotal,
                 jasa,
                 total: parseInt(jumlahHarga.current.value),
@@ -905,7 +906,7 @@ export default function TransactionResep({
                     variant="secondary" 
                     className="shadow-sm shadow-slate-500/40"
                     onClick={() => setBayarDialog(!bayarDialog)}
-                >BAYAR [F12]</Button>
+                >PROSES [F12]</Button>
             </div>
             <Separator className="bg-slate-200" />
             <div className="grid grid-cols-4 gap-4 mt-4 mb-4">

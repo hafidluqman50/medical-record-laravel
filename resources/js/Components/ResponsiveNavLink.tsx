@@ -4,6 +4,11 @@ export default function ResponsiveNavLink({ active = false, className = '', chil
     return (
         <Link
             {...props}
+            onClick={(event) => {
+                if(props.href === '#') {
+                    event.preventDefault()
+                }
+            }}
             className={`w-full flex items-start ps-3 pe-4 py-2 border-l-4 ${
                 active
                     ? 'border-rose-400 dark:border-rose-600 text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-900/50 focus:text-rose-800 dark:focus:text-rose-200 focus:bg-rose-100 dark:focus:bg-rose-900 focus:border-rose-700 dark:focus:border-rose-300'

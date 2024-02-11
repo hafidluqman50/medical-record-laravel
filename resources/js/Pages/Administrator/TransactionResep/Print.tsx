@@ -4,21 +4,6 @@ import { Button } from '@/Components/ui/button'
 
 import { formatRupiah } from '@/lib/helper'
 
-interface TransactionDetail {
-    id:number
-    transaction_id:number
-    medicine_id:number
-    medicine:{
-        id:number
-        name:string
-        unit_medicine:string
-    }
-    qty:number
-    sub_total:number
-    discount:number
-    total:number
-}
-
 interface Transaction {
     id:number
     date_transaction:string
@@ -36,7 +21,6 @@ interface Transaction {
         name:string
     }
     created_at:string
-    transaction_details:TransactionDetail[]
 }
 
 type PrintPageProps = {
@@ -84,8 +68,8 @@ export default function Print({transaction_prescription}: PrintPageProps) {
                                         row.name.includes('R') && row.name.length == 2 ?
                                         <Fragment key={key}>
                                             <td width="40%" className="item-name">{row.name.replace('R','Racik ')}</td>
-                                            <td>-</td>
-                                            <td>{formatRupiah(row.service_fee)}</td>
+                                            <td>{row.total_prescription_packs}</td>
+                                            <td>{formatRupiah(row.service_fee + row.total_costs)}</td>
                                         </Fragment>
                                         : 
                                         row.prescription_details.map((r: any , k: number) => (

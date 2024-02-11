@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Administrator;
 
+use App\Models\Customer;
 use App\Models\Doctor;
 use App\Models\Medicine;
 use App\Models\Patient;
@@ -9,7 +10,7 @@ use App\Models\PriceParameter;
 use App\Models\Prescription;
 use App\Models\PrescriptionDetail;
 use App\Models\PrescriptionList;
-use App\Models\TransactionPrescription;
+use App\Models\TransactionCredit;
 use App\Http\Controllers\Controller;
 use DB;
 use Exception;
@@ -18,13 +19,17 @@ use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class TransactionResepController extends Controller
+class TransactionCreditController extends Controller
 {
     public function index(): Response
     {
-        $kode_transaksi = TransactionPrescription::generateCode();
+        $kode_transaksi = TransactionCredit::generateCode();
 
         $price_parameter = PriceParameter::where('label', 'Tunai')->firstOrFail();
+
+        $debitur   = Customer::orderByDesc('id')->firstOrFail();
+
+        $customers = Customer::all();
 
         $patients = Patient::with(['patientCategory'])->get();
 
@@ -78,36 +83,35 @@ class TransactionResepController extends Controller
                             'price_parameter', 
                             'medicine_price_parameters',
                             'medicines',
-                            'patients'
+                            'patients',
+                            'debitur',
+                            'customers'
                         );
 
-        return Inertia::render('Administrator/TransactionResep/Index', $compact);
+        return Inertia::render('Administrator/TransactionCredit/Index', $compact);
     }
 
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'medicines'        => 'required|array',
+            'customer_id'      => 'required|integer|exists:'.Customer::class.',id',
             'patient_id'       => 'required|integer|exists:'.Patient::class.',id',
             'doctor_id'        => 'required|integer|exists:'.Doctor::class.',id',
+            'group_name'       => 'required|string|max:255',
             'sub_total_grand'  => 'required|integer',
-            'diskon_grand'     => 'required|integer',
             'total_grand'      => 'required|integer',
-            'bayar'            => 'required|integer',
-            'kembalian'        => 'required|integer',
-            'jenis_pembayaran' => 'required|string:in:tunai,kartu-debit-kredit'
         ]);
 
-        $medicines        = $request->medicines;
-        $kode_transaksi   = $request->kode_transaksi;
-        $patient_id       = $request->patient_id;
-        $doctor_id        = $request->doctor_id;
-        $sub_total_grand  = $request->sub_total_grand;
-        $total_grand      = $request->total_grand;
-        $discount_grand   = $request->diskon_grand;
-        $bayar            = $request->bayar;
-        $kembalian        = $request->kembalian;
-        $jenis_pembayaran = $request->jenis_pembayaran;
+        $medicines         = $request->medicines;
+        $kode_transaksi    = $request->kode_transaksi;
+        $date_prescription = $request->date_prescription;
+        $customer_id       = $request->customer_id;
+        $group_name        = $request->group_name;
+        $patient_id        = $request->patient_id;
+        $doctor_id         = $request->doctor_id;
+        $sub_total_grand   = $request->sub_total_grand;
+        $total_grand       = $request->total_grand;
 
         $temp = array_unique(array_column($medicines, 'prefixNum'));
         $prescription_name = array_intersect_key($medicines, $temp);
@@ -139,7 +143,7 @@ class TransactionResepController extends Controller
                             'medicine_id'          => $v['id'],
                             'sub_total'            => $v['sub_total'],
                             'qty'                  => $v['qty'],
-                            'prescription_packs'   => $v['bungkus'],
+                            'prescription_packs'   => $v['prescription_packs'],
                             'service_fee'          => $v['jasa'],
                             'total'                => $v['total'],
                             'faktor'               => $v['faktor'],
@@ -147,23 +151,22 @@ class TransactionResepController extends Controller
                         ]);
 
                         PrescriptionList::where('id', $prescription_list_id)->where('prescription_id',$prescription_id)->increment('service_fee', (int)$v['jasa']);
-                        PrescriptionList::where('id', $prescription_list_id)->where('prescription_id',$prescription_id)->increment('total_cost', (int)$v['total']);
-                        PrescriptionList::where('id', $prescription_list_id)->where('prescription_id',$prescription_id)->increment('total_prescription_packs', (int)$v['bungkus']);
+                        PrescriptionList::where('id', $prescription_list_id)->where('prescription_id',$prescription_id)->increment('total_costs', (int)$v['total']);
+                        PrescriptionList::where('id', $prescription_list_id)->where('prescription_id',$prescription_id)->increment('total_prescription_packs', (int)$v['prescription_packs']);
                     }
                 }
             }
 
-            $transaction_id = TransactionPrescription::insertGetId([
+            $transaction_id = TransactionCredit::insertGetId([
                 'invoice_number'       => $kode_transaksi,
                 'date_transaction'     => date('Y-m-d'),
+                'date_prescription'    => $date_prescription,
                 'prescription_id'      => $prescription_id,
+                'customer_id'          => $customer_id,
+                'group_name'           => $group_name,
                 'sub_total'            => $sub_total_grand,
-                'discount'             => $discount_grand,
                 'total'                => $total_grand,
-                'pay_total'            => $bayar,
-                'change_money'         => $kembalian,
-                'transaction_pay_type' => $jenis_pembayaran,
-                'status_transaction'   => 1,
+                'status_transaction'   => 0,
                 'user_id'              => $request->user()->id,
                 'created_at'           => date('Y-m-d H:i:s'),
                 'updated_at'           => date('Y-m-d H:i:s')
@@ -171,7 +174,7 @@ class TransactionResepController extends Controller
 
             DB::commit();
 
-            return redirect()->intended('/administrator/transaction-resep/'.$transaction_id.'/print');
+            return redirect()->intended('/administrator/transaction-credit/'.$transaction_id.'/print');
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -181,8 +184,8 @@ class TransactionResepController extends Controller
 
     public function printInvoice(int $id): Response
     {
-        $transaction_prescription = TransactionPrescription::with(['user','prescription.prescriptionLists.prescriptionDetails.medicine'])->firstOrFail();
+        $transaction_credit = TransactionCredit::with(['user','customer','prescription.patient','prescription.doctor','prescription.prescriptionLists.prescriptionDetails.medicine'])->where('id',$id)->firstOrFail();
 
-        return Inertia::render('Administrator/TransactionResep/Print', compact('transaction_prescription'));
+        return Inertia::render('Administrator/TransactionCredit/Print', compact('transaction_credit'));
     }
 }

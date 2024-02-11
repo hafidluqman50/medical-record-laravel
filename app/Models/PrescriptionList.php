@@ -15,7 +15,9 @@ class PrescriptionList extends Model
     protected $fillable = [
         'prescription_id',
         'name',
-        'service_fee'
+        'service_fee',
+        'total_costs',
+        'total_prescription_packs'
     ];
 
     protected $hidden = [

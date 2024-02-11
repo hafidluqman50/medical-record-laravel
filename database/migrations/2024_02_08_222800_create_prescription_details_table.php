@@ -22,6 +22,7 @@ return new class extends Migration
                   ->onDelete('restrict')
                   ->onUpdate('cascade');
             $table->integer('qty');
+            $table->integer('prescription_packs');
             $table->integer('sub_total');
             $table->integer('service_fee');
             $table->integer('total');

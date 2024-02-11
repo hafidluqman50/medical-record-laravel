@@ -1,0 +1,15 @@
+@media print {
+    @page{
+        size: A4 landscape;
+    }
+    #sidebar-menu, #desktop-menu, footer, #btn-invoice {
+      display: none;
+    }
+    .shadow-lg {
+      box-shadow: none !important;
+    }
+    main.pt-20 {
+      margin-top: -60px;
+      padding-top: 0;
+    }
+}
