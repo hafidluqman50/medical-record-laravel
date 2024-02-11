@@ -16,6 +16,7 @@ class PrescriptionDetail extends Model
         'prescription_list_id',
         'medicine_id',
         'qty',
+        'prescription_packs',
         'sub_total',
         'total',
         'service_fee',

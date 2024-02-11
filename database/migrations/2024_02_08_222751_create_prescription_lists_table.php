@@ -19,6 +19,8 @@ return new class extends Migration
                   ->onUpdate('cascade');
             $table->string('name');
             $table->integer('service_fee');
+            $table->integer('total_costs');
+            $table->integer('total_prescription_packs');
             $table->timestamps();
         });
     }

@@ -188,7 +188,7 @@ export default function Authenticated({ user, header, routeParent = null, routeC
                                             </DropdownMenuSubTrigger>
                                           </DropdownMenuSub>
                                           <DropdownMenuItem>
-                                            <NavLink href={'#'} active={routeChild == 'penjualan-kredit'}>
+                                            <NavLink href={route('administrator.transaction-credit')} active={routeChild == 'penjualan-kredit'}>
                                                 Penjualan Kredit
                                             </NavLink>
                                           </DropdownMenuItem>
