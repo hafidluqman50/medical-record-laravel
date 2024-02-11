@@ -143,11 +143,20 @@ export default function TransactionUpds({kode_transaksi, price_parameter, medici
                 hargaObat.current.value  = data.medicine.price
                 satuanObat.current.value = data.medicine.unit_medicine
                 qtyObat.current.value    = ""
-                qtyObat.current.focus()
+
+                setJualObat([])
             } catch(error) {
                 console.error(error)
             }
         }
+    }
+    
+    const batalAct = (): void => {
+        setRowObat([])
+        setIsHjaNet(false)
+        setPriceMedicine(0)
+        setJualObat([])
+        reset()
     }
 
     const onKeyDownAct = (event: any): void => {
@@ -173,7 +182,7 @@ export default function TransactionUpds({kode_transaksi, price_parameter, medici
             reset()
         }
         else if(event.altKey && event.keyCode == 81) {
-            document.getElementById('qty-jual-obat')!.focus()
+            qtyObat.current?.focus()
         }
         else if(event.ctrlKey && event.altKey && event.keyCode == 79) {
             setCekHargaObatDialog(true)
@@ -555,7 +564,7 @@ export default function TransactionUpds({kode_transaksi, price_parameter, medici
                         HV/OTC [F3]
                     </Button>
                 </a>
-                <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">BATAL [F7]</Button>
+                <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40" onClick={batalAct}>BATAL [F7]</Button>
                 <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">HAPUS [F8]</Button>
                 <Button 
                     size="lg" 
