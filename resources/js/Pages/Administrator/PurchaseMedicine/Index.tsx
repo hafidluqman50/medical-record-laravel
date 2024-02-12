@@ -3,7 +3,7 @@ import axios from 'axios'
 import AdministratorLayout from '@/Layouts/AdministratorLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { PageProps } from '@/types';
-import { PriceParameter } from './type';
+import { PurchaseMedicine } from './type';
 import { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from '@/Components/DataTable'
 import { SkeletonTable } from "@/Components/SkeletonTable"
@@ -49,8 +49,8 @@ import {
 
 import { Input } from '@/Components/ui/input'
 
-interface PriceParameters {
-    data:Array<PriceParameter>;
+interface PurchaseMedicines {
+    data:Array<PurchaseMedicine>;
     links:Array<{
         url?:string,
         label:string,
@@ -58,18 +58,20 @@ interface PriceParameters {
     }>;
 }
 
-type PriceParameterProps = {
-    price_parameters:PriceParameters
+type PurchaseMedicineProps = {
+    purchase_medicines:PurchaseMedicines
 }
 
-export default function Index({auth, app, price_parameters, page_num}: PageProps & PriceParameterProps) {
+export default function Index({auth, app, purchase_medicines, page_num}: PageProps & PurchaseMedicineProps) {
+
+    console.log(purchase_medicines)
 
     const [searchData, setSearchData] = useState<string>('')
 
     const { session } = usePage<PageProps>().props
 
     const submitDelete = (id: number): void => {
-        router.delete(route('administrator.price-parameters.delete',id))
+        router.delete(route('administrator.purchase-medicines.delete',id))
     }
 
     const dismissAlert = (): void => {
@@ -78,7 +80,7 @@ export default function Index({auth, app, price_parameters, page_num}: PageProps
 
     const search = (): void => {
         router.get(
-            route('administrator.price-parameters'),
+            route('administrator.purchase-medicines'),
             {
                 search:searchData
             },
@@ -92,14 +94,14 @@ export default function Index({auth, app, price_parameters, page_num}: PageProps
     return (
         <AdministratorLayout
             user={auth.user}
-            routeParent="data-obat"
-            routeChild="data-parameter-harga"
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Parameter Harga</h2>}
+            routeParent="pembelian"
+            routeChild="data-pembelian-obat"
+            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Pembelian Obat</h2>}
         >
-            <Head title="Data Parameter Harga" />
+            <Head title="Data Pembelian Obat" />
 
             <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div className="w-full mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg py-4 px-4">
                         {/*<DataTable columns={columns} data={doctor}/>*/}
                     {
@@ -119,14 +121,14 @@ export default function Index({auth, app, price_parameters, page_num}: PageProps
                         <div className="flex">
                             <div className="grow">
                                 <Button className="mb-2" asChild>
-                                    <Link href={route('administrator.price-parameters.create')}>Tambah Parameter Harga</Link>
+                                    <Link href={route('administrator.purchase-medicines.create')}>Tambah Pembelian Obat</Link>
                                 </Button>
                             </div>
                             <div className="w-1/3 flex-none flex space-x-4">
                                 <Input
                                     type="search" 
                                     name="search_data"
-                                    placeholder="Cari Parameter Harga" 
+                                    placeholder="Cari Pembelian Obat" 
                                     value={searchData}
                                     onChange={(e) => setSearchData(e.target.value)}
                                 />
@@ -139,83 +141,91 @@ export default function Index({auth, app, price_parameters, page_num}: PageProps
                           <TableHeader>
                             <TableRow>
                               <TableHead className="border border-slate-200">No</TableHead>
-                              <TableHead className="border border-slate-200">Label</TableHead>
-                              <TableHead className="border border-slate-200">Resep Tunai</TableHead>
-                              <TableHead className="border border-slate-200">UPDS</TableHead>
-                              <TableHead className="border border-slate-200">HV/OTC</TableHead>
-                              <TableHead className="border border-slate-200">Resep Kredit</TableHead>
-                              <TableHead className="border border-slate-200">Enggros Faktur</TableHead>
-                              <TableHead className="border border-slate-200">Embalase</TableHead>
-                              <TableHead className="border border-slate-200">Jasa Racik</TableHead>
-                              <TableHead className="border border-slate-200">Pembulatan</TableHead>
+                              <TableHead className="border border-slate-200">Invoice</TableHead>
+                              <TableHead className="border border-slate-200">Supplier</TableHead>
+                              <TableHead className="border border-slate-200">Kode Pembelian</TableHead>
+                              <TableHead className="border border-slate-200">Tanggal Terima</TableHead>
+                              <TableHead className="border border-slate-200">Waktu Hutang</TableHead>
+                              <TableHead className="border border-slate-200">Tanggal Jatuh Tempo</TableHead>
+                              <TableHead className="border border-slate-200">Jenis Beli</TableHead>
+                              <TableHead className="border border-slate-200">Total DPP</TableHead>
+                              <TableHead className="border border-slate-200">Total PPn</TableHead>
+                              <TableHead className="border border-slate-200">Total Semua</TableHead>
+                              <TableHead className="border border-slate-200">Input By</TableHead>
                               <TableHead className="border border-slate-200">#</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
                             {
-                                price_parameters.data.length == 0 ? 
+                                purchase_medicines.data.length == 0 ? 
                                 <TableRow>
-                                    <TableCell colSpan={11} align="center">
+                                    <TableCell colSpan={13} align="center">
                                         Empty Data!
                                     </TableCell>
                                 </TableRow>
-                                : price_parameters.data.map((row, key) => (
+                                : purchase_medicines.data.map((row, key) => (
                                     <TableRow key={row.id}>
                                         <TableCell className="border border-slate-200">
                                             {page_num+key}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.label}
+                                            {row.invoice_number}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.resep_tunai}
+                                            {row.medical_supplier.name}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.upds}
+                                            {row.code}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.hv_otc}
+                                            {row.date_receive}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.resep_kredit}
+                                            {row.debt_time} Hari
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.enggros_faktur}
+                                            {row.due_date}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.embalase}
+                                            {row.type}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.jasa_racik}
+                                            {row.total_dpp}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.pembulatan}
+                                            {row.total_ppn}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            {row.total_grand}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            {row.user.name}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
                                             <div className="flex space-x-4">
-                                                <Button className="bg-amber-500 text-white hover:bg-amber-500" asChild>
-                                                    <Link href={route('administrator.price-parameters.edit', row.id)}>Edit</Link>
+                                                <Button className="bg-emerald-500 text-white hover:bg-emerald-500" asChild>
+                                                    <Link href={route('administrator.purchase-medicines.print', row.id)}>Print</Link>
                                                 </Button>
-                                                {
-                                                    key != 0 ? 
-                                                    <AlertDialog>
-                                                        <AlertDialogTrigger asChild>
-                                                            <Button variant="destructive">Delete</Button>
-                                                        </AlertDialogTrigger>
-                                                        <AlertDialogContent>
-                                                            <AlertDialogHeader>
-                                                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                                                <AlertDialogDescription>
-                                                                This action cannot be undone. This will delete your price parameter data from our servers.
-                                                                </AlertDialogDescription>
-                                                            </AlertDialogHeader>
-                                                            <AlertDialogFooter>
-                                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                                <AlertDialogAction onClick={() => submitDelete(row.id)}>Continue</AlertDialogAction>
-                                                            </AlertDialogFooter>
-                                                        </AlertDialogContent>
-                                                    </AlertDialog> : ''
-                                                }
+                                                <Button className="bg-cyan-500 text-white hover:bg-cyan-500" asChild>
+                                                    <Link href={route('administrator.purchase-medicines.detail', row.id)}>Detail</Link>
+                                                </Button>
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild>
+                                                        <Button variant="destructive">Delete</Button>
+                                                    </AlertDialogTrigger>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                            <AlertDialogDescription>
+                                                            This action cannot be undone. This will delete your price parameter data from our servers.
+                                                            </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                            <AlertDialogAction onClick={() => submitDelete(row.id)}>Continue</AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -224,11 +234,11 @@ export default function Index({auth, app, price_parameters, page_num}: PageProps
                           </TableBody>
                           <TableFooter>
                             <TableRow>
-                                <TableCell colSpan={11}>
+                                <TableCell colSpan={13}>
                                     <Pagination>
                                         <PaginationContent>    
                                     {
-                                        price_parameters.links.map((pagination, key) => (
+                                        purchase_medicines.links.map((pagination, key) => (
                                             
                                             <div key={key}>
                                             {   
