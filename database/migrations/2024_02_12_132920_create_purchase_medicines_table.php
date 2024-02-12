@@ -25,6 +25,7 @@ return new class extends Migration
             $table->enum('type', ['cash', 'kredit', 'konsinyasi']);
             $table->integer('total_dpp');
             $table->integer('total_ppn');
+            $table->integer('total_discount');
             $table->integer('total_grand');
             $table->foreignId('user_id')
                   ->constrained('users')

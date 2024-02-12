@@ -23,9 +23,11 @@ return new class extends Migration
                   ->onUpdate('cascade');
             $table->integer('qty');
             $table->integer('price');
+            $table->integer('ppn');
             $table->double('disc_1');
             $table->double('disc_2');
             $table->double('disc_3');
+            $table->string('ppn_type',15);
             $table->integer('sub_total');
             $table->timestamps();
         });

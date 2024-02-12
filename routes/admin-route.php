@@ -150,9 +150,9 @@ Route::group(['middleware' => 'auth'], function() {
         Route::get('/', [PurchaseMedicineController::class, 'index'])->name('administrator.purchase-medicines');
         Route::get('/create', [PurchaseMedicineController::class, 'create'])->name('administrator.purchase-medicines.create');
         Route::post('/store', [PurchaseMedicineController::class, 'store'])->name('administrator.purchase-medicines.store');
-        Route::get('/edit/{id}', [PurchaseMedicineController::class, 'edit'])->name('administrator.purchase-medicines.edit');
-        Route::put('/update/{id}', [PurchaseMedicineController::class, 'update'])->name('administrator.purchase-medicines.update');
+        Route::get('/detail/{id}', [PurchaseMedicineController::class, 'detail'])->name('administrator.purchase-medicines.detail');
         Route::delete('/delete/{id}', [PurchaseMedicineController::class, 'delete'])->name('administrator.purchase-medicines.delete');
+        Route::get('/print/{id}', [PurchaseMedicineController::class, 'printInvoice'])->name('administrator.purchase-medicines.print');
     });
 
     Route::group(['prefix' => 'users'], function() {

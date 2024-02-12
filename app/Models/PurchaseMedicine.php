@@ -23,6 +23,7 @@ class PurchaseMedicine extends Model
         'type',
         'total_dpp',
         'total_ppn',
+        'total_discount',
         'total_grand',
         'user_id'
     ];
@@ -31,13 +32,31 @@ class PurchaseMedicine extends Model
         'updated_at'
     ];
 
+    public function medicalSupplier(): BelongsTo
+    {
+        return $this->belongsTo(MedicalSupplier::class, 'medical_supplier_id', 'id');
+    }
+
     public function purchaseMedicineDetails(): HasMany
     {
-        return $this->hasMany(PurchaseMedicineDetail::class, 'id', 'purchase_medicine_id');
+        return $this->hasMany(PurchaseMedicineDetail::class, 'purchase_medicine_id', 'id');
     }
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public static function generateCode(): string
+    {
+        $db = self::count();
+        $base = 'PMB-'.date('dmy');
+        if ($db == 0) {
+            $db = 1;
+            $result = $base.'000001';
+        } else {
+            $db+=1;
+        }
+        return $generate_code = $base.str_pad($db,6,'0000',STR_PAD_LEFT);
     }
 }

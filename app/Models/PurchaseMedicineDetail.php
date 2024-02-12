@@ -17,9 +17,11 @@ class PurchaseMedicineDetail extends Model
         'medicine_id',
         'qty',
         'price',
+        'ppn',
         'disc_1',
         'disc_2',
         'disc_3',
+        'ppn_type',
         'sub_total'
     ];
 

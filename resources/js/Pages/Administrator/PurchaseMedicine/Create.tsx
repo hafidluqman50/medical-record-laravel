@@ -1,4 +1,4 @@
-import { useState, useEffect, FormEventHandler } from 'react'
+import { useState, useEffect, FormEventHandler, useRef } from 'react'
 import axios from 'axios'
 import AdministratorLayout from '@/Layouts/AdministratorLayout';
 import InputError from '@/Components/InputError';
@@ -28,6 +28,7 @@ import {
 import { Textarea } from "@/Components/ui/textarea"
 import { Button } from '@/Components/ui/button'
 import { Separator } from '@/Components/ui/separator'
+import { formatRupiah } from '@/lib/helper'
 
 interface PurchaseMedicineForm {
     order:Array<any>;
@@ -38,35 +39,165 @@ interface PurchaseMedicineForm {
     debt_time:number|null;
     due_date:string;
     type:string;
-    ppn_type:string;
+    total_dpp:number
+    total_ppn:number
+    total_discount:number
+    total_grand:number
 }
 
 type CreateFormProps = {
     medical_suppliers:MedicalSupplier[]
     medicines: Medicine[]
+    kode_pembelian:string
 }
 
-export default function Create({auth, medical_suppliers, medicines}: PageProps & CreateFormProps) {
+export default function Create({auth, medical_suppliers, medicines, kode_pembelian}: PageProps & CreateFormProps) {
 
     const { data, setData, post, processing, errors, reset } = useForm<PurchaseMedicineForm>({
         order:[],
         medical_supplier_id:null,
+        code:kode_pembelian,
         invoice_number:'',
-        code:'',
         date_receive:'',
         debt_time:null,
         due_date:'',
         type:'',
-        ppn_type:'',
+        total_dpp:0,
+        total_ppn:0,
+        total_discount:0,
+        total_grand:0,
     });
 
     const [rowOrders, setRowOrders] = useState<any>([])
+    const [ppnType, setPpnType]     = useState<string>('')
+    const [obat, setObat]           = useState<number>(0)
+    const [namaObat, setNamaObat]   = useState<string>('')
+
+    const invoiceNumberRef = useRef<any>()
+    const hnaRef = useRef<any>()
+    const satuanRef = useRef<any>()
+    const jumlahRef = useRef<any>()
+    const diskonRef = useRef<any>()
+    const obatRef = useRef<any>()
 
     const submitForm: FormEventHandler = (e) => {
         e.preventDefault()
 
         post(route('administrator.purchase-medicines.store'));
     }
+
+    const selectMedicalSupplierAct = async(value: number): Promise<void> => {
+        const requestData = await axios.get<any>(route('api.medical-suppliers.get-by-id', value))
+
+        setData(data => ({
+            ...data,
+            medical_supplier_id:value,
+            invoice_number:requestData.data.data.medical_supplier.abbreviation_name
+        }))
+    }
+
+    const debtTimeAct = (event: any): void => {
+
+        setData(data => ({
+            ...data,
+            debt_time:parseInt(event.target.value)
+        }))
+
+        let result = new Date(data.date_receive);
+        result.setDate(result.getDate() + parseInt(event.target.value));
+
+        let month:number|string = result.getMonth()+1;
+        month = `0${month}`.slice(-2);
+
+        let date:number|string  = result.getDate();
+        date = `0${date}`.slice(-2);
+
+        let new_date = `${result.getFullYear()}-${month}-${date}`
+
+        setData(data => ({
+            ...data,
+            due_date:new_date
+        }))
+    }
+
+    const selectObatAct = async(value: number): Promise<void> => {
+        setObat(value)
+
+        const responseData = await axios.get<any>(route('api.medicines.get-by-id', value))
+
+        hnaRef.current.value = responseData.data.medicine.capital_price
+        satuanRef.current.value = responseData.data.medicine.unit_medicine
+
+        setNamaObat(responseData.data.medicine.name)
+    }
+
+    const inputActPembelian = (): void => {
+        const calculate   = parseInt(jumlahRef.current.value) * parseInt(hnaRef.current.value)
+        let ppn           = 0
+        let subTotal      = 0
+        let ppnTotal      = 0 + data.total_ppn
+        let dppTotal      = 0 + data.total_dpp
+        let discountTotal = 0 + data.total_discount
+        let totalGrand    = 0 + data.total_grand
+
+        if(ppnType == 'include-ppn') {
+            ppn = ((calculate * 11) / 100)
+            subTotal = calculate + ppn
+            dppTotal += subTotal
+        }
+        else if(ppnType == 'exclude-ppn') {
+            ppn = ((calculate * 11) / 100)
+            subTotal = calculate + ppn
+            dppTotal += calculate
+            ppnTotal += ppn
+        }
+        else {
+            subTotal += calculate
+            dppTotal += calculate
+        }
+
+        totalGrand += ((dppTotal + ppnTotal) - discountTotal)
+
+        let ordersData = data.order
+
+        const result = [{
+            medicine_id: obat,
+            medicine_name: namaObat,
+            qty: jumlahRef.current.value,
+            price: hnaRef.current.value,
+            ppn,
+            disc_1: diskonRef.current.value,
+            disc_2: 0,
+            disc_3: 0,
+            ppn_type: ppnType,
+            sub_total: subTotal
+        }]
+
+        ordersData = [...data.order, ...result]
+
+        setRowOrders([
+            ...rowOrders,
+            ...result
+        ])
+
+        setData(data => ({
+            ...data,
+            order:ordersData,
+            total_dpp:dppTotal,
+            total_ppn:ppnTotal,
+            total_discount:discountTotal,
+            total_grand:totalGrand
+        }))
+
+        setObat(0)
+        jumlahRef.current.value = ''
+        satuanRef.current.value = ''
+        hnaRef.current.value    = ''
+        diskonRef.current.value = ''
+        obatRef.current.focus()
+    }
+
+    console.log(data)
 
     return(
         <AdministratorLayout
@@ -85,7 +216,7 @@ export default function Create({auth, medical_suppliers, medicines}: PageProps &
                                 <Link href={route('administrator.purchase-medicines')}>Kembali</Link>
                             </Button>
                         </div>
-                        {/*<form onSubmit={submitForm}>*/}
+                        <form onSubmit={submitForm}>
                         <div className="grid grid-cols-2 gap-5">
                             <div className="grid grid-cols-1">
                                 <div>
@@ -108,7 +239,7 @@ export default function Create({auth, medical_suppliers, medicines}: PageProps &
                                 <div className="mt-4">
                                     <InputLabel htmlFor="medical_supplier_id" value="Supplier" />
 
-                                    <Select onValueChange={(value) => setData('medical_supplier_id', parseInt(value))}>
+                                    <Select onValueChange={(value) => selectMedicalSupplierAct(parseInt(value))}>
                                       <SelectTrigger className="w-full mt-1">
                                         <SelectValue placeholder="=== Pilih Supplier ===" />
                                       </SelectTrigger>
@@ -129,9 +260,9 @@ export default function Create({auth, medical_suppliers, medicines}: PageProps &
 
                                     <Input
                                         id="invoice_number"
-                                        type="number"
+                                        type="text"
                                         name="invoice_number"
-                                        value={data.invoice_number?.toString()}
+                                        value={data.invoice_number}
                                         className="mt-1 block w-full"
                                         autoComplete="invoice_number"
                                         onChange={(e) => setData('invoice_number', e.target.value)}
@@ -165,7 +296,7 @@ export default function Create({auth, medical_suppliers, medicines}: PageProps &
                                         id="date_receive"
                                         type="date"
                                         name="date_receive"
-                                        value={data.date_receive?.toString()}
+                                        value={data.date_receive}
                                         className="mt-1 block w-full"
                                         autoComplete="date_receive"
                                         onChange={(e) => setData('date_receive', e.target.value)}
@@ -181,10 +312,11 @@ export default function Create({auth, medical_suppliers, medicines}: PageProps &
                                         id="debt_time"
                                         type="number"
                                         name="debt_time"
-                                        value={data.debt_time?.toString()}
+                                        value={data.debt_time ?? ''}
                                         className="mt-1 block w-full"
                                         autoComplete="debt_time"
-                                        onChange={(e) => setData('debt_time', parseFloat(e.target.value))}
+                                        onKeyUp={debtTimeAct}
+                                        onChange={debtTimeAct}
                                     />
 
                                     <InputError message={errors.debt_time} className="mt-2" />
@@ -210,7 +342,7 @@ export default function Create({auth, medical_suppliers, medicines}: PageProps &
                                 <div className="mt-4">
                                     <InputLabel htmlFor="ppn_type" value="Jenis PPn" />
 
-                                    <Select onValueChange={(value) => setData('ppn_type', value)}>
+                                    <Select onValueChange={(value) => setPpnType(value)}>
                                       <SelectTrigger id="ppn_type" className="w-full mt-1">
                                         <SelectValue placeholder="=== Pilih Jenis Ppn ===" />
                                       </SelectTrigger>
@@ -221,14 +353,14 @@ export default function Create({auth, medical_suppliers, medicines}: PageProps &
                                       </SelectContent>
                                     </Select>
 
-                                    <InputError message={errors.ppn_type} className="mt-2" />
+                                    {/*<InputError message={errors.ppn_type} className="mt-2" />*/}
                                 </div>
                             </div>
                         </div>
                         <div className="mt-4 w-full border-t-2 border-slate-200 py-4">
                             <Button disabled={processing}>Simpan</Button>
                         </div>
-                        {/*</form>*/}
+                        </form>
                     </div>
                     <div className="w-6/12 h-1/2 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg py-8 px-8">
                         <Separator />
@@ -237,8 +369,8 @@ export default function Create({auth, medical_suppliers, medicines}: PageProps &
                                 <div>
                                     <InputLabel htmlFor="medicine_id" value="Obat" />
 
-                                    <Select>
-                                      <SelectTrigger className="w-full mt-1">
+                                    <Select value={obat.toString()} onValueChange={(value) => selectObatAct(parseInt(value))}>
+                                      <SelectTrigger ref={obatRef} className="w-full mt-1">
                                         <SelectValue placeholder="=== Pilih Obat ===" />
                                       </SelectTrigger>
                                       <SelectContent>
@@ -257,6 +389,7 @@ export default function Create({auth, medical_suppliers, medicines}: PageProps &
                                     <InputLabel htmlFor="qty" value="Jumlah" />
 
                                     <Input
+                                        ref={jumlahRef}
                                         id="qty"
                                         type="text"
                                         name="qty"
@@ -273,6 +406,7 @@ export default function Create({auth, medical_suppliers, medicines}: PageProps &
                                     <InputLabel htmlFor="unit_medicine" value="Satuan" />
 
                                     <Input
+                                        ref={satuanRef}
                                         id="unit_medicine"
                                         type="text"
                                         name="unit_medicine"
@@ -291,6 +425,7 @@ export default function Create({auth, medical_suppliers, medicines}: PageProps &
                                     <InputLabel htmlFor="hna" value="Hna" />
 
                                     <Input
+                                        ref={hnaRef}
                                         id="hna"
                                         type="number"
                                         name="hna"
@@ -307,6 +442,7 @@ export default function Create({auth, medical_suppliers, medicines}: PageProps &
                                     <InputLabel htmlFor="disc" value="Diskon" />
 
                                     <Input
+                                        ref={diskonRef}
                                         id="disc"
                                         type="number"
                                         name="disc"
@@ -323,7 +459,7 @@ export default function Create({auth, medical_suppliers, medicines}: PageProps &
                         </div>
 
                         <div className="mt-4 w-full border-t-2 border-slate-200 py-4">
-                            <Button>Input</Button>
+                            <Button onClick={() => inputActPembelian()}>Input</Button>
                         </div>
                     </div>
                 </div>
@@ -346,19 +482,30 @@ export default function Create({auth, medical_suppliers, medicines}: PageProps &
                                 rowOrders.length == 0 ? 
                                 <TableRow>
                                     <TableCell colSpan={8} align="center">Empty Data!</TableCell>
-                                </TableRow> : ''
+                                </TableRow> : 
+                                rowOrders.map((row: any, key: number) => (
+                                    <TableRow key={key}>
+                                        <TableCell>{key+1}</TableCell>
+                                        <TableCell>{row.medicine_name}</TableCell>
+                                        <TableCell>{row.qty}</TableCell>
+                                        <TableCell>Rp. {formatRupiah(row.price)}</TableCell>
+                                        <TableCell>Rp. {formatRupiah(row.disc_1)}</TableCell>
+                                        <TableCell>Rp. {formatRupiah(row.sub_total)}</TableCell>
+                                        <TableCell><Button variant="destructive">X</Button></TableCell>
+                                    </TableRow>
+                                ))
                             }
                             </TableBody>
                             <TableFooter>
                                 <TableRow>
                                     <TableCell className="border-slate-200">DPP :</TableCell>
-                                    <TableCell className="border-slate-200">Rp. 0,00</TableCell>
+                                    <TableCell className="border-slate-200">Rp. {formatRupiah(data.total_dpp)}</TableCell>
                                     <TableCell className="border-slate-200">PPn :</TableCell>
-                                    <TableCell className="border-slate-200">Rp. 0,00</TableCell>
+                                    <TableCell className="border-slate-200">Rp. {formatRupiah(data.total_ppn)}</TableCell>
                                     <TableCell className="border-slate-200">Diskon :</TableCell>
-                                    <TableCell className="border-slate-200">Rp. 0,00</TableCell>
+                                    <TableCell className="border-slate-200">Rp. {formatRupiah(data.total_discount)}</TableCell>
                                     <TableCell className="border-slate-200">Total Semua :</TableCell>
-                                    <TableCell className="border-slate-200">Rp. 0,00</TableCell>
+                                    <TableCell className="border-slate-200">Rp. {formatRupiah(data.total_grand)}</TableCell>
                                 </TableRow>
                             </TableFooter>
                         </Table>
