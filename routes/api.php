@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\DrugClassificationController;
 use App\Http\Controllers\Api\DoctorController;
 use App\Http\Controllers\Api\PatientController;
 use App\Http\Controllers\Api\MedicineController;
+use App\Http\Controllers\Api\MedicalSupplierController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -43,4 +44,8 @@ Route::group(['prefix' => 'patients'], function() {
 Route::group(['prefix' => 'doctors'], function() {
     Route::get('/', [DoctorController::class, 'getAll'])->name('api.doctors.get-all');
     Route::get('/{id}', [DoctorController::class, 'getById'])->name('api.doctors.get-by-id');
+});
+
+Route::group(['prefix' => 'medical-suppliers'], function() {
+    Route::get('/{id}', [MedicalSupplierController::class, 'getById'])->name('api.medical-suppliers.get-by-id');
 });

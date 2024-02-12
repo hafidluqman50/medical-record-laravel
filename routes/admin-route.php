@@ -8,6 +8,7 @@ use App\Http\Controllers\Administrator\MedicalSupplierController;
 use App\Http\Controllers\Administrator\MedicineFactoryController;
 use App\Http\Controllers\Administrator\PatientController;
 use App\Http\Controllers\Administrator\PatientCategoryController;
+use App\Http\Controllers\Administrator\PurchaseMedicineController;
 use App\Http\Controllers\Administrator\PriceParameterController;
 use App\Http\Controllers\Administrator\PpnController;
 use App\Http\Controllers\Administrator\RegistrationController;
@@ -143,6 +144,15 @@ Route::group(['middleware' => 'auth'], function() {
         Route::get('/', [TransactionCreditController::class, 'index'])->name('administrator.transaction-credit');
         Route::post('/', [TransactionCreditController::class, 'store'])->name('administrator.transaction-credit.store');
         Route::get('/{id}/print', [TransactionCreditController::class, 'printInvoice'])->name('administrator.transaction-credit.print-invoice');
+    });
+
+    Route::group(['prefix' => 'purchase-medicines'], function() {
+        Route::get('/', [PurchaseMedicineController::class, 'index'])->name('administrator.purchase-medicines');
+        Route::get('/create', [PurchaseMedicineController::class, 'create'])->name('administrator.purchase-medicines.create');
+        Route::post('/store', [PurchaseMedicineController::class, 'store'])->name('administrator.purchase-medicines.store');
+        Route::get('/detail/{id}', [PurchaseMedicineController::class, 'detail'])->name('administrator.purchase-medicines.detail');
+        Route::delete('/delete/{id}', [PurchaseMedicineController::class, 'delete'])->name('administrator.purchase-medicines.delete');
+        Route::get('/print/{id}', [PurchaseMedicineController::class, 'printInvoice'])->name('administrator.purchase-medicines.print');
     });
 
     Route::group(['prefix' => 'users'], function() {
