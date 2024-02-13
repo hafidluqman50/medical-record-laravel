@@ -31,7 +31,18 @@ import { Separator } from '@/Components/ui/separator'
 import { formatRupiah } from '@/lib/helper'
 
 interface PurchaseMedicineForm {
-    order:Array<any>;
+    order:Array<{
+        medicine_id: number,
+        medicine_name: string,
+        qty: number,
+        price: number,
+        ppn: number,
+        disc_1: number,
+        disc_2: number,
+        disc_3: number,
+        ppn_type: string,
+        sub_total: number
+    }>;
     medical_supplier_id:number|null;
     invoice_number:string
     code:string;
@@ -68,7 +79,18 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
         total_grand:0,
     });
 
-    const [rowOrders, setRowOrders] = useState<any>([])
+    const [rowOrders, setRowOrders] = useState<Array<{
+        medicine_id: number,
+        medicine_name: string,
+        qty: number,
+        price: number,
+        ppn: number,
+        disc_1: number,
+        disc_2: number,
+        disc_3: number,
+        ppn_type: string,
+        sub_total: number
+    }>>([])
     const [ppnType, setPpnType]     = useState<string>('')
     const [obat, setObat]           = useState<number>(0)
     const [namaObat, setNamaObat]   = useState<string>('')
@@ -132,33 +154,35 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
     }
 
     const inputActPembelian = (): void => {
-        const calculate   = parseInt(jumlahRef.current.value) * parseInt(hnaRef.current.value)
-        let ppn           = 0
-        let subTotal      = 0
-        let ppnTotal      = 0 + data.total_ppn
-        let dppTotal      = 0 + data.total_dpp
-        let discountTotal = 0 + data.total_discount
-        let totalGrand    = 0 + data.total_grand
+
+        const calculate    = parseInt(jumlahRef.current.value) * parseInt(hnaRef.current.value)
+        let ppn            = 0
+        let sub_total      = 0
+        let total_ppn      = 0 + data.total_ppn
+        let total_dpp      = 0 + data.total_dpp
+        let total_discount = 0 + data.total_discount
+        let total_grand    = 0 + data.total_grand
 
         if(ppnType == 'include-ppn') {
             ppn = ((calculate * 11) / 100)
-            subTotal = calculate + ppn
-            dppTotal += subTotal
+            sub_total = calculate + ppn
+            total_dpp += sub_total
+            ppn = 0
         }
         else if(ppnType == 'exclude-ppn') {
             ppn = ((calculate * 11) / 100)
-            subTotal = calculate + ppn
-            dppTotal += calculate
-            ppnTotal += ppn
+            sub_total = calculate + ppn
+            total_dpp += calculate
+            total_ppn += ppn
         }
         else {
-            subTotal += calculate
-            dppTotal += calculate
+            sub_total += calculate
+            total_dpp += calculate
         }
 
-        totalGrand += ((dppTotal + ppnTotal) - discountTotal)
+        total_grand = ((total_dpp + total_ppn) - total_discount)
 
-        let ordersData = data.order
+        let order = data.order
 
         const result = [{
             medicine_id: obat,
@@ -170,10 +194,10 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
             disc_2: 0,
             disc_3: 0,
             ppn_type: ppnType,
-            sub_total: subTotal
+            sub_total: sub_total
         }]
 
-        ordersData = [...data.order, ...result]
+        order = [...data.order, ...result]
 
         setRowOrders([
             ...rowOrders,
@@ -182,11 +206,11 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
 
         setData(data => ({
             ...data,
-            order:ordersData,
-            total_dpp:dppTotal,
-            total_ppn:ppnTotal,
-            total_discount:discountTotal,
-            total_grand:totalGrand
+            order,
+            total_dpp,
+            total_ppn,
+            total_discount,
+            total_grand
         }))
 
         setObat(0)
@@ -197,7 +221,38 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
         obatRef.current.focus()
     }
 
-    console.log(data)
+    const rowOrderAct = (index: number): void => {
+        const getRowOrder = rowOrders[index]
+
+        let total_ppn = 0
+        let total_dpp = 0
+
+        if(getRowOrder.ppn_type == 'exclude-ppn') {
+            total_ppn      = data.total_ppn - getRowOrder.ppn
+            total_dpp      = data.total_dpp - ((getRowOrder.qty * getRowOrder.price) + getRowOrder.ppn)
+        }
+        else {
+            total_ppn      = data.total_ppn - 0
+            total_dpp      = data.total_dpp - getRowOrder.sub_total
+        }
+
+        let total_discount = data.total_discount - (getRowOrder.disc_1)
+        let total_grand    = data.total_grand
+        const order        = data.order.filter((row, i) => (i != index))
+
+        total_grand = ((total_dpp + total_ppn) - total_discount)
+
+        setData(data => ({
+            ...data,
+            order,
+            total_dpp,
+            total_ppn,
+            total_discount,
+            total_grand
+        }))
+
+        setRowOrders(rowOrder => rowOrder.filter((r, i) => (i != index)))
+    }
 
     return(
         <AdministratorLayout
@@ -491,7 +546,7 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
                                         <TableCell>Rp. {formatRupiah(row.price)}</TableCell>
                                         <TableCell>Rp. {formatRupiah(row.disc_1)}</TableCell>
                                         <TableCell>Rp. {formatRupiah(row.sub_total)}</TableCell>
-                                        <TableCell><Button variant="destructive">X</Button></TableCell>
+                                        <TableCell><Button variant="destructive" onClick={() => rowOrderAct(key)}>X</Button></TableCell>
                                     </TableRow>
                                 ))
                             }

@@ -133,4 +133,21 @@ class PurchaseMedicineController extends Controller
 
         return Inertia::render('Administrator/PurchaseMedicine/Detail', compact('purchase_medicine_details', 'page_num', 'id'));
     }
+
+    public function delete(int $id): RedirectResponse
+    {
+        DB::beginTransaction();
+
+        try {
+            PurchaseMedicine::where('id', $id)->delete();
+
+            DB::commit();
+
+            return redirect()->intended('/administrator/purchase-medicines')->with('success', 'Berhasil Hapus Pembelian Obat');
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            throw new Exception($e->getMessage().' - '.$e->getLine());
+        }
+    }
 }

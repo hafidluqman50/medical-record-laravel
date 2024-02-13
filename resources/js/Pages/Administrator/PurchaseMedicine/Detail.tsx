@@ -3,7 +3,7 @@ import axios from 'axios'
 import AdministratorLayout from '@/Layouts/AdministratorLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { PageProps } from '@/types';
-import { PurchaseMedicine } from './type';
+import { PurchaseMedicineDetail } from './type';
 import { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from '@/Components/DataTable'
 import { SkeletonTable } from "@/Components/SkeletonTable"
@@ -51,8 +51,8 @@ import { Input } from '@/Components/ui/input'
 
 import { formatRupiah } from '@/lib/helper'
 
-interface PurchaseMedicines {
-    data:Array<PurchaseMedicine>;
+interface PurchaseMedicineDetails {
+    data:Array<PurchaseMedicineDetail>;
     links:Array<{
         url?:string,
         label:string,
@@ -60,12 +60,12 @@ interface PurchaseMedicines {
     }>;
 }
 
-type PurchaseMedicineProps = {
-    purchase_medicine_details:any
+type PurchaseMedicineDetailProps = {
+    purchase_medicine_details:PurchaseMedicineDetails
     id:number
 }
 
-export default function Index({auth, app, purchase_medicine_details, page_num, id}: PageProps & PurchaseMedicineProps) {
+export default function Index({auth, app, purchase_medicine_details, page_num, id}: PageProps & PurchaseMedicineDetailProps) {
 
     const [searchData, setSearchData] = useState<string>('')
 
@@ -140,7 +140,7 @@ export default function Index({auth, app, purchase_medicine_details, page_num, i
                                         Empty Data!
                                     </TableCell>
                                 </TableRow>
-                                : purchase_medicine_details.data.map((row: any, key: number) => (
+                                : purchase_medicine_details.data.map((row, key) => (
                                     <TableRow key={row.id}>
                                         <TableCell className="border border-slate-200">
                                             {page_num+key}
