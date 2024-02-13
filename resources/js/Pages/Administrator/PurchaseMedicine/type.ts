@@ -20,3 +20,19 @@ export interface PurchaseMedicine {
         name:string
     }
 }
+
+export interface PurchaseMedicineDetail {
+    id: number;
+    purchase_medicine_id: number;
+    medicine_id: number;
+    medicine:{
+        id:number;
+        name:string;
+        unit_medicine:string;
+    }
+    price:number;
+    ppn:number;
+    qty: number;
+    disc_1: number;
+    sub_total: number;
+}
