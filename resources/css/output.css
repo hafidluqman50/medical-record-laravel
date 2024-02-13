@@ -1255,6 +1255,10 @@ body {
   width: 1rem;
 }
 
+.w-4\/12 {
+  width: 33.333333%;
+}
+
 .w-48 {
   width: 12rem;
 }
@@ -1281,6 +1285,10 @@ body {
 
 .w-8 {
   width: 2rem;
+}
+
+.w-8\/12 {
+  width: 66.666667%;
 }
 
 .w-9 {
@@ -2746,6 +2754,11 @@ body {
   background-color: hsl(var(--destructive) / 0.9);
 }
 
+.hover\:bg-emerald-500:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(16 185 129 / var(--tw-bg-opacity));
+}
+
 .hover\:bg-emerald-500\/80:hover {
   background-color: rgb(16 185 129 / 0.8);
 }
@@ -2797,11 +2810,6 @@ body {
 
 .hover\:bg-sky-500\/90:hover {
   background-color: rgb(14 165 233 / 0.9);
-}
-
-.hover\:bg-emerald-500:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(16 185 129 / var(--tw-bg-opacity));
 }
 
 .hover\:text-accent-foreground:hover {

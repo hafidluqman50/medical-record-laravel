@@ -3,7 +3,7 @@ import axios from 'axios'
 import AdministratorLayout from '@/Layouts/AdministratorLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { PageProps } from '@/types';
-import { PurchaseMedicine } from './type';
+import { OrderMedicine } from './type';
 import { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from '@/Components/DataTable'
 import { SkeletonTable } from "@/Components/SkeletonTable"
@@ -49,8 +49,10 @@ import {
 
 import { Input } from '@/Components/ui/input'
 
-interface PurchaseMedicines {
-    data:Array<PurchaseMedicine>;
+import { formatRupiah } from '@/lib/helper'
+
+interface OrderMedicines {
+    data:Array<OrderMedicine>;
     links:Array<{
         url?:string,
         label:string,
@@ -58,20 +60,18 @@ interface PurchaseMedicines {
     }>;
 }
 
-type PurchaseMedicineProps = {
-    purchase_medicines:PurchaseMedicines
+type OrderMedicineProps = {
+    order_medicines:OrderMedicines
 }
 
-export default function Index({auth, app, purchase_medicines, page_num}: PageProps & PurchaseMedicineProps) {
-
-    console.log(purchase_medicines)
+export default function Index({auth, app, order_medicines, page_num}: PageProps & OrderMedicineProps) {
 
     const [searchData, setSearchData] = useState<string>('')
 
     const { session } = usePage<PageProps>().props
 
     const submitDelete = (id: number): void => {
-        router.delete(route('administrator.purchase-medicines.delete',id))
+        router.delete(route('administrator.order-medicines.delete',id))
     }
 
     const dismissAlert = (): void => {
@@ -80,7 +80,7 @@ export default function Index({auth, app, purchase_medicines, page_num}: PagePro
 
     const search = (): void => {
         router.get(
-            route('administrator.purchase-medicines'),
+            route('administrator.order-medicines'),
             {
                 search:searchData
             },
@@ -95,10 +95,10 @@ export default function Index({auth, app, purchase_medicines, page_num}: PagePro
         <AdministratorLayout
             user={auth.user}
             routeParent="pembelian"
-            routeChild="data-pembelian-obat"
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Pembelian Obat</h2>}
+            routeChild="data-pemesanan"
+            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Pemesanan Obat</h2>}
         >
-            <Head title="Data Pembelian Obat" />
+            <Head title="Data Pemesanan Obat" />
 
             <div className="py-12">
                 <div className="w-full mx-auto sm:px-6 lg:px-8">
@@ -121,14 +121,14 @@ export default function Index({auth, app, purchase_medicines, page_num}: PagePro
                         <div className="flex">
                             <div className="grow">
                                 <Button className="mb-2" asChild>
-                                    <Link href={route('administrator.purchase-medicines.create')}>Tambah Pembelian Obat</Link>
+                                    <Link href={route('administrator.order-medicines.create')}>Tambah Pemesanan Obat</Link>
                                 </Button>
                             </div>
                             <div className="w-1/3 flex-none flex space-x-4">
                                 <Input
                                     type="search" 
                                     name="search_data"
-                                    placeholder="Cari Pembelian Obat" 
+                                    placeholder="Cari Pemesanan Obat" 
                                     value={searchData}
                                     onChange={(e) => setSearchData(e.target.value)}
                                 />
@@ -141,15 +141,8 @@ export default function Index({auth, app, purchase_medicines, page_num}: PagePro
                           <TableHeader>
                             <TableRow>
                               <TableHead className="border border-slate-200">No</TableHead>
-                              <TableHead className="border border-slate-200">Invoice</TableHead>
-                              <TableHead className="border border-slate-200">Supplier</TableHead>
-                              <TableHead className="border border-slate-200">Kode Pembelian</TableHead>
-                              <TableHead className="border border-slate-200">Tanggal Terima</TableHead>
-                              <TableHead className="border border-slate-200">Waktu Hutang</TableHead>
-                              <TableHead className="border border-slate-200">Tanggal Jatuh Tempo</TableHead>
-                              <TableHead className="border border-slate-200">Jenis Beli</TableHead>
-                              <TableHead className="border border-slate-200">Total DPP</TableHead>
-                              <TableHead className="border border-slate-200">Total PPn</TableHead>
+                              <TableHead className="border border-slate-200">Kode Pemesanan</TableHead>
+                              <TableHead className="border border-slate-200">Tanggal Pemesanan</TableHead>
                               <TableHead className="border border-slate-200">Total Semua</TableHead>
                               <TableHead className="border border-slate-200">Input By</TableHead>
                               <TableHead className="border border-slate-200">#</TableHead>
@@ -157,13 +150,13 @@ export default function Index({auth, app, purchase_medicines, page_num}: PagePro
                           </TableHeader>
                           <TableBody>
                             {
-                                purchase_medicines.data.length == 0 ? 
+                                order_medicines.data.length == 0 ? 
                                 <TableRow>
-                                    <TableCell colSpan={13} align="center">
+                                    <TableCell colSpan={6} align="center">
                                         Empty Data!
                                     </TableCell>
                                 </TableRow>
-                                : purchase_medicines.data.map((row, key) => (
+                                : order_medicines.data.map((row, key) => (
                                     <TableRow key={row.id}>
                                         <TableCell className="border border-slate-200">
                                             {page_num+key}
@@ -172,42 +165,18 @@ export default function Index({auth, app, purchase_medicines, page_num}: PagePro
                                             {row.invoice_number}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.medical_supplier.name}
+                                            {row.date_order}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.code}
-                                        </TableCell>
-                                        <TableCell className="border border-slate-200">
-                                            {row.date_receive}
-                                        </TableCell>
-                                        <TableCell className="border border-slate-200">
-                                            {row.debt_time} Hari
-                                        </TableCell>
-                                        <TableCell className="border border-slate-200">
-                                            {row.due_date}
-                                        </TableCell>
-                                        <TableCell className="border border-slate-200">
-                                            {row.type}
-                                        </TableCell>
-                                        <TableCell className="border border-slate-200">
-                                            {row.total_dpp}
-                                        </TableCell>
-                                        <TableCell className="border border-slate-200">
-                                            {row.total_ppn}
-                                        </TableCell>
-                                        <TableCell className="border border-slate-200">
-                                            {row.total_grand}
+                                            Rp. {formatRupiah(row.total_grand)}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
                                             {row.user.name}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
                                             <div className="flex space-x-4">
-                                                <Button className="bg-emerald-500 text-white hover:bg-emerald-500" asChild>
-                                                    <Link href={route('administrator.purchase-medicines.print', row.id)}>Print</Link>
-                                                </Button>
                                                 <Button className="bg-cyan-500 text-white hover:bg-cyan-500" asChild>
-                                                    <Link href={route('administrator.purchase-medicines.detail', row.id)}>Detail</Link>
+                                                    <Link href={route('administrator.order-medicines.detail', row.id)}>Detail</Link>
                                                 </Button>
                                                 <AlertDialog>
                                                     <AlertDialogTrigger asChild>
@@ -234,11 +203,11 @@ export default function Index({auth, app, purchase_medicines, page_num}: PagePro
                           </TableBody>
                           <TableFooter>
                             <TableRow>
-                                <TableCell colSpan={13}>
+                                <TableCell colSpan={6}>
                                     <Pagination>
                                         <PaginationContent>    
                                     {
-                                        purchase_medicines.links.map((pagination, key) => (
+                                        order_medicines.links.map((pagination, key) => (
                                             
                                             <div key={key}>
                                             {   
