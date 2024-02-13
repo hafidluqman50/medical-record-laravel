@@ -135,7 +135,7 @@ export default function Authenticated({ user, header, routeParent = null, routeC
                                             </NavLink>
                                           </DropdownMenuItem>
                                           <DropdownMenuItem>
-                                            <NavLink href={'#'} active={routeChild == 'data-distribusi-obat'}>
+                                            <NavLink href={route('administrator.distribution-medicines')} active={routeChild == 'data-distribusi-obat'}>
                                                 Data Distribusi Obat
                                             </NavLink>
                                           </DropdownMenuItem>

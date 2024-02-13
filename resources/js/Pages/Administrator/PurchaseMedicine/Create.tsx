@@ -424,7 +424,7 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
                                 <div>
                                     <InputLabel htmlFor="medicine_id" value="Obat" />
 
-                                    <Select value={obat.toString()} onValueChange={(value) => selectObatAct(parseInt(value))}>
+                                    <Select defaultValue={obat == 0 ? '' : obat.toString()} value={obat == 0 ? '' : obat.toString()} onValueChange={(value) => selectObatAct(parseInt(value))}>
                                       <SelectTrigger ref={obatRef} className="w-full mt-1">
                                         <SelectValue placeholder="=== Pilih Obat ===" />
                                       </SelectTrigger>
