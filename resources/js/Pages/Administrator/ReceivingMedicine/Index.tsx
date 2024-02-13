@@ -95,7 +95,7 @@ export default function Index({auth, app, receiving_medicines, page_num}: PagePr
         <AdministratorLayout
             user={auth.user}
             routeParent="pembelian"
-            routeChild="data-pemesanan"
+            routeChild="data-penerimaan-obat"
             header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Penerimaan Obat</h2>}
         >
             <Head title="Data Penerimaan Obat" />
@@ -186,7 +186,7 @@ export default function Index({auth, app, receiving_medicines, page_num}: PagePr
                                                         <AlertDialogHeader>
                                                             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                                                             <AlertDialogDescription>
-                                                            This action cannot be undone. This will delete your purchase medicines data from our servers.
+                                                            This action cannot be undone. This will delete your receiving medicines data from our servers.
                                                             </AlertDialogDescription>
                                                         </AlertDialogHeader>
                                                         <AlertDialogFooter>

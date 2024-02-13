@@ -3,7 +3,7 @@ import axios from 'axios'
 import AdministratorLayout from '@/Layouts/AdministratorLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { PageProps } from '@/types';
-import { OrderMedicine } from './type';
+import { DistributionMedicine } from './type';
 import { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from '@/Components/DataTable'
 import { SkeletonTable } from "@/Components/SkeletonTable"
@@ -51,8 +51,8 @@ import { Input } from '@/Components/ui/input'
 
 import { formatRupiah } from '@/lib/helper'
 
-interface OrderMedicines {
-    data:Array<OrderMedicine>;
+interface DistributionMedicines {
+    data:Array<DistributionMedicine>;
     links:Array<{
         url?:string,
         label:string,
@@ -60,18 +60,18 @@ interface OrderMedicines {
     }>;
 }
 
-type OrderMedicineProps = {
-    order_medicines:OrderMedicines
+type DistributionMedicineProps = {
+    distribution_medicines:DistributionMedicines
 }
 
-export default function Index({auth, app, order_medicines, page_num}: PageProps & OrderMedicineProps) {
+export default function Index({auth, app, distribution_medicines, page_num}: PageProps & DistributionMedicineProps) {
 
     const [searchData, setSearchData] = useState<string>('')
 
     const { session } = usePage<PageProps>().props
 
     const submitDelete = (id: number): void => {
-        router.delete(route('administrator.order-medicines.delete',id))
+        router.delete(route('administrator.distribution-medicines.delete',id))
     }
 
     const dismissAlert = (): void => {
@@ -80,7 +80,7 @@ export default function Index({auth, app, order_medicines, page_num}: PageProps 
 
     const search = (): void => {
         router.get(
-            route('administrator.order-medicines'),
+            route('administrator.distribution-medicines'),
             {
                 search:searchData
             },
@@ -95,10 +95,10 @@ export default function Index({auth, app, order_medicines, page_num}: PageProps 
         <AdministratorLayout
             user={auth.user}
             routeParent="pembelian"
-            routeChild="data-pemesanan"
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Pemesanan Obat</h2>}
+            routeChild="data-distribusi-obat"
+            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Distribusi Obat</h2>}
         >
-            <Head title="Data Pemesanan Obat" />
+            <Head title="Data Distribusi Obat" />
 
             <div className="py-12">
                 <div className="w-full mx-auto sm:px-6 lg:px-8">
@@ -121,14 +121,14 @@ export default function Index({auth, app, order_medicines, page_num}: PageProps 
                         <div className="flex">
                             <div className="grow">
                                 <Button className="mb-2" asChild>
-                                    <Link href={route('administrator.order-medicines.create')}>Tambah Pemesanan Obat</Link>
+                                    <Link href={route('administrator.distribution-medicines.create')}>Tambah Distribusi Obat</Link>
                                 </Button>
                             </div>
                             <div className="w-1/3 flex-none flex space-x-4">
                                 <Input
                                     type="search" 
                                     name="search_data"
-                                    placeholder="Cari Pemesanan Obat" 
+                                    placeholder="Cari Distribusi Obat" 
                                     value={searchData}
                                     onChange={(e) => setSearchData(e.target.value)}
                                 />
@@ -141,22 +141,21 @@ export default function Index({auth, app, order_medicines, page_num}: PageProps 
                           <TableHeader>
                             <TableRow>
                               <TableHead className="border border-slate-200">No</TableHead>
-                              <TableHead className="border border-slate-200">Kode Pemesanan</TableHead>
-                              <TableHead className="border border-slate-200">Tanggal Pemesanan</TableHead>
-                              <TableHead className="border border-slate-200">Total Semua</TableHead>
+                              <TableHead className="border border-slate-200">Kode Distribusi</TableHead>
+                              <TableHead className="border border-slate-200">Tanggal Distribusi</TableHead>
                               <TableHead className="border border-slate-200">Input By</TableHead>
                               <TableHead className="border border-slate-200">#</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
                             {
-                                order_medicines.data.length == 0 ? 
+                                distribution_medicines.data.length == 0 ? 
                                 <TableRow>
-                                    <TableCell colSpan={6} align="center">
+                                    <TableCell colSpan={5} align="center">
                                         Empty Data!
                                     </TableCell>
                                 </TableRow>
-                                : order_medicines.data.map((row, key) => (
+                                : distribution_medicines.data.map((row, key) => (
                                     <TableRow key={row.id}>
                                         <TableCell className="border border-slate-200">
                                             {page_num+key}
@@ -165,10 +164,7 @@ export default function Index({auth, app, order_medicines, page_num}: PageProps 
                                             {row.invoice_number}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.date_order}
-                                        </TableCell>
-                                        <TableCell className="border border-slate-200">
-                                            Rp. {formatRupiah(row.total_grand)}
+                                            {row.date_distribution}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
                                             {row.user.name}
@@ -176,7 +172,7 @@ export default function Index({auth, app, order_medicines, page_num}: PageProps 
                                         <TableCell className="border border-slate-200">
                                             <div className="flex space-x-4">
                                                 <Button className="bg-cyan-500 text-white hover:bg-cyan-500" asChild>
-                                                    <Link href={route('administrator.order-medicines.detail', row.id)}>Detail</Link>
+                                                    <Link href={route('administrator.distribution-medicines.detail', row.id)}>Detail</Link>
                                                 </Button>
                                                 <AlertDialog>
                                                     <AlertDialogTrigger asChild>
@@ -186,7 +182,7 @@ export default function Index({auth, app, order_medicines, page_num}: PageProps 
                                                         <AlertDialogHeader>
                                                             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                                                             <AlertDialogDescription>
-                                                            This action cannot be undone. This will delete your order medicines data from our servers.
+                                                            This action cannot be undone. This will delete your distribution medicines data from our servers.
                                                             </AlertDialogDescription>
                                                         </AlertDialogHeader>
                                                         <AlertDialogFooter>
@@ -203,11 +199,11 @@ export default function Index({auth, app, order_medicines, page_num}: PageProps 
                           </TableBody>
                           <TableFooter>
                             <TableRow>
-                                <TableCell colSpan={6}>
+                                <TableCell colSpan={5}>
                                     <Pagination>
                                         <PaginationContent>    
                                     {
-                                        order_medicines.links.map((pagination, key) => (
+                                        distribution_medicines.links.map((pagination, key) => (
                                             
                                             <div key={key}>
                                             {   
