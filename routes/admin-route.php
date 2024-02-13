@@ -1,6 +1,7 @@
 <?php 
 
 use App\Http\Controllers\Administrator\DashboardController;
+use App\Http\Controllers\Administrator\DistributionMedicineController;
 use App\Http\Controllers\Administrator\DoctorController;
 use App\Http\Controllers\Administrator\DrugClassificationController;
 use App\Http\Controllers\Administrator\MedicineController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\Administrator\PatientCategoryController;
 use App\Http\Controllers\Administrator\PurchaseMedicineController;
 use App\Http\Controllers\Administrator\PriceParameterController;
 use App\Http\Controllers\Administrator\PpnController;
+use App\Http\Controllers\Administrator\ReceivingMedicineController;
 use App\Http\Controllers\Administrator\RegistrationController;
 use App\Http\Controllers\Administrator\TransactionCreditController;
 use App\Http\Controllers\Administrator\TransactionHvController;
@@ -162,6 +164,22 @@ Route::group(['middleware' => 'auth'], function() {
         Route::post('/store', [OrderMedicineController::class, 'store'])->name('administrator.order-medicines.store');
         Route::get('/detail/{id}', [OrderMedicineController::class, 'detail'])->name('administrator.order-medicines.detail');
         Route::delete('/delete/{id}', [OrderMedicineController::class, 'delete'])->name('administrator.order-medicines.delete');
+    });
+
+    Route::group(['prefix' => 'receiving-medicines'], function() {
+        Route::get('/', [ReceivingMedicineController::class, 'index'])->name('administrator.receiving-medicines');
+        Route::get('/create', [ReceivingMedicineController::class, 'create'])->name('administrator.receiving-medicines.create');
+        Route::post('/store', [ReceivingMedicineController::class, 'store'])->name('administrator.receiving-medicines.store');
+        Route::get('/detail/{id}', [ReceivingMedicineController::class, 'detail'])->name('administrator.receiving-medicines.detail');
+        Route::delete('/delete/{id}', [ReceivingMedicineController::class, 'delete'])->name('administrator.receiving-medicines.delete');
+    });
+
+    Route::group(['prefix' => 'distribution-medicines'], function() {
+        Route::get('/', [DistributionMedicineController::class, 'index'])->name('administrator.distribution-medicines');
+        Route::get('/create', [DistributionMedicineController::class, 'create'])->name('administrator.distribution-medicines.create');
+        Route::post('/store', [DistributionMedicineController::class, 'store'])->name('administrator.distribution-medicines.store');
+        Route::get('/detail/{id}', [DistributionMedicineController::class, 'detail'])->name('administrator.distribution-medicines.detail');
+        Route::delete('/delete/{id}', [DistributionMedicineController::class, 'delete'])->name('administrator.distribution-medicines.delete');
     });
 
     Route::group(['prefix' => 'users'], function() {

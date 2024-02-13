@@ -12,12 +12,13 @@ class MedicineController extends ApiBaseController
 {
     public function getAll(Request $request): JsonResponse
     {
-        $medicine = $request->medicine;
+        $medicine      = $request->medicine;
+        $data_location = $request->data_location ?? 'gudang';
 
         $medicines = Medicine::with('medicineFactory')->when($medicine != '', function(Builder $query) use ($medicine) {
             $query->where('name','like',"%{$medicine}%")
                   ->orWhere('code','like',"%{$medicine}%");
-        })->get()->map(function(Medicine $query) {
+        })->where('data_location', $data_location)->get()->map(function(Medicine $query) {
             $harga_modal     = format_rupiah($query->capital_price);
             $harga_modal_ppn = format_rupiah($query->capital_price_vat);
             $hja_net         = format_rupiah($query->sell_price);

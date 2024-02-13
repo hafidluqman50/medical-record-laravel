@@ -168,7 +168,8 @@ export default function TransactionCredit({
                     route('api.medicines.get-all'),
                     {
                         params:{
-                            medicine:event.target.value
+                            medicine:event.target.value,
+                            data_location:'kasir'
                         }
                     }
                 )

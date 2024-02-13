@@ -177,7 +177,8 @@ export default function TransactionResep({
                     route('api.medicines.get-all'),
                     {
                         params:{
-                            medicine:event.target.value
+                            medicine:event.target.value,
+                            data_location:'kasir'
                         }
                     }
                 )
