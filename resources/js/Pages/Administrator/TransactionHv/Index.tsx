@@ -114,7 +114,8 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
                     route('api.medicines.get-all'),
                     {
                         params:{
-                            medicine:event.target.value
+                            medicine:event.target.value,
+                            data_location:'kasir'
                         }
                     }
                 )

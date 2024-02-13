@@ -114,7 +114,8 @@ export default function TransactionUpds({kode_transaksi, price_parameter, medici
                     route('api.medicines.get-all'),
                     {
                         params:{
-                            medicine:event.target.value
+                            medicine:event.target.value,
+                            data_location:'kasir'
                         }
                     }
                 )
