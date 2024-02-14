@@ -1,5 +1,6 @@
 <?php 
 
+use App\Http\Controllers\Administrator\CardStockController;
 use App\Http\Controllers\Administrator\DashboardController;
 use App\Http\Controllers\Administrator\DistributionMedicineController;
 use App\Http\Controllers\Administrator\DoctorController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Administrator\MedicineFactoryController;
 use App\Http\Controllers\Administrator\OrderMedicineController;
 use App\Http\Controllers\Administrator\PatientController;
 use App\Http\Controllers\Administrator\PatientCategoryController;
+use App\Http\Controllers\Administrator\PurchaseHistoryController;
 use App\Http\Controllers\Administrator\PurchaseMedicineController;
 use App\Http\Controllers\Administrator\PriceParameterController;
 use App\Http\Controllers\Administrator\PpnController;
@@ -180,6 +182,14 @@ Route::group(['middleware' => 'auth'], function() {
         Route::post('/store', [DistributionMedicineController::class, 'store'])->name('administrator.distribution-medicines.store');
         Route::get('/detail/{id}', [DistributionMedicineController::class, 'detail'])->name('administrator.distribution-medicines.detail');
         Route::delete('/delete/{id}', [DistributionMedicineController::class, 'delete'])->name('administrator.distribution-medicines.delete');
+    });
+
+    Route::group(['prefix' => 'purchase-histories'], function() {
+        Route::get('/', [PurchaseHistoryController::class, 'index'])->name('administrator.purchase-histories');
+    });
+
+    Route::group(['prefix' => 'card-stocks'], function() {
+        Route::get('/', [CardStockController::class, 'index'])->name('administrator.card-stocks');
     });
 
     Route::group(['prefix' => 'users'], function() {

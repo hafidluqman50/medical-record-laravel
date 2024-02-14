@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Administrator;
 
+use App\Models\CardStock;
+use App\Models\PurchaseHistory;
 use App\Models\PurchaseMedicine;
 use App\Models\PurchaseMedicineDetail;
 use App\Models\Medicine;
@@ -49,7 +51,7 @@ class PurchaseMedicineController extends Controller
     public function create(): Response
     {
         $medical_suppliers = MedicalSupplier::all();
-        $medicines         = Medicine::all();
+        $medicines         = Medicine::where('data_location', 'gudang')->get();
         $kode_pembelian    = PurchaseMedicine::generateCode();
 
         return Inertia::render('Administrator/PurchaseMedicine/Create', compact('medical_suppliers', 'medicines', 'kode_pembelian'));
@@ -104,6 +106,30 @@ class PurchaseMedicineController extends Controller
                     'disc_3'               => $value['disc_3'],
                     'ppn_type'             => $value['ppn_type'],
                     'sub_total'            => $value['sub_total']
+                ]);
+
+                PurchaseHistory::create([
+                    'date_purchase'       => $request->date_receive,
+                    'invoice_number'      => $request->invoice_number,
+                    'medical_supplier_id' => $request->medical_supplier_id,
+                    'qty'                 => $value['qty'],
+                    'medicine_id'         => $value['medicine_id'],
+                    'unit_medicine'       => $value['unit_medicine'],
+                    'sub_total'           => $value['sub_total']
+                ]);
+
+                $get_recent_stock = Medicine::where('id', $value['medicine_id'])->firstOrFail()->stock;
+
+                CardStock::create([
+                    'invoice_number'    => $request->invoice_number,
+                    'medicine_id'       => $value['medicine_id'],
+                    'date_stock'        => date('Y-m-d'),
+                    'type'              => 'beli',
+                    'buy'               => $value['qty'],
+                    'sell'              => 0,
+                    'return'            => 0,
+                    'accumulated_stock' => $get_recent_stock+$value['qty'],
+                    'notes'             => 'Pembelian'
                 ]);
             }
 
