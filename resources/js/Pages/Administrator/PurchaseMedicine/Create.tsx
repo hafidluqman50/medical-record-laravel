@@ -34,6 +34,7 @@ interface PurchaseMedicineForm {
     order:Array<{
         medicine_id: number,
         medicine_name: string,
+        unit_medicine: string,
         qty: number,
         price: number,
         ppn: number,
@@ -82,6 +83,7 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
     const [rowOrders, setRowOrders] = useState<Array<{
         medicine_id: number,
         medicine_name: string,
+        unit_medicine: string,
         qty: number,
         price: number,
         ppn: number,
@@ -91,9 +93,9 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
         ppn_type: string,
         sub_total: number
     }>>([])
-    const [ppnType, setPpnType]     = useState<string>('')
-    const [obat, setObat]           = useState<number>(0)
-    const [namaObat, setNamaObat]   = useState<string>('')
+    const [ppnType, setPpnType]           = useState<string>('')
+    const [obat, setObat]                 = useState<number>(0)
+    const [namaObat, setNamaObat]         = useState<string>('')
 
     const invoiceNumberRef = useRef<any>()
     const hnaRef = useRef<any>()
@@ -111,10 +113,12 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
     const selectMedicalSupplierAct = async(value: number): Promise<void> => {
         const requestData = await axios.get<any>(route('api.medical-suppliers.get-by-id', value))
 
+        const invoice_number = `${requestData.data.data.medical_supplier.abbreviation_name}-${kode_pembelian}`
+
         setData(data => ({
             ...data,
             medical_supplier_id:value,
-            invoice_number:requestData.data.data.medical_supplier.abbreviation_name
+            invoice_number
         }))
     }
 
@@ -187,6 +191,7 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
         const result = [{
             medicine_id: obat,
             medicine_name: namaObat,
+            unit_medicine: satuanRef.current.value,
             qty: jumlahRef.current.value,
             price: hnaRef.current.value,
             ppn,

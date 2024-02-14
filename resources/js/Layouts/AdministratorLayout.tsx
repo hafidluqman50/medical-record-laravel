@@ -145,12 +145,12 @@ export default function Authenticated({ user, header, routeParent = null, routeC
                                             </NavLink>
                                           </DropdownMenuItem>
                                           <DropdownMenuItem>
-                                            <NavLink href={'#'} active={routeChild == 'kartu-stok'}>
+                                            <NavLink href={route('administrator.card-stocks')} active={routeChild == 'kartu-stok'}>
                                                 Kartu Stok
                                             </NavLink>
                                           </DropdownMenuItem>
                                           <DropdownMenuItem>
-                                            <NavLink href={'#'} active={routeChild == 'history-beli'}>
+                                            <NavLink href={route('administrator.purchase-histories')} active={routeChild == 'history-beli'}>
                                                 History Beli
                                             </NavLink>
                                           </DropdownMenuItem>
