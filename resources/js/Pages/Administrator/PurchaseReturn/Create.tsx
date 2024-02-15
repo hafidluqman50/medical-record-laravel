@@ -37,18 +37,19 @@ import { Textarea } from "@/Components/ui/textarea"
 import { Button } from '@/Components/ui/button'
 import { Input } from '@/Components/ui/input'
 
-interface SalesReturnForm {
+interface PurchaseReturnForm {
     invoice_number:string
     date_return:string
-    date_return_transaction:string
+    date_return_purchase:string
+    medical_supplier_id:number|null
     data_returns:Array<{
         medicine_id:number,
-        qty_transaction:number,
+        qty_purchase:number,
         qty_return:number,
         sub_total:number,
         sub_total_custom:number
     }>
-    invoice_number_transaction:string
+    invoice_number_purchase:string
     total_return:number
 }
 
@@ -58,16 +59,17 @@ type CreatePageProps = {
 
 export default function Create({auth, invoice_number, price_parameters}: PageProps & CreatePageProps) {
 
-    const { data, setData, post, processing, errors, reset } = useForm<SalesReturnForm>({
+    const { data, setData, post, processing, errors, reset } = useForm<PurchaseReturnForm>({
         invoice_number,
         date_return: (new Date().toJSON().slice(0, 10)),
-        date_return_transaction: '',
-        invoice_number_transaction: '',
+        medical_supplier_id:null,
+        date_return_purchase: '',
+        invoice_number_purchase: '',
         data_returns: [],
         total_return:0
     });
 
-    const [invoiceNumberTransactions, setNumberInvoiceTransactions] = useState<Array<{
+    const [invoiceNumberPurchases, setNumberInvoicePurchases] = useState<Array<{
         invoice_transaction:string,
         invoice_number:string
     }>>([])
@@ -76,20 +78,22 @@ export default function Create({auth, invoice_number, price_parameters}: PagePro
         medicine_id:number,
         medicine_name:string,
         price:number,
-        qty_transaction:number,
+        qty_purchase:number,
         qty_return:number,
         sub_total:number,
         sub_total_custom:number
     }>>([])
 
+    const [supplierName, setSupplierName] = useState<string>('')
+
     const qtyReturnRef      = useRef<any>()
     const subTotalRef       = useRef<any>()
     const subTotalCustomRef = useRef<any>()
 
-    const dateTransactionAct = async(event: ChangeEvent<HTMLInputElement>): Promise<void> => {
+    const datePurchaseAct = async(event: ChangeEvent<HTMLInputElement>): Promise<void> => {
         const dateValue = (event.target as HTMLInputElement).value
 
-        setData('date_return_transaction', dateValue)
+        setData('date_return_purchase', dateValue)
 
         const responseResult = await axios.get<{
             data:{
@@ -98,13 +102,13 @@ export default function Create({auth, invoice_number, price_parameters}: PagePro
                     invoice_number:string
                 }>
             }
-        }>(route('api.transactions.get-by-date', dateValue))
+        }>(route('api.purchases.get-by-date', dateValue))
 
-        setNumberInvoiceTransactions(responseResult.data.data.results)
+        setNumberInvoicePurchases(responseResult.data.data.results)
     }
 
-    const selectNomorTransaksiAct = async(value: string): Promise<void> => {
-        setData('invoice_number_transaction', value)
+    const selectNomorPembelianAct = async(value: string): Promise<void> => {
+        setData('invoice_number_purchase', value)
 
         const responseResult = await axios.get<{
             data:{
@@ -112,23 +116,29 @@ export default function Create({auth, invoice_number, price_parameters}: PagePro
                     medicine_id:number,
                     medicine_name:string,
                     price:number,
-                    qty_transaction:number,
+                    qty_purchase:number,
                     qty_return:number,
                     sub_total:number,
                     sub_total_custom:number
-                }>
+                }>,
+                medical_supplier_id:number,
+                medical_supplier_name:string
             }
-        }>(route('api.transactions.get-by-invoice', value))
+        }>(route('api.purchases.get-by-invoice', value))
 
-        const dataRow = responseResult.data.data.results
+        const dataRow             = responseResult.data.data.results
+        const medical_supplier_id = responseResult.data.data.medical_supplier_id
 
         console.log(dataRow)
 
         setRowObat(dataRow)
 
+        setSupplierName(responseResult.data.data.medical_supplier_name ?? '')
+
         setData(data => ({
             ...data,
-            data_returns:dataRow
+            data_returns:dataRow,
+            medical_supplier_id
         }))
     }
 
@@ -159,6 +169,8 @@ export default function Create({auth, invoice_number, price_parameters}: PagePro
         const getDataReturns = data.data_returns
         const qtyReturnValue = getDataReturns[index].qty_return
         const sub_total      = getRowObat.price * qtyReturnValue
+
+        console.log(qtyReturnValue)
 
         rowObat[index].sub_total         = 0
         getDataReturns[index].sub_total  = 0
@@ -208,7 +220,7 @@ export default function Create({auth, invoice_number, price_parameters}: PagePro
     const submitForm: FormEventHandler = (e) => {
         e.preventDefault()
 
-        post(route('administrator.sales-returns.store'));
+        post(route('administrator.purchase-returns.store'));
     }
 
     console.log(data)
@@ -216,18 +228,18 @@ export default function Create({auth, invoice_number, price_parameters}: PagePro
     return(
         <AdministratorLayout
             user={auth.user}
-            routeParent="penjualan"
-            routeChild="retur-penjualan"
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Form Retur Penjualan</h2>}
+            routeParent="pembelian"
+            routeChild="retur-pembelian"
+            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Form Retur Pembelian</h2>}
         >
-            <Head title="Form Retur Penjualan" />
+            <Head title="Form Retur Pembelian" />
 
             <div className="py-12">
                 <div className="max-w-5xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg py-8 px-8">
                         <div className="border-b-2 mb-4 py-4 border-slate-200">
                             <Button variant="secondary" asChild>
-                                <Link href={route('administrator.sales-returns')}>Kembali</Link>
+                                <Link href={route('administrator.purchase-returns')}>Kembali</Link>
                             </Button>
                         </div>
                         <form onSubmit={submitForm}>
@@ -265,38 +277,46 @@ export default function Create({auth, invoice_number, price_parameters}: PagePro
                             </div>
 
                             <div className="mt-4">
-                                <InputLabel htmlFor="date_return_transaction" value="Tanggal Retur Transaksi" />
+                                <InputLabel htmlFor="date_return_purchase" value="Tanggal Retur Pembelian" />
 
                                 <Input
-                                    id="date_return_transaction"
+                                    id="date_return_purchase"
                                     type="date"
-                                    name="date_return_transaction"
-                                    value={data.date_return_transaction}
+                                    name="date_return_purchase"
+                                    value={data.date_return_purchase}
                                     className="mt-1 block w-full"
-                                    autoComplete="date_return_transaction"
-                                    onChange={dateTransactionAct}
+                                    autoComplete="date_return_purchase"
+                                    onChange={datePurchaseAct}
                                 />
 
-                                <InputError message={errors.date_return_transaction} className="mt-2" />
+                                <InputError message={errors.date_return_purchase} className="mt-2" />
                             </div>
 
                             <div className="mt-4">
-                                <InputLabel htmlFor="invoice_number_transaction" value="Nomor Transaksi" />
+                                <InputLabel htmlFor="invoice_number_purchase" value="Nomor Pembelian" />
 
-                                <Select onValueChange={(value) => selectNomorTransaksiAct(value)}>
+                                <Select onValueChange={(value) => selectNomorPembelianAct(value)}>
                                   <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="=== Pilih Nomor Transaksi ===" />
+                                    <SelectValue placeholder="=== Pilih Nomor Pembelian ===" />
                                   </SelectTrigger>
                                   <SelectContent>
                                   {
-                                    invoiceNumberTransactions.map((row, key) => (
+                                    invoiceNumberPurchases.map((row, key) => (
                                         <SelectItem value={row.invoice_transaction} key={key}>{row.invoice_number}</SelectItem>
                                     ))
                                   }
                                   </SelectContent>
                                 </Select>
 
-                                <InputError message={errors.date_return_transaction} className="mt-2" />
+                                <InputError message={errors.date_return_purchase} className="mt-2" />
+                            </div>
+
+                            <div className="mt-4">
+                                <InputLabel htmlFor="supplier" value="Supplier" />
+
+                                <Input id="supplier" type="text" className="bg-slate-200" value={supplierName} readOnly />
+
+                                <InputError message={errors.medical_supplier_id} className="mt-2" />
                             </div>
 
                             <div className="mt-4 w-full border-t-2 border-slate-200 py-4">
@@ -313,7 +333,7 @@ export default function Create({auth, invoice_number, price_parameters}: PagePro
                             <TableRow>
                               <TableHead className="border border-slate-200">No</TableHead>
                               <TableHead className="border border-slate-200">Nama Obat</TableHead>
-                              <TableHead className="border border-slate-200">Stok Transaksi</TableHead>
+                              <TableHead className="border border-slate-200">Stok Pembelian</TableHead>
                               <TableHead className="border border-slate-200">Stok Retur</TableHead>
                               <TableHead className="border border-slate-200">Harga Retur</TableHead>
                               <TableHead className="border border-slate-200">#</TableHead>
@@ -336,14 +356,14 @@ export default function Create({auth, invoice_number, price_parameters}: PagePro
                                             {row.medicine_name}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.qty_transaction}
+                                            {row.qty_purchase}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
                                             <Input 
                                                 ref={qtyReturnRef} 
                                                 type="number" 
                                                 min={0} 
-                                                onKeyUp={(event) => qtyReturnAct(event, key)} 
+                                                onKeyUp={(event) => qtyReturnAct(event, key)}
                                                 onChange={(event) => qtyReturnAct(event, key)} 
                                             />
                                         </TableCell>

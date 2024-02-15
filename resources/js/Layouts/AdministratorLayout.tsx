@@ -140,7 +140,7 @@ export default function Authenticated({ user, header, routeParent = null, routeC
                                             </NavLink>
                                           </DropdownMenuItem>
                                           <DropdownMenuItem>
-                                            <NavLink href={'#'} active={routeChild == 'data-retur-obat'}>
+                                            <NavLink href={route('administrator.purchase-returns')} active={routeChild == 'retur-pembelian'}>
                                                 Data Retur Pembelian
                                             </NavLink>
                                           </DropdownMenuItem>

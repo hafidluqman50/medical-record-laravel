@@ -3,7 +3,7 @@ import axios from 'axios'
 import AdministratorLayout from '@/Layouts/AdministratorLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { PageProps } from '@/types';
-import { SalesReturn } from './type';
+import { PurchaseReturn } from './type';
 import { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from '@/Components/DataTable'
 import { SkeletonTable } from "@/Components/SkeletonTable"
@@ -54,8 +54,8 @@ import { Badge } from '@/Components/ui/badge'
 
 import { formatRupiah } from '@/lib/helper'
 
-interface SalesReturns {
-    data:Array<SalesReturn>;
+interface PurchaseReturns {
+    data:Array<PurchaseReturn>;
     links:Array<{
         url?:string,
         label:string,
@@ -63,18 +63,18 @@ interface SalesReturns {
     }>;
 }
 
-type SalesReturnProps = {
-    sales_returns:SalesReturns
+type PurchaseReturnProps = {
+    purchase_returns:PurchaseReturns
 }
 
-export default function Index({auth, app, sales_returns, page_num}: PageProps & SalesReturnProps) {
+export default function Index({auth, app, purchase_returns, page_num}: PageProps & PurchaseReturnProps) {
 
     const [searchData, setSearchData] = useState<string>('')
 
     const { session } = usePage<PageProps>().props
 
     const submitDelete = (id: number): void => {
-        router.delete(route('administrator.sales-returns.delete', id))
+        router.delete(route('administrator.purchase-returns.delete', id))
     }
 
     const dismissAlert = (): void => {
@@ -83,7 +83,7 @@ export default function Index({auth, app, sales_returns, page_num}: PageProps & 
 
     const search = (): void => {
         router.get(
-            route('administrator.sales-returns'),
+            route('administrator.purchase-returns'),
             {
                 search:searchData
             },
@@ -97,11 +97,11 @@ export default function Index({auth, app, sales_returns, page_num}: PageProps & 
     return (
         <AdministratorLayout
             user={auth.user}
-            routeParent="penjualan"
-            routeChild="retur-penjualan"
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Retur Penjualan</h2>}
+            routeParent="pembelian"
+            routeChild="retur-pembelian"
+            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Retur Pembelian</h2>}
         >
-            <Head title="Data Retur Penjualan" />
+            <Head title="Data Retur Pembelian" />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -123,14 +123,14 @@ export default function Index({auth, app, sales_returns, page_num}: PageProps & 
                         <div className="flex">
                             <div className="grow">
                                 <Button className="mb-2" asChild>
-                                    <Link href={route('administrator.sales-returns.create')}>Tambah Retur Penjualan</Link>
+                                    <Link href={route('administrator.purchase-returns.create')}>Tambah Retur Pembelian</Link>
                                 </Button>
                             </div>
                             <div className="w-1/3 flex-none flex space-x-4">
                                 <Input
                                     type="search" 
                                     name="search_data"
-                                    placeholder="Cari Retur Penjualan" 
+                                    placeholder="Cari Retur Pembelian" 
                                     value={searchData}
                                     onChange={(e) => setSearchData(e.target.value)}
                                 />
@@ -144,7 +144,8 @@ export default function Index({auth, app, sales_returns, page_num}: PageProps & 
                             <TableRow>
                               <TableHead className="border border-slate-200">No</TableHead>
                               <TableHead className="border border-slate-200">Nomor Invoice</TableHead>
-                              <TableHead className="border border-slate-200">Nomor Invoice Transaksi</TableHead>
+                              <TableHead className="border border-slate-200">Nomor Invoice Pembelian</TableHead>
+                              <TableHead className="border border-slate-200">Supplier</TableHead>
                               <TableHead className="border border-slate-200">Tanggal Retur</TableHead>
                               <TableHead className="border border-slate-200">Total Nominal Retur</TableHead>
                               <TableHead className="border border-slate-200">#</TableHead>
@@ -152,13 +153,13 @@ export default function Index({auth, app, sales_returns, page_num}: PageProps & 
                           </TableHeader>
                           <TableBody>
                             {
-                                sales_returns.data.length == 0 ? 
+                                purchase_returns.data.length == 0 ? 
                                 <TableRow>
                                     <TableCell colSpan={5} align="center">
                                         Empty Data!
                                     </TableCell>
                                 </TableRow>
-                                : sales_returns.data.map((row, key) => (
+                                : purchase_returns.data.map((row, key) => (
                                     <TableRow key={row.id}>
                                         <TableCell className="border border-slate-200">
                                             {page_num+key}
@@ -167,7 +168,10 @@ export default function Index({auth, app, sales_returns, page_num}: PageProps & 
                                             {row.invoice_number}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.invoice_number_transaction}
+                                            {row.invoice_number_purchase}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            {row.medical_supplier.name}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
                                             {row.date_return}
@@ -178,7 +182,7 @@ export default function Index({auth, app, sales_returns, page_num}: PageProps & 
                                         <TableCell className="border border-slate-200">
                                             <div className="flex space-x-4">
                                                 <Button className="bg-amber-500 text-white hover:bg-amber-500" asChild>
-                                                    <Link href={route('administrator.sales-returns.detail', row.id)}>Detail</Link>
+                                                    <Link href={route('administrator.purchase-returns.detail', row.id)}>Detail</Link>
                                                 </Button>
                                                 <AlertDialog>
                                                   <AlertDialogTrigger asChild>
@@ -188,7 +192,7 @@ export default function Index({auth, app, sales_returns, page_num}: PageProps & 
                                                     <AlertDialogHeader>
                                                       <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                                                       <AlertDialogDescription>
-                                                        This action cannot be undone. This will delete your sales_returns data from our servers.
+                                                        This action cannot be undone. This will delete your purchase_returns data from our servers.
                                                       </AlertDialogDescription>
                                                     </AlertDialogHeader>
                                                     <AlertDialogFooter>
@@ -205,11 +209,11 @@ export default function Index({auth, app, sales_returns, page_num}: PageProps & 
                           </TableBody>
                           <TableFooter>
                             <TableRow>
-                                <TableCell colSpan={6}>
+                                <TableCell colSpan={7}>
                                     <Pagination>
                                         <PaginationContent>    
                                     {
-                                        sales_returns.links.map((pagination, key) => (
+                                        purchase_returns.links.map((pagination, key) => (
                                             
                                             <div key={key}>
                                             {   

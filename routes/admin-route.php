@@ -12,6 +12,7 @@ use App\Http\Controllers\Administrator\OrderMedicineController;
 use App\Http\Controllers\Administrator\PatientController;
 use App\Http\Controllers\Administrator\PatientCategoryController;
 use App\Http\Controllers\Administrator\PurchaseHistoryController;
+use App\Http\Controllers\Administrator\PurchaseReturnController;
 use App\Http\Controllers\Administrator\PurchaseMedicineController;
 use App\Http\Controllers\Administrator\PriceParameterController;
 use App\Http\Controllers\Administrator\PpnController;
@@ -199,6 +200,14 @@ Route::group(['middleware' => 'auth'], function() {
         Route::post('/store', [SalesReturnController::class, 'store'])->name('administrator.sales-returns.store');
         Route::get('/detail/{id}', [SalesReturnController::class, 'detail'])->name('administrator.sales-returns.detail');
         Route::delete('/delete/{id}', [SalesReturnController::class, 'delete'])->name('administrator.sales-returns.delete');
+    });
+
+    Route::group(['prefix' => 'purchase-returns'], function() {
+        Route::get('/', [PurchaseReturnController::class, 'index'])->name('administrator.purchase-returns');
+        Route::get('/create', [PurchaseReturnController::class, 'create'])->name('administrator.purchase-returns.create');
+        Route::post('/store', [PurchaseReturnController::class, 'store'])->name('administrator.purchase-returns.store');
+        Route::get('/detail/{id}', [PurchaseReturnController::class, 'detail'])->name('administrator.purchase-returns.detail');
+        Route::delete('/delete/{id}', [PurchaseReturnController::class, 'delete'])->name('administrator.purchase-returns.delete');
     });
 
     Route::group(['prefix' => 'users'], function() {
