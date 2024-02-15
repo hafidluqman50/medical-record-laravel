@@ -21,9 +21,13 @@ type PpnProps = {
     ppn:Ppn
 }
 
+interface PpnForm {
+    nilai_ppn: number
+}
+
 export default function Edit({auth, ppn}: PageProps & PpnProps) {
 
-    const { data, setData, put, processing, errors, reset } = useForm({
+    const { data, setData, put, processing, errors, reset } = useForm<PpnForm>({
         nilai_ppn: ppn.nilai_ppn
     });
 

@@ -203,7 +203,7 @@ export default function Authenticated({ user, header, routeParent = null, routeC
                                             </NavLink>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem>
-                                            <NavLink href={'#'} active={routeChild == 'retur-penjualan'}>
+                                            <NavLink href={route('administrator.sales-returns')} active={routeChild == 'retur-penjualan'}>
                                                 Retur Penjualan
                                             </NavLink>
                                         </DropdownMenuItem>

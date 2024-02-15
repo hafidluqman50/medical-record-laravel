@@ -13,7 +13,7 @@ import { DrugClassification } from '@/Pages/Administrator/DrugClassification/typ
 import { MedicalSupplier } from '@/Pages/Administrator/MedicalSupplier/type'
 import { MedicineFactory } from '@/Pages/Administrator/MedicineFactory/type'
 
-import { MedicineForm, Medicine } from './type'
+import { MedicineEditForm, Medicine } from './type'
 
 import {
   Select,

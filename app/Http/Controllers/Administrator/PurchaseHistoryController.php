@@ -20,12 +20,10 @@ class PurchaseHistoryController extends Controller
 
         $medicines = Medicine::where('data_location', 'gudang')->get();
 
-        $purchase_histories = PurchaseHistory::with(['medicalSupplier'])->when($medicine_batch_number != '' && $from_date != '' && $to_date != '', function(Builder $query) use ($medicine_batch_number, $from_date, $to_date) {
-                $query->whereBetween('date_purchase',[$from_date,$to_date])
+        $purchase_histories = PurchaseHistory::with(['medicalSupplier'])->whereBetween('date_purchase',[$from_date,$to_date])
                       ->whereHas('medicine', function(Builder $queryHas) use ($medicine_batch_number) {
                         $queryHas->where('batch_number', $medicine_batch_number);
-                      });
-            })->paginate(10)->withQueryString();
+                      })->paginate(10)->withQueryString();
 
         $page_num = ($purchase_histories->currentPage() - 1) * $purchase_histories->perPage() + 1;
 

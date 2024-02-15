@@ -17,6 +17,7 @@ use App\Http\Controllers\Administrator\PriceParameterController;
 use App\Http\Controllers\Administrator\PpnController;
 use App\Http\Controllers\Administrator\ReceivingMedicineController;
 use App\Http\Controllers\Administrator\RegistrationController;
+use App\Http\Controllers\Administrator\SalesReturnController;
 use App\Http\Controllers\Administrator\TransactionCreditController;
 use App\Http\Controllers\Administrator\TransactionHvController;
 use App\Http\Controllers\Administrator\TransactionResepController;
@@ -190,6 +191,14 @@ Route::group(['middleware' => 'auth'], function() {
 
     Route::group(['prefix' => 'card-stocks'], function() {
         Route::get('/', [CardStockController::class, 'index'])->name('administrator.card-stocks');
+    });
+
+    Route::group(['prefix' => 'sales-returns'], function() {
+        Route::get('/', [SalesReturnController::class, 'index'])->name('administrator.sales-returns');
+        Route::get('/create', [SalesReturnController::class, 'create'])->name('administrator.sales-returns.create');
+        Route::post('/store', [SalesReturnController::class, 'store'])->name('administrator.sales-returns.store');
+        Route::get('/detail/{id}', [SalesReturnController::class, 'detail'])->name('administrator.sales-returns.detail');
+        Route::delete('/delete/{id}', [SalesReturnController::class, 'delete'])->name('administrator.sales-returns.delete');
     });
 
     Route::group(['prefix' => 'users'], function() {

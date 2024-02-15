@@ -20,9 +20,13 @@ type PatientCategoryProps = {
     patient_category:PatientCategory
 }
 
+interface PatientCategoryForm {
+    name: string
+}
+
 export default function Edit({auth, patient_category}: PageProps & PatientCategoryProps) {
 
-    const { data, setData, post, put, processing, errors, reset } = useForm({
+    const { data, setData, post, put, processing, errors, reset } = useForm<PatientCategoryForm>({
         name: patient_category.name
     });
 
