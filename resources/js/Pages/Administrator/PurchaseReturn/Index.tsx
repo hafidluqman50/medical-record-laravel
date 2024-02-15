@@ -3,19 +3,12 @@ import axios from 'axios'
 import AdministratorLayout from '@/Layouts/AdministratorLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { PageProps } from '@/types';
-import { CardStock } from './type';
-import { Medicine } from '@/Pages/Administrator/Medicine/type';
+import { PurchaseReturn } from './type';
 import { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from '@/Components/DataTable'
 import { SkeletonTable } from "@/Components/SkeletonTable"
 import { Button } from '@/Components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/Components/ui/select"
+
 import {
   Table,
   TableBody,
@@ -57,10 +50,12 @@ import {
 
 import { Input } from '@/Components/ui/input'
 
+import { Badge } from '@/Components/ui/badge'
+
 import { formatRupiah } from '@/lib/helper'
 
-interface CardStocks {
-    data:Array<CardStock>;
+interface PurchaseReturns {
+    data:Array<PurchaseReturn>;
     links:Array<{
         url?:string,
         label:string,
@@ -68,21 +63,18 @@ interface CardStocks {
     }>;
 }
 
-type CardStockProps = {
-    card_stocks:CardStocks
-    medicines:Medicine[]
+type PurchaseReturnProps = {
+    purchase_returns:PurchaseReturns
 }
 
-export default function Index({auth, app, card_stocks, page_num, medicines}: PageProps & CardStockProps) {
+export default function Index({auth, app, purchase_returns, page_num}: PageProps & PurchaseReturnProps) {
 
-    const [medicineBatch, setMedicineBatch] = useState<string>('')
-    const [fromDate, setFromDate]           = useState<string>('')
-    const [toDate, setToDate]               = useState<string>('')
+    const [searchData, setSearchData] = useState<string>('')
 
     const { session } = usePage<PageProps>().props
 
     const submitDelete = (id: number): void => {
-        router.delete(route('administrator.order-medicines.delete',id))
+        router.delete(route('administrator.purchase-returns.delete', id))
     }
 
     const dismissAlert = (): void => {
@@ -91,11 +83,9 @@ export default function Index({auth, app, card_stocks, page_num, medicines}: Pag
 
     const search = (): void => {
         router.get(
-            route('administrator.purchase-histories'),
+            route('administrator.purchase-returns'),
             {
-                medicine_batch_number:medicineBatch,
-                from_date:fromDate,
-                to_date:toDate
+                search:searchData
             },
             {
                 preserveState: true,
@@ -108,15 +98,14 @@ export default function Index({auth, app, card_stocks, page_num, medicines}: Pag
         <AdministratorLayout
             user={auth.user}
             routeParent="pembelian"
-            routeChild="data-pemesanan"
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Kartu Stok</h2>}
+            routeChild="retur-pembelian"
+            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Retur Pembelian</h2>}
         >
-            <Head title="Kartu Stok" />
+            <Head title="Data Retur Pembelian" />
 
             <div className="py-12">
-                <div className="w-full mx-auto sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg py-4 px-4">
-                        {/*<DataTable columns={columns} data={doctor}/>*/}
                     {
                         session.success && (
                         <Alert id="alert-success" className="mb-5 flex" variant="success">
@@ -132,32 +121,19 @@ export default function Index({auth, app, card_stocks, page_num, medicines}: Pag
                         </Alert>
                     )}
                         <div className="flex">
-                            <div className="w-full flex-none flex space-x-4">
+                            <div className="grow">
+                                <Button className="mb-2" asChild>
+                                    <Link href={route('administrator.purchase-returns.create')}>Tambah Retur Pembelian</Link>
+                                </Button>
+                            </div>
+                            <div className="w-1/3 flex-none flex space-x-4">
                                 <Input
-                                    type="date" 
-                                    name="from_date"
-                                    value={fromDate}
-                                    onChange={(e) => setFromDate(e.target.value)}
+                                    type="search" 
+                                    name="search_data"
+                                    placeholder="Cari Retur Pembelian" 
+                                    value={searchData}
+                                    onChange={(e) => setSearchData(e.target.value)}
                                 />
-                                <Input
-                                    type="date" 
-                                    name="from_date"
-                                    value={toDate}
-                                    onChange={(e) => setToDate(e.target.value)}
-                                />
-                                <Select onValueChange={(value) => setMedicineBatch(value)}>
-                                  <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="=== Pilih Obat ===" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                  {
-                                    medicines.map((row, key) => (
-                                        <SelectItem value={row.batch_number} key={key}>{row.name}</SelectItem>
-                                    ))
-                                  }
-                                  </SelectContent>
-                                </Select>
-
                                 <Button className="mb-2" variant="secondary" onClick={search}>
                                     Cari
                                 </Button>
@@ -167,52 +143,65 @@ export default function Index({auth, app, card_stocks, page_num, medicines}: Pag
                           <TableHeader>
                             <TableRow>
                               <TableHead className="border border-slate-200">No</TableHead>
-                              <TableHead className="border border-slate-200">Tanggal</TableHead>
                               <TableHead className="border border-slate-200">Nomor Invoice</TableHead>
-                              <TableHead className="border border-slate-200">Layanan</TableHead>
-                              <TableHead className="border border-slate-200">Beli</TableHead>
-                              <TableHead className="border border-slate-200">Jual</TableHead>
-                              <TableHead className="border border-slate-200">Retur Barang</TableHead>
-                              <TableHead className="border border-slate-200">Saldo</TableHead>
-                              <TableHead className="border border-slate-200">Keterangan</TableHead>
+                              <TableHead className="border border-slate-200">Nomor Invoice Pembelian</TableHead>
+                              <TableHead className="border border-slate-200">Supplier</TableHead>
+                              <TableHead className="border border-slate-200">Tanggal Retur</TableHead>
+                              <TableHead className="border border-slate-200">Total Nominal Retur</TableHead>
+                              <TableHead className="border border-slate-200">#</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
                             {
-                                card_stocks.data.length == 0 ? 
+                                purchase_returns.data.length == 0 ? 
                                 <TableRow>
-                                    <TableCell colSpan={9} align="center">
+                                    <TableCell colSpan={5} align="center">
                                         Empty Data!
                                     </TableCell>
                                 </TableRow>
-                                : card_stocks.data.map((row, key) => (
+                                : purchase_returns.data.map((row, key) => (
                                     <TableRow key={row.id}>
                                         <TableCell className="border border-slate-200">
                                             {page_num+key}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.date_stock}
-                                        </TableCell>
-                                        <TableCell className="border border-slate-200">
                                             {row.invoice_number}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.type}
+                                            {row.invoice_number_purchase}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.buy}
+                                            {row.medical_supplier.name}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.sell}
+                                            {row.date_return}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.return}
+                                            Rp. {formatRupiah(row.total_return)}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.accumulated_stock}
-                                        </TableCell>
-                                        <TableCell className="border border-slate-200">
-                                            {row.notes}
+                                            <div className="flex space-x-4">
+                                                <Button className="bg-amber-500 text-white hover:bg-amber-500" asChild>
+                                                    <Link href={route('administrator.purchase-returns.detail', row.id)}>Detail</Link>
+                                                </Button>
+                                                <AlertDialog>
+                                                  <AlertDialogTrigger asChild>
+                                                    <Button variant="destructive">Delete</Button>
+                                                  </AlertDialogTrigger>
+                                                  <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                      <AlertDialogDescription>
+                                                        This action cannot be undone. This will delete your purchase_returns data from our servers.
+                                                      </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                      <AlertDialogAction onClick={() => submitDelete(row.id)}>Continue</AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                  </AlertDialogContent>
+                                                </AlertDialog>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ))
@@ -220,11 +209,11 @@ export default function Index({auth, app, card_stocks, page_num, medicines}: Pag
                           </TableBody>
                           <TableFooter>
                             <TableRow>
-                                <TableCell colSpan={9}>
+                                <TableCell colSpan={7}>
                                     <Pagination>
                                         <PaginationContent>    
                                     {
-                                        card_stocks.links.map((pagination, key) => (
+                                        purchase_returns.links.map((pagination, key) => (
                                             
                                             <div key={key}>
                                             {   

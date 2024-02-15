@@ -1,4 +1,11 @@
-import { useState, useEffect, FormEventHandler, useRef } from 'react'
+import { 
+    useState, 
+    useEffect, 
+    FormEventHandler, 
+    useRef,
+    KeyboardEvent,
+    ChangeEvent
+} from 'react'
 import axios from 'axios'
 import AdministratorLayout from '@/Layouts/AdministratorLayout';
 import InputError from '@/Components/InputError';
@@ -111,7 +118,11 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
     }
 
     const selectMedicalSupplierAct = async(value: number): Promise<void> => {
-        const requestData = await axios.get<any>(route('api.medical-suppliers.get-by-id', value))
+        const requestData = await axios.get<{data:{
+            medical_supplier:{
+                abbreviation_name:string
+            }
+        }}>(route('api.medical-suppliers.get-by-id', value))
 
         const invoice_number = `${requestData.data.data.medical_supplier.abbreviation_name}-${kode_pembelian}`
 
@@ -122,15 +133,15 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
         }))
     }
 
-    const debtTimeAct = (event: any): void => {
+    const debtTimeAct = (event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): void => {
 
         setData(data => ({
             ...data,
-            debt_time:parseInt(event.target.value)
+            debt_time:parseInt((event.target as HTMLInputElement).value)
         }))
 
         let result = new Date(data.date_receive);
-        result.setDate(result.getDate() + parseInt(event.target.value));
+        result.setDate(result.getDate() + parseInt((event.target as HTMLInputElement).value));
 
         let month:number|string = result.getMonth()+1;
         month = `0${month}`.slice(-2);
@@ -149,7 +160,12 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
     const selectObatAct = async(value: number): Promise<void> => {
         setObat(value)
 
-        const responseData = await axios.get<any>(route('api.medicines.get-by-id', value))
+        const responseData = await axios.get<{medicine:{
+                name:string,
+                capital_price:string,
+                unit_medicine:string
+            }
+        }>(route('api.medicines.get-by-id', value))
 
         hnaRef.current.value = responseData.data.medicine.capital_price
         satuanRef.current.value = responseData.data.medicine.unit_medicine

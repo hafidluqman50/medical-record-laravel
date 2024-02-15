@@ -2,9 +2,11 @@
 
 use App\Http\Controllers\Api\DrugClassificationController;
 use App\Http\Controllers\Api\DoctorController;
-use App\Http\Controllers\Api\PatientController;
 use App\Http\Controllers\Api\MedicineController;
 use App\Http\Controllers\Api\MedicalSupplierController;
+use App\Http\Controllers\Api\PatientController;
+use App\Http\Controllers\Api\PurchaseMedicineController;
+use App\Http\Controllers\Api\TransactionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -48,4 +50,14 @@ Route::group(['prefix' => 'doctors'], function() {
 
 Route::group(['prefix' => 'medical-suppliers'], function() {
     Route::get('/{id}', [MedicalSupplierController::class, 'getById'])->name('api.medical-suppliers.get-by-id');
+});
+
+Route::group(['prefix' => 'transactions'], function() {
+    Route::get('/get-by-date/{date}', [TransactionController::class, 'getByDate'])->name('api.transactions.get-by-date');
+    Route::get('/get-by-invoice/{invoice}', [TransactionController::class, 'getByInvoice'])->name('api.transactions.get-by-invoice');
+});
+
+Route::group(['prefix' => 'purchases'], function() {
+    Route::get('/get-by-date/{date}', [PurchaseMedicineController::class, 'getByDate'])->name('api.purchases.get-by-date');
+    Route::get('/get-by-invoice/{invoice}', [PurchaseMedicineController::class, 'getByInvoice'])->name('api.purchases.get-by-invoice');
 });
