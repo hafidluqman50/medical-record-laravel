@@ -155,7 +155,7 @@ export default function Index({auth, app, purchase_returns, page_num}: PageProps
                             {
                                 purchase_returns.data.length == 0 ? 
                                 <TableRow>
-                                    <TableCell colSpan={5} align="center">
+                                    <TableCell colSpan={7} align="center">
                                         Empty Data!
                                     </TableCell>
                                 </TableRow>
