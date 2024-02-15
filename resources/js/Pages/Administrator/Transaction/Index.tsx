@@ -3,7 +3,7 @@ import axios from 'axios'
 import AdministratorLayout from '@/Layouts/AdministratorLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { PageProps } from '@/types';
-import { SalesReturn } from './type';
+import { Transaction } from './type';
 import { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from '@/Components/DataTable'
 import { SkeletonTable } from "@/Components/SkeletonTable"
@@ -54,8 +54,8 @@ import { Badge } from '@/Components/ui/badge'
 
 import { formatRupiah } from '@/lib/helper'
 
-interface SalesReturns {
-    data:Array<SalesReturn>;
+interface Transactions {
+    data:Array<Transaction>;
     links:Array<{
         url?:string,
         label:string,
@@ -63,18 +63,18 @@ interface SalesReturns {
     }>;
 }
 
-type SalesReturnProps = {
-    sales_returns:SalesReturns
+type TransactionProps = {
+    transactions:Transactions
 }
 
-export default function Index({auth, app, sales_returns, page_num}: PageProps & SalesReturnProps) {
+export default function Index({auth, app, transactions, page_num}: PageProps & TransactionProps) {
 
     const [searchData, setSearchData] = useState<string>('')
 
     const { session } = usePage<PageProps>().props
 
     const submitDelete = (id: number): void => {
-        router.delete(route('administrator.sales-returns.delete', id))
+        router.delete(route('administrator.transactions.delete', id))
     }
 
     const dismissAlert = (): void => {
@@ -83,7 +83,7 @@ export default function Index({auth, app, sales_returns, page_num}: PageProps & 
 
     const search = (): void => {
         router.get(
-            route('administrator.sales-returns'),
+            route('administrator.transactions'),
             {
                 search:searchData
             },
@@ -98,10 +98,10 @@ export default function Index({auth, app, sales_returns, page_num}: PageProps & 
         <AdministratorLayout
             user={auth.user}
             routeParent="penjualan"
-            routeChild="retur-penjualan"
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Retur Penjualan</h2>}
+            routeChild="data-penjualan"
+            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Penjualan</h2>}
         >
-            <Head title="Data Retur Penjualan" />
+            <Head title="Data Penjualan" />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -120,17 +120,12 @@ export default function Index({auth, app, sales_returns, page_num}: PageProps & 
                           </div>
                         </Alert>
                     )}
-                        <div className="flex">
-                            <div className="grow">
-                                <Button className="mb-2" asChild>
-                                    <Link href={route('administrator.sales-returns.create')}>Tambah Retur Penjualan</Link>
-                                </Button>
-                            </div>
-                            <div className="w-1/3 flex-none flex space-x-4">
+                        <div className="flex justify-end">
+                            <div className="w-1/3 flex space-x-4">
                                 <Input
                                     type="search" 
                                     name="search_data"
-                                    placeholder="Cari Retur Penjualan" 
+                                    placeholder="Cari Penjualan" 
                                     value={searchData}
                                     onChange={(e) => setSearchData(e.target.value)}
                                 />
@@ -144,21 +139,27 @@ export default function Index({auth, app, sales_returns, page_num}: PageProps & 
                             <TableRow>
                               <TableHead className="border border-slate-200">No</TableHead>
                               <TableHead className="border border-slate-200">Nomor Invoice</TableHead>
-                              <TableHead className="border border-slate-200">Nomor Invoice Transaksi</TableHead>
-                              <TableHead className="border border-slate-200">Tanggal Retur</TableHead>
-                              <TableHead className="border border-slate-200">Total Nominal Retur</TableHead>
+                              <TableHead className="border border-slate-200">Tanggal Transaksi</TableHead>
+                              <TableHead className="border border-slate-200">Sub Total</TableHead>
+                              <TableHead className="border border-slate-200">Diskon</TableHead>
+                              <TableHead className="border border-slate-200">Total</TableHead>
+                              <TableHead className="border border-slate-200">Bayar</TableHead>
+                              <TableHead className="border border-slate-200">Kembalian</TableHead>
+                              <TableHead className="border border-slate-200">Jenis Pembayaran</TableHead>
+                              <TableHead className="border border-slate-200">Jenis Transaksi</TableHead>
+                              <TableHead className="border border-slate-200">Input By</TableHead>
                               <TableHead className="border border-slate-200">#</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
                             {
-                                sales_returns.data.length == 0 ? 
+                                transactions.data.length == 0 ? 
                                 <TableRow>
-                                    <TableCell colSpan={6} align="center">
+                                    <TableCell colSpan={13} align="center">
                                         Empty Data!
                                     </TableCell>
                                 </TableRow>
-                                : sales_returns.data.map((row, key) => (
+                                : transactions.data.map((row, key) => (
                                     <TableRow key={row.id}>
                                         <TableCell className="border border-slate-200">
                                             {page_num+key}
@@ -167,18 +168,36 @@ export default function Index({auth, app, sales_returns, page_num}: PageProps & 
                                             {row.invoice_number}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.invoice_number_transaction}
+                                            {row.date_transaction}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.date_return}
+                                            Rp. {formatRupiah(row.sub_total)}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            Rp. {formatRupiah(row.total_return)}
+                                            Rp. {formatRupiah(row.discount_pay)}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            Rp. {formatRupiah(row.total)}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            Rp. {formatRupiah(row.pay_total)}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            Rp. {formatRupiah(row.change_money)}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            {row.transaction_pay_type}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            {row.type}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            {row.user.name}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
                                             <div className="flex space-x-4">
                                                 <Button className="bg-amber-500 text-white hover:bg-amber-500" asChild>
-                                                    <Link href={route('administrator.sales-returns.detail', row.id)}>Detail</Link>
+                                                    <Link href={route('administrator.transactions.detail', row.id)}>Detail</Link>
                                                 </Button>
                                                 <AlertDialog>
                                                   <AlertDialogTrigger asChild>
@@ -188,7 +207,7 @@ export default function Index({auth, app, sales_returns, page_num}: PageProps & 
                                                     <AlertDialogHeader>
                                                       <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                                                       <AlertDialogDescription>
-                                                        This action cannot be undone. This will delete your sales_returns data from our servers.
+                                                        This action cannot be undone. This will delete your transactions data from our servers.
                                                       </AlertDialogDescription>
                                                     </AlertDialogHeader>
                                                     <AlertDialogFooter>
@@ -205,11 +224,11 @@ export default function Index({auth, app, sales_returns, page_num}: PageProps & 
                           </TableBody>
                           <TableFooter>
                             <TableRow>
-                                <TableCell colSpan={6}>
+                                <TableCell colSpan={13}>
                                     <Pagination>
                                         <PaginationContent>    
                                     {
-                                        sales_returns.links.map((pagination, key) => (
+                                        transactions.links.map((pagination, key) => (
                                             
                                             <div key={key}>
                                             {   
