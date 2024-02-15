@@ -22,9 +22,20 @@ type PatientCreateProps = {
     patient:Patient
 }
 
+interface PatientForm {
+    code: string,
+    name: string,
+    bpjs_number: string,
+    patient_category_id: number,
+    city_place: string,
+    birth_date: string,
+    address: string,
+    phone_number: number|string
+}
+
 export default function Create({auth, patient_categories, patient}: PageProps & PatientCreateProps) {
 
-    const { data, setData, put, processing, errors, reset } = useForm({
+    const { data, setData, put, processing, errors, reset } = useForm<PatientForm>({
         code: patient.code,
         name: patient.name,
         bpjs_number: patient.bpjs_number,

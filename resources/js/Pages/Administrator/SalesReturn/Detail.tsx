@@ -3,19 +3,12 @@ import axios from 'axios'
 import AdministratorLayout from '@/Layouts/AdministratorLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { PageProps } from '@/types';
-import { CardStock } from './type';
-import { Medicine } from '@/Pages/Administrator/Medicine/type';
+import { SalesReturnDetail } from './type';
 import { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from '@/Components/DataTable'
 import { SkeletonTable } from "@/Components/SkeletonTable"
 import { Button } from '@/Components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/Components/ui/select"
+
 import {
   Table,
   TableBody,
@@ -57,10 +50,12 @@ import {
 
 import { Input } from '@/Components/ui/input'
 
+import { Badge } from '@/Components/ui/badge'
+
 import { formatRupiah } from '@/lib/helper'
 
-interface CardStocks {
-    data:Array<CardStock>;
+interface SalesReturnDetails {
+    data:Array<SalesReturnDetail>;
     links:Array<{
         url?:string,
         label:string,
@@ -68,21 +63,18 @@ interface CardStocks {
     }>;
 }
 
-type CardStockProps = {
-    card_stocks:CardStocks
-    medicines:Medicine[]
+type SalesReturnDetailProps = {
+    sales_return_details:SalesReturnDetails
 }
 
-export default function Index({auth, app, card_stocks, page_num, medicines}: PageProps & CardStockProps) {
+export default function Index({auth, app, sales_return_details, page_num}: PageProps & SalesReturnDetailProps) {
 
-    const [medicineBatch, setMedicineBatch] = useState<string>('')
-    const [fromDate, setFromDate]           = useState<string>('')
-    const [toDate, setToDate]               = useState<string>('')
+    const [searchData, setSearchData] = useState<string>('')
 
     const { session } = usePage<PageProps>().props
 
     const submitDelete = (id: number): void => {
-        router.delete(route('administrator.order-medicines.delete',id))
+        router.delete(route('administrator.sales-returns.delete', id))
     }
 
     const dismissAlert = (): void => {
@@ -91,11 +83,9 @@ export default function Index({auth, app, card_stocks, page_num, medicines}: Pag
 
     const search = (): void => {
         router.get(
-            route('administrator.purchase-histories'),
+            route('administrator.sales-returns'),
             {
-                medicine_batch_number:medicineBatch,
-                from_date:fromDate,
-                to_date:toDate
+                search:searchData
             },
             {
                 preserveState: true,
@@ -107,57 +97,29 @@ export default function Index({auth, app, card_stocks, page_num, medicines}: Pag
     return (
         <AdministratorLayout
             user={auth.user}
-            routeParent="pembelian"
-            routeChild="data-pemesanan"
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Kartu Stok</h2>}
+            routeParent="penjualan"
+            routeChild="retur-penjualan"
+            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Retur Penjualan Detail</h2>}
         >
-            <Head title="Kartu Stok" />
+            <Head title="Data Retur Penjualan Detail" />
 
             <div className="py-12">
-                <div className="w-full mx-auto sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg py-4 px-4">
-                        {/*<DataTable columns={columns} data={doctor}/>*/}
-                    {
-                        session.success && (
-                        <Alert id="alert-success" className="mb-5 flex" variant="success">
-                          <div className="w-full grow">
-                              <AlertTitle>Berhasil !</AlertTitle>
-                              <AlertDescription>
-                                {session.success}
-                              </AlertDescription>
-                          </div>
-                          <div className="flex-none">
-                            <Button className="justify-content-end" variant="ghost" onClick={dismissAlert}>X</Button>
-                          </div>
-                        </Alert>
-                    )}
                         <div className="flex">
-                            <div className="w-full flex-none flex space-x-4">
+                            <div className="grow">
+                                <Button variant="secondary" className="mb-2" asChild>
+                                    <Link href={route('administrator.sales-returns')}>Kembali</Link>
+                                </Button>
+                            </div>
+                            <div className="w-1/3 flex-none flex space-x-4">
                                 <Input
-                                    type="date" 
-                                    name="from_date"
-                                    value={fromDate}
-                                    onChange={(e) => setFromDate(e.target.value)}
+                                    type="search" 
+                                    name="search_data"
+                                    placeholder="Cari Retur Penjualan" 
+                                    value={searchData}
+                                    onChange={(e) => setSearchData(e.target.value)}
                                 />
-                                <Input
-                                    type="date" 
-                                    name="from_date"
-                                    value={toDate}
-                                    onChange={(e) => setToDate(e.target.value)}
-                                />
-                                <Select onValueChange={(value) => setMedicineBatch(value)}>
-                                  <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="=== Pilih Obat ===" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                  {
-                                    medicines.map((row, key) => (
-                                        <SelectItem value={row.batch_number} key={key}>{row.name}</SelectItem>
-                                    ))
-                                  }
-                                  </SelectContent>
-                                </Select>
-
                                 <Button className="mb-2" variant="secondary" onClick={search}>
                                     Cari
                                 </Button>
@@ -167,52 +129,40 @@ export default function Index({auth, app, card_stocks, page_num, medicines}: Pag
                           <TableHeader>
                             <TableRow>
                               <TableHead className="border border-slate-200">No</TableHead>
-                              <TableHead className="border border-slate-200">Tanggal</TableHead>
-                              <TableHead className="border border-slate-200">Nomor Invoice</TableHead>
-                              <TableHead className="border border-slate-200">Layanan</TableHead>
-                              <TableHead className="border border-slate-200">Beli</TableHead>
-                              <TableHead className="border border-slate-200">Jual</TableHead>
-                              <TableHead className="border border-slate-200">Retur Barang</TableHead>
-                              <TableHead className="border border-slate-200">Saldo</TableHead>
-                              <TableHead className="border border-slate-200">Keterangan</TableHead>
+                              <TableHead className="border border-slate-200">Nama Obat</TableHead>
+                              <TableHead className="border border-slate-200">Stok Transaksi</TableHead>
+                              <TableHead className="border border-slate-200">Stok Retur</TableHead>
+                              <TableHead className="border border-slate-200">Harga Retur</TableHead>
+                              <TableHead className="border border-slate-200">Harga Retur Flexibel</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
                             {
-                                card_stocks.data.length == 0 ? 
+                                sales_return_details.data.length == 0 ? 
                                 <TableRow>
-                                    <TableCell colSpan={9} align="center">
+                                    <TableCell colSpan={5} align="center">
                                         Empty Data!
                                     </TableCell>
                                 </TableRow>
-                                : card_stocks.data.map((row, key) => (
+                                : sales_return_details.data.map((row, key) => (
                                     <TableRow key={row.id}>
                                         <TableCell className="border border-slate-200">
                                             {page_num+key}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.date_stock}
+                                            {row.medicine.name}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.invoice_number}
+                                            {row.qty_transaction}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.type}
+                                            {row.qty_return}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.buy}
+                                            Rp. {formatRupiah(row.sub_total)}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.sell}
-                                        </TableCell>
-                                        <TableCell className="border border-slate-200">
-                                            {row.return}
-                                        </TableCell>
-                                        <TableCell className="border border-slate-200">
-                                            {row.accumulated_stock}
-                                        </TableCell>
-                                        <TableCell className="border border-slate-200">
-                                            {row.notes}
+                                            Rp. {formatRupiah(row.sub_total_custom)}
                                         </TableCell>
                                     </TableRow>
                                 ))
@@ -220,11 +170,11 @@ export default function Index({auth, app, card_stocks, page_num, medicines}: Pag
                           </TableBody>
                           <TableFooter>
                             <TableRow>
-                                <TableCell colSpan={9}>
+                                <TableCell colSpan={6}>
                                     <Pagination>
                                         <PaginationContent>    
                                     {
-                                        card_stocks.links.map((pagination, key) => (
+                                        sales_return_details.links.map((pagination, key) => (
                                             
                                             <div key={key}>
                                             {   

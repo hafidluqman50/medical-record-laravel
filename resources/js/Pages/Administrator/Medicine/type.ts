@@ -70,3 +70,30 @@ export interface MedicineForm {
     capital_price_vat:number|null
     sell_price:number|null
 }
+
+export interface MedicineEditForm {
+    code:string
+    date_expired:string
+    barcode:string|null
+    batch_number:string
+    name:string
+    drug_classification_id:number
+    medical_supplier_id:number
+    medicine_factory_id:number
+    min_stock_supplier:number
+    is_generic:number
+    is_active:number
+    is_prescription:number
+    stock:number
+    piece_weight:number
+    pack_medicine:string
+    unit_medicine:string
+    medicinal_preparations:string
+    location_rack:string
+    dose:number
+    composition:string
+    is_fullpack:number
+    capital_price:number
+    capital_price_vat:number
+    sell_price:number
+}

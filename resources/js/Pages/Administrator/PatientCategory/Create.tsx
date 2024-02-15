@@ -16,9 +16,13 @@ import {
 import { Textarea } from "@/Components/ui/textarea"
 import { Button } from '@/Components/ui/button'
 
+interface PatientCategoryForm {
+    name: string
+}
+
 export default function Create({auth}: PageProps) {
 
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, post, processing, errors, reset } = useForm<PatientCategoryForm>({
         name: '',
     });
 

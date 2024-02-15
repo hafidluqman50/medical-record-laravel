@@ -1,4 +1,11 @@
-import { useState, useEffect, FormEventHandler, useRef } from 'react'
+import { 
+    useState, 
+    useEffect, 
+    FormEventHandler, 
+    useRef,
+    KeyboardEvent,
+    ChangeEvent
+} from 'react'
 import axios from 'axios'
 import AdministratorLayout from '@/Layouts/AdministratorLayout';
 import InputError from '@/Components/InputError';
@@ -88,15 +95,15 @@ export default function Create({auth, invoice_number}: PageProps & CreateFormPro
     const satuanRef        = useRef<any>()
     const btnInputRef      = useRef<any>()
 
-    const obatAct = async(event: any): Promise<void> => {
-        if(event.keyCode === 13) {
+    const obatAct = async(event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): Promise<void> => {
+        if((event as KeyboardEvent).keyCode === 13) {
             setDialogObat(true)
             try {
                 const { data } = await axios.get(
                     route('api.medicines.get-all'),
                     {
                         params:{
-                            medicine:event.target.value
+                            medicine:(event.target as HTMLInputElement).value
                         }
                     }
                 )
@@ -110,10 +117,10 @@ export default function Create({auth, invoice_number}: PageProps & CreateFormPro
         }
     }
 
-    const selectObatAct = async(event: any): Promise<void> => {
-        if(event.keyCode == 13) {
+    const selectObatAct = async(event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): Promise<void> => {
+        if((event as KeyboardEvent).keyCode == 13) {
             try {
-                const { data } = await axios.get(route('api.medicines.get-by-id', event.target.value))
+                const { data } = await axios.get(route('api.medicines.get-by-id', (event.target as HTMLInputElement).value))
                 
                 setDialogObat(false)
 
@@ -133,14 +140,14 @@ export default function Create({auth, invoice_number}: PageProps & CreateFormPro
         }
     }
 
-    const qtyAct = (event: any): void => {
-        if(event.keyCode == 13) {
+    const qtyAct = (event: KeyboardEvent<HTMLInputElement>): void => {
+        if((event as KeyboardEvent).keyCode == 13) {
             isiObatRef.current.focus()
         }
     }
 
-    const isiObatAct = (event: any): void => {
-        if(event.keyCode == 13) {
+    const isiObatAct = (event: KeyboardEvent<HTMLInputElement>): void => {
+        if((event as KeyboardEvent).keyCode == 13) {
             btnInputRef.current.focus()
         }
     }

@@ -37,9 +37,21 @@ type FormCreateProps = {
     registration:Registration
 }
 
+interface RegistrationForm {
+    number_register:string
+    patient_id:number
+    doctor_id:number
+    body_height:number
+    body_weight:number
+    body_temp:number
+    blood_pressure:string
+    complains_of_pain:string
+    supporting_examinations:string
+}
+
 export default function Create({auth, patients, doctors, registration}: PageProps & FormCreateProps) {
 
-    const { data, setData, put, processing, errors, reset } = useForm({
+    const { data, setData, put, processing, errors, reset } = useForm<RegistrationForm>({
         number_register:registration.number_register,
         patient_id:registration.patient_id,
         doctor_id:registration.doctor_id,
