@@ -4,19 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class SalesReturn extends Model
+class PurchaseReturn extends Model
 {
     use HasFactory;
 
-    protected $table = 'sales_returns';
+    protected $table = 'purchase_returns';
 
     protected $fillable = [
         'invoice_number',
-        'invoice_number_transaction',
+        'invoice_number_purchase',
+        'medical_supplier_id',
         'date_return',
-        'date_return_transaction',
+        'date_return_purchase',
         'total_return'
     ];
 
@@ -25,15 +27,20 @@ class SalesReturn extends Model
         'updated_at'
     ];
 
-    public function salesReturnDetails(): HasMany
+    public function medicalSupplier(): BelongsTo
     {
-        return $this->hasMany(SalesReturnDetail::class, 'sales_return_id', 'id');
+        return $this->belongsTo(MedicalSupplier::class, 'medical_supplier_id', 'id');
+    }
+
+    public function purchaseReturnDetails(): HasMany
+    {
+        return $this->hasMany(PurchaseReturnDetail::class, 'purchase_return_id', 'id');
     }
 
     public static function generateCode(): string
     {
         $db = self::count();
-        $base = 'RTB-'.date('dmy');
+        $base = 'RPB-'.date('dmy');
         if ($db == 0) {
             $db = 1;
             $result = $base.'000001';

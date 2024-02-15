@@ -67,7 +67,7 @@ type SalesReturnDetailProps = {
     sales_return_details:SalesReturnDetails
 }
 
-export default function Index({auth, app, sales_return_details, page_num}: PageProps & SalesReturnDetailProps) {
+export default function Detail({auth, app, sales_return_details, page_num}: PageProps & SalesReturnDetailProps) {
 
     const [searchData, setSearchData] = useState<string>('')
 
