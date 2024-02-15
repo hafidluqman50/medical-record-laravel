@@ -19,6 +19,7 @@ use App\Http\Controllers\Administrator\PpnController;
 use App\Http\Controllers\Administrator\ReceivingMedicineController;
 use App\Http\Controllers\Administrator\RegistrationController;
 use App\Http\Controllers\Administrator\SalesReturnController;
+use App\Http\Controllers\Administrator\TransactionController;
 use App\Http\Controllers\Administrator\TransactionCreditController;
 use App\Http\Controllers\Administrator\TransactionHvController;
 use App\Http\Controllers\Administrator\TransactionResepController;
@@ -208,6 +209,12 @@ Route::group(['middleware' => 'auth'], function() {
         Route::post('/store', [PurchaseReturnController::class, 'store'])->name('administrator.purchase-returns.store');
         Route::get('/detail/{id}', [PurchaseReturnController::class, 'detail'])->name('administrator.purchase-returns.detail');
         Route::delete('/delete/{id}', [PurchaseReturnController::class, 'delete'])->name('administrator.purchase-returns.delete');
+    });
+
+    Route::group(['prefix' => 'transactions'], function() {
+        Route::get('/', [TransactionController::class, 'index'])->name('administrator.transactions');
+        Route::get('/detail/{id}', [TransactionController::class, 'detail'])->name('administrator.transactions.detail');
+        Route::delete('/delete/{id}', [TransactionController::class, 'delete'])->name('administrator.transactions.delete');
     });
 
     Route::group(['prefix' => 'users'], function() {

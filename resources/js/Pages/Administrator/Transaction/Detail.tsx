@@ -3,7 +3,7 @@ import axios from 'axios'
 import AdministratorLayout from '@/Layouts/AdministratorLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { PageProps } from '@/types';
-import { SalesReturn } from './type';
+import { TransactionDetail } from './type';
 import { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from '@/Components/DataTable'
 import { SkeletonTable } from "@/Components/SkeletonTable"
@@ -54,8 +54,8 @@ import { Badge } from '@/Components/ui/badge'
 
 import { formatRupiah } from '@/lib/helper'
 
-interface SalesReturns {
-    data:Array<SalesReturn>;
+interface TransactionDetails {
+    data:Array<TransactionDetail>;
     links:Array<{
         url?:string,
         label:string,
@@ -63,19 +63,15 @@ interface SalesReturns {
     }>;
 }
 
-type SalesReturnProps = {
-    sales_returns:SalesReturns
+type TransactionDetailProps = {
+    transaction_details:TransactionDetails
 }
 
-export default function Index({auth, app, sales_returns, page_num}: PageProps & SalesReturnProps) {
+export default function Detail({auth, app, transaction_details, page_num}: PageProps & TransactionDetailProps) {
 
     const [searchData, setSearchData] = useState<string>('')
 
     const { session } = usePage<PageProps>().props
-
-    const submitDelete = (id: number): void => {
-        router.delete(route('administrator.sales-returns.delete', id))
-    }
 
     const dismissAlert = (): void => {
         // document.getElementById('alert-success').remove()
@@ -83,7 +79,7 @@ export default function Index({auth, app, sales_returns, page_num}: PageProps & 
 
     const search = (): void => {
         router.get(
-            route('administrator.sales-returns'),
+            route('administrator.transactions.details'),
             {
                 search:searchData
             },
@@ -98,10 +94,10 @@ export default function Index({auth, app, sales_returns, page_num}: PageProps & 
         <AdministratorLayout
             user={auth.user}
             routeParent="penjualan"
-            routeChild="retur-penjualan"
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Retur Penjualan</h2>}
+            routeChild="data-penjualan"
+            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Penjualan Detail</h2>}
         >
-            <Head title="Data Retur Penjualan" />
+            <Head title="Data Penjualan Detail" />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -122,15 +118,15 @@ export default function Index({auth, app, sales_returns, page_num}: PageProps & 
                     )}
                         <div className="flex">
                             <div className="grow">
-                                <Button className="mb-2" asChild>
-                                    <Link href={route('administrator.sales-returns.create')}>Tambah Retur Penjualan</Link>
+                                <Button variant="secondary" className="mb-2" asChild>
+                                    <Link href={route('administrator.transactions')}>Kembali</Link>
                                 </Button>
                             </div>
                             <div className="w-1/3 flex-none flex space-x-4">
                                 <Input
                                     type="search" 
                                     name="search_data"
-                                    placeholder="Cari Retur Penjualan" 
+                                    placeholder="Cari Nama Obat" 
                                     value={searchData}
                                     onChange={(e) => setSearchData(e.target.value)}
                                 />
@@ -143,61 +139,40 @@ export default function Index({auth, app, sales_returns, page_num}: PageProps & 
                           <TableHeader>
                             <TableRow>
                               <TableHead className="border border-slate-200">No</TableHead>
-                              <TableHead className="border border-slate-200">Nomor Invoice</TableHead>
-                              <TableHead className="border border-slate-200">Nomor Invoice Transaksi</TableHead>
-                              <TableHead className="border border-slate-200">Tanggal Retur</TableHead>
-                              <TableHead className="border border-slate-200">Total Nominal Retur</TableHead>
-                              <TableHead className="border border-slate-200">#</TableHead>
+                              <TableHead className="border border-slate-200">Nama Obat</TableHead>
+                              <TableHead className="border border-slate-200">Qty</TableHead>
+                              <TableHead className="border border-slate-200">Sub Total</TableHead>
+                              <TableHead className="border border-slate-200">Diskon</TableHead>
+                              <TableHead className="border border-slate-200">Total</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
                             {
-                                sales_returns.data.length == 0 ? 
+                                transaction_details.data.length == 0 ? 
                                 <TableRow>
                                     <TableCell colSpan={6} align="center">
                                         Empty Data!
                                     </TableCell>
                                 </TableRow>
-                                : sales_returns.data.map((row, key) => (
+                                : transaction_details.data.map((row, key) => (
                                     <TableRow key={row.id}>
                                         <TableCell className="border border-slate-200">
                                             {page_num+key}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.invoice_number}
+                                            {row.medicine.name}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.invoice_number_transaction}
+                                            {row.qty}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.date_return}
+                                            Rp. {formatRupiah(row.sub_total)}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            Rp. {formatRupiah(row.total_return)}
+                                            Rp. {formatRupiah(row.discount)}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            <div className="flex space-x-4">
-                                                <Button className="bg-amber-500 text-white hover:bg-amber-500" asChild>
-                                                    <Link href={route('administrator.sales-returns.detail', row.id)}>Detail</Link>
-                                                </Button>
-                                                <AlertDialog>
-                                                  <AlertDialogTrigger asChild>
-                                                    <Button variant="destructive">Delete</Button>
-                                                  </AlertDialogTrigger>
-                                                  <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                                      <AlertDialogDescription>
-                                                        This action cannot be undone. This will delete your sales_returns data from our servers.
-                                                      </AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                      <AlertDialogAction onClick={() => submitDelete(row.id)}>Continue</AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                  </AlertDialogContent>
-                                                </AlertDialog>
-                                            </div>
+                                            Rp. {formatRupiah(row.total)}
                                         </TableCell>
                                     </TableRow>
                                 ))
@@ -209,7 +184,7 @@ export default function Index({auth, app, sales_returns, page_num}: PageProps & 
                                     <Pagination>
                                         <PaginationContent>    
                                     {
-                                        sales_returns.links.map((pagination, key) => (
+                                        transaction_details.links.map((pagination, key) => (
                                             
                                             <div key={key}>
                                             {   
