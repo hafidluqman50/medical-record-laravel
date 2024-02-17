@@ -2,7 +2,7 @@ import { useState, useEffect, FormEventHandler } from 'react'
 import axios from 'axios'
 import AdministratorLayout from '@/Layouts/AdministratorLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { PageProps, PaginationData } from '@/types';
+import { PageProps, Doctor } from '@/types';
 import { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from '@/Components/DataTable'
 import { SkeletonTable } from "@/Components/SkeletonTable"
@@ -46,27 +46,27 @@ import {
   AlertDialogTrigger,
 } from "@/Components/ui/alert-dialog"
 
-import { Input } from "@/Components/ui/input"
+import { Input } from '@/Components/ui/input'
 
-import { Doctor } from './type'
+import { MedicalRecord, PaginationData } from './type'
 
-interface Doctors {
-    data:Array<Doctor>;
+interface MedicalRecords {
+    data:Array<MedicalRecord>;
     links:Array<PaginationData>;
 }
 
-type DoctorProps = {
-    doctors:Doctors
+type MedicalRecordProps = {
+    medical_records:MedicalRecords
 }
 
-export default function Index({auth, app, doctors, page_num}: PageProps & DoctorProps) {
+export default function Index({auth, app, medical_records, page_num}: PageProps & MedicalRecordProps) {
 
-    const [searchData, setSearchData] = useState<string>('');
+    const [searchData, setSearchData] = useState<string>('')
 
     const { session } = usePage<PageProps>().props
 
     const submitDelete = (id: number): void => {
-        router.delete(route('administrator.doctors.delete',id))
+        // router.delete(route('administrator.medical-records.delete',id))
     }
 
     const dismissAlert = (): void => {
@@ -75,7 +75,7 @@ export default function Index({auth, app, doctors, page_num}: PageProps & Doctor
 
     const search = (): void => {
         router.get(
-            route('administrator.doctors'),
+            route('administrator.medical-records'),
             {
                 search:searchData
             },
@@ -89,11 +89,10 @@ export default function Index({auth, app, doctors, page_num}: PageProps & Doctor
     return (
         <AdministratorLayout
             user={auth.user}
-            routeParent="data-master"
-            routeChild="data-dokter"
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Dokter</h2>}
+            routeParent="rekam-medis"
+            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Rekam Medis</h2>}
         >
-            <Head title="Data Dokter" />
+            <Head title="Data Rekam Medis" />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -116,14 +115,14 @@ export default function Index({auth, app, doctors, page_num}: PageProps & Doctor
                             <div className="flex">
                                 <div className="grow">
                                     <Button className="mb-2" asChild>
-                                        <Link href={route('administrator.doctors.create')}>Tambah Dokter</Link>
+                                        <Link href={route('administrator.medical-records.create')}>Tambah Rekam Medis</Link>
                                     </Button>
                                 </div>
                                 <div className="w-1/3 flex-none flex space-x-4">
                                     <Input
                                         type="search" 
                                         name="search_data"
-                                        placeholder="Cari Dokter" 
+                                        placeholder="Cari Rekam Medis" 
                                         value={searchData}
                                         onChange={(e) => setSearchData(e.target.value)}
                                     />
@@ -136,50 +135,30 @@ export default function Index({auth, app, doctors, page_num}: PageProps & Doctor
                               <TableHeader>
                                 <TableRow>
                                   <TableHead className="border border-slate-200">No</TableHead>
-                                  <TableHead className="border border-slate-200">Nama Dokter</TableHead>
-                                  <TableHead className="border border-slate-200">Username</TableHead>
-                                  <TableHead className="border border-slate-200">Alamat</TableHead>
-                                  <TableHead className="border border-slate-200">Nomor HP</TableHead>
-                                  <TableHead className="border border-slate-200">Biaya Dokter</TableHead>
-                                  <TableHead className="border border-slate-200">Status Dokter</TableHead>
+                                  <TableHead className="border border-slate-200">Nama Pasien</TableHead>
                                   <TableHead className="border border-slate-200">#</TableHead>
                                 </TableRow>
                               </TableHeader>
                               <TableBody>
                                 {
-                                    doctors.data.length == 0 ? 
+                                    medical_records.data.length == 0 ? 
                                     <TableRow>
-                                        <TableCell colSpan={7} align="center">
+                                        <TableCell colSpan={6} align="center">
                                             Empty Data!
                                         </TableCell>
                                     </TableRow>
-                                    : doctors.data.map((row, key) => (
+                                    : medical_records.data.map((row, key) => (
                                         <TableRow key={row.id}>
                                             <TableCell className="border border-slate-200">
                                                 {page_num+key}
                                             </TableCell>
                                             <TableCell className="border border-slate-200">
-                                                {row.name}
-                                            </TableCell>
-                                            <TableCell className="border border-slate-200">
-                                                {row.username}
-                                            </TableCell>
-                                            <TableCell className="border border-slate-200">
-                                                {row.address}
-                                            </TableCell>
-                                            <TableCell className="border border-slate-200">
-                                                {row.phone_number}
-                                            </TableCell>
-                                            <TableCell className="border border-slate-200">
-                                                {row.fee}
-                                            </TableCell>
-                                            <TableCell className="border border-slate-200">
-                                                {row.status_doctor_text}
+                                                {row.patient.name}
                                             </TableCell>
                                             <TableCell className="border border-slate-200">
                                                 <div className="flex space-x-4">
-                                                    <Button className="bg-amber-500 text-white hover:bg-amber-500" asChild>
-                                                        <Link href={route('administrator.doctors.edit', row.id)}>Edit</Link>
+                                                    <Button className="bg-cyan-500 text-white hover:bg-cyan-500" asChild>
+                                                        <Link href={route('administrator.medical-records.list-records', row.id)}>Riwayat</Link>
                                                     </Button>
                                                     <AlertDialog>
                                                       <AlertDialogTrigger asChild>
@@ -189,7 +168,7 @@ export default function Index({auth, app, doctors, page_num}: PageProps & Doctor
                                                         <AlertDialogHeader>
                                                           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                                                           <AlertDialogDescription>
-                                                            This action cannot be undone. This will delete your doctors data from our servers.
+                                                            This action cannot be undone. This will delete your patient medical record data from our servers.
                                                           </AlertDialogDescription>
                                                         </AlertDialogHeader>
                                                         <AlertDialogFooter>
@@ -206,11 +185,12 @@ export default function Index({auth, app, doctors, page_num}: PageProps & Doctor
                               </TableBody>
                               <TableFooter>
                                 <TableRow>
-                                    <TableCell colSpan={8}>
+                                    <TableCell colSpan={6}>
                                         <Pagination>
                                             <PaginationContent>    
                                         {
-                                            doctors.links.map((pagination, key) => (
+                                            medical_records.links.map((pagination, key) => (
+                                                
                                                 <div key={key}>
                                                 {   
                                                     pagination.label.includes('Previous') ? 
@@ -228,8 +208,7 @@ export default function Index({auth, app, doctors, page_num}: PageProps & Doctor
                                                           </PaginationLink>
                                                         </PaginationItem>
                                                     </Link>
-                                                    :''
-
+                                                    : ''
                                                 }
                                                 {
                                                     pagination.label.includes('Next') ?

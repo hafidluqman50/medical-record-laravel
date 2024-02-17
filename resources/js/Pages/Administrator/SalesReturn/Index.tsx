@@ -177,7 +177,7 @@ export default function Index({auth, app, sales_returns, page_num}: PageProps & 
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
                                             <div className="flex space-x-4">
-                                                <Button className="bg-amber-500 text-white hover:bg-amber-500" asChild>
+                                                <Button className="bg-cyan-500 text-white hover:bg-cyan-500" asChild>
                                                     <Link href={route('administrator.sales-returns.detail', row.id)}>Detail</Link>
                                                 </Button>
                                                 <AlertDialog>

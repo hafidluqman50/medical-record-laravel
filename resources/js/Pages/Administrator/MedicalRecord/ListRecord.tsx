@@ -2,13 +2,11 @@ import { useState, useEffect, FormEventHandler } from 'react'
 import axios from 'axios'
 import AdministratorLayout from '@/Layouts/AdministratorLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { PageProps } from '@/types';
-import { Transaction } from './type';
+import { PageProps, Doctor } from '@/types';
 import { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from '@/Components/DataTable'
 import { SkeletonTable } from "@/Components/SkeletonTable"
 import { Button } from '@/Components/ui/button'
-
 import {
   Table,
   TableBody,
@@ -50,31 +48,25 @@ import {
 
 import { Input } from '@/Components/ui/input'
 
-import { Badge } from '@/Components/ui/badge'
+import { MedicalRecordList, PaginationData } from './type'
 
-import { formatRupiah } from '@/lib/helper'
-
-interface Transactions {
-    data:Array<Transaction>;
-    links:Array<{
-        url?:string,
-        label:string,
-        active:boolean
-    }>;
+interface MedicalRecordLists {
+    data:Array<MedicalRecordList>;
+    links:Array<PaginationData>;
 }
 
-type TransactionProps = {
-    transactions:Transactions
+type MedicalRecordListProps = {
+    medical_record_lists:MedicalRecordLists
 }
 
-export default function Index({auth, app, transactions, page_num}: PageProps & TransactionProps) {
+export default function Index({auth, app, medical_record_lists, page_num}: PageProps & MedicalRecordListProps) {
 
     const [searchData, setSearchData] = useState<string>('')
 
     const { session } = usePage<PageProps>().props
 
     const submitDelete = (id: number): void => {
-        router.delete(route('administrator.transactions.delete', id))
+        // router.delete(route('administrator.medical-records.delete',id))
     }
 
     const dismissAlert = (): void => {
@@ -83,7 +75,7 @@ export default function Index({auth, app, transactions, page_num}: PageProps & T
 
     const search = (): void => {
         router.get(
-            route('administrator.transactions'),
+            route('administrator.medical-records.list-records', medical_record_lists.data[0].medical_record_id),
             {
                 search:searchData
             },
@@ -97,15 +89,15 @@ export default function Index({auth, app, transactions, page_num}: PageProps & T
     return (
         <AdministratorLayout
             user={auth.user}
-            routeParent="penjualan"
-            routeChild="data-penjualan"
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Penjualan</h2>}
+            routeParent="rekam-medis"
+            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Riwayat Rekam Medis</h2>}
         >
-            <Head title="Data Penjualan" />
+            <Head title="Data Riwayat Rekam Medis" />
 
             <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div className="w-full mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg py-4 px-4">
+                        {/*<DataTable columns={columns} data={doctor}/>*/}
                     {
                         session.success && (
                         <Alert id="alert-success" className="mb-5 flex" variant="success">
@@ -120,12 +112,17 @@ export default function Index({auth, app, transactions, page_num}: PageProps & T
                           </div>
                         </Alert>
                     )}
-                        <div className="flex justify-end">
-                            <div className="w-1/3 flex space-x-4">
+                        <div className="flex">
+                            <div className="grow">
+                                <Button variant="secondary" className="mb-2" asChild>
+                                    <Link href={route('administrator.medical-records')}>Kembali</Link>
+                                </Button>
+                            </div>
+                            <div className="w-1/3 flex-none flex space-x-4">
                                 <Input
                                     type="search" 
                                     name="search_data"
-                                    placeholder="Cari Penjualan" 
+                                    placeholder="Cari" 
                                     value={searchData}
                                     onChange={(e) => setSearchData(e.target.value)}
                                 />
@@ -138,84 +135,94 @@ export default function Index({auth, app, transactions, page_num}: PageProps & T
                           <TableHeader>
                             <TableRow>
                               <TableHead className="border border-slate-200">No</TableHead>
-                              <TableHead className="border border-slate-200">Nomor Invoice</TableHead>
-                              <TableHead className="border border-slate-200">Tanggal Transaksi</TableHead>
-                              <TableHead className="border border-slate-200">Sub Total</TableHead>
-                              <TableHead className="border border-slate-200">Diskon</TableHead>
-                              <TableHead className="border border-slate-200">Total</TableHead>
-                              <TableHead className="border border-slate-200">Bayar</TableHead>
-                              <TableHead className="border border-slate-200">Kembalian</TableHead>
-                              <TableHead className="border border-slate-200">Jenis Pembayaran</TableHead>
-                              <TableHead className="border border-slate-200">Jenis Transaksi</TableHead>
-                              <TableHead className="border border-slate-200">Input By</TableHead>
+                              <TableHead className="border border-slate-200">Nama Pasien</TableHead>
+                              <TableHead className="border border-slate-200">Nama Dokter</TableHead>
+                              <TableHead className="border border-slate-200">Tanggal Periksa</TableHead>
+                              <TableHead className="border border-slate-200">Tinggi Badan</TableHead>
+                              <TableHead className="border border-slate-200">Berat Badan</TableHead>
+                              <TableHead className="border border-slate-200">Suhu Badan</TableHead>
+                              <TableHead className="border border-slate-200">Tekanan Darah</TableHead>
+                              <TableHead className="border border-slate-200">Keluhan</TableHead>
+                              <TableHead className="border border-slate-200">Diagnosa</TableHead>
+                              <TableHead className="border border-slate-200">Anemnesis</TableHead>
+                              <TableHead className="border border-slate-200">Pemeriksaan Fisik</TableHead>
+                              <TableHead className="border border-slate-200">Pemeriksaan Penunjang</TableHead>
+                              <TableHead className="border border-slate-200">Terapi</TableHead>
+                              <TableHead className="border border-slate-200">Rujukan</TableHead>
+                              <TableHead className="border border-slate-200">Keterangan</TableHead>
+                              <TableHead className="border border-slate-200">Tanggal Kontrol Selanjutnya</TableHead>
                               <TableHead className="border border-slate-200">#</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
                             {
-                                transactions.data.length == 0 ? 
+                                medical_record_lists.data.length == 0 ? 
                                 <TableRow>
-                                    <TableCell colSpan={13} align="center">
+                                    <TableCell colSpan={18} align="center">
                                         Empty Data!
                                     </TableCell>
                                 </TableRow>
-                                : transactions.data.map((row, key) => (
+                                : medical_record_lists.data.map((row, key) => (
                                     <TableRow key={row.id}>
                                         <TableCell className="border border-slate-200">
                                             {page_num+key}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.invoice_number}
+                                            {row.registration.patient.name}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.date_transaction}
+                                            {row.registration.doctor.name}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            Rp. {formatRupiah(row.sub_total)}
+                                            {row.date_check_up}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            Rp. {formatRupiah(row.discount_pay)}
+                                            {row.body_height} Cm
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            Rp. {formatRupiah(row.total)}
+                                            {row.body_weight} Kg
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            Rp. {formatRupiah(row.pay_total)}
+                                            {row.body_temp} &deg;C
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            Rp. {formatRupiah(row.change_money)}
+                                            {row.blood_pressure} mmHg
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.transaction_pay_type}
+                                            {row.main_complaint}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.type}
+                                            {row.diagnose}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.user.name}
+                                            {row.anemnesis}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            {row.physical_examinations}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            {row.supporting_examinations}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            {row.therapy}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            {row.referral}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            {row.notes}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            {row.next_control_date}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
                                             <div className="flex space-x-4">
                                                 <Button className="bg-cyan-500 text-white hover:bg-cyan-500" asChild>
-                                                    <Link href={route('administrator.transactions.detail', row.id)}>Detail</Link>
+                                                    <Link href={route('administrator.medical-records.detail-records',{
+                                                        medical_record_id:row.medical_record_id,
+                                                        medical_record_list_id:row.id
+                                                    })}>Detail</Link>
                                                 </Button>
-                                                <AlertDialog>
-                                                  <AlertDialogTrigger asChild>
-                                                    <Button variant="destructive">Delete</Button>
-                                                  </AlertDialogTrigger>
-                                                  <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                                      <AlertDialogDescription>
-                                                        This action cannot be undone. This will delete your transactions data from our servers.
-                                                      </AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                      <AlertDialogAction onClick={() => submitDelete(row.id)}>Continue</AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                  </AlertDialogContent>
-                                                </AlertDialog>
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -224,11 +231,11 @@ export default function Index({auth, app, transactions, page_num}: PageProps & T
                           </TableBody>
                           <TableFooter>
                             <TableRow>
-                                <TableCell colSpan={13}>
+                                <TableCell colSpan={18}>
                                     <Pagination>
                                         <PaginationContent>    
                                     {
-                                        transactions.links.map((pagination, key) => (
+                                        medical_record_lists.links.map((pagination, key) => (
                                             
                                             <div key={key}>
                                             {   

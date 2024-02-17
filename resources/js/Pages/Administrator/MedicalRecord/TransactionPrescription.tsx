@@ -80,30 +80,18 @@ import {
 
 import { useToast } from '@/Components/ui/use-toast'
 
-export default function TransactionResep({
-    kode_transaksi, price_parameter, medicine_price_parameters, patients, medicines
-}: TransactionResepPageProps) {
+import { MedicalRecordForm } from './type'
+
+export default function TransactionPrescription({
+    kode_transaksi, 
+    price_parameter, 
+    medicines, 
+    data,
+    setData = () => {}, 
+    reset = () => {},
+}: TransactionResepPageProps & { setData:CallableFunction, data:MedicalRecordForm, reset: CallableFunction }) {
 
     const { toast } = useToast();
-
-    const { data, setData, post, processing, errors, reset } = useForm<ResepTunaiForm>({
-        medicines: [],
-        patient_id: null,
-        patient_name: '',
-        patient_address: '',
-        patient_phone_number: '',
-        patient_city_place: '',
-        doctor_id: null,
-        doctor_code: '',
-        doctor_name: '',
-        sub_total_grand: 0,
-        diskon_grand: 0,
-        total_grand: 0,
-        bayar: 0,
-        kembalian: 0,
-        kode_transaksi,
-        jenis_pembayaran: 'tunai'
-    });
 
     /* DIALOG USE STATE HOOKS */
     const [open, setOpen]                             = useState<boolean>(false)
@@ -175,15 +163,15 @@ export default function TransactionResep({
     const bayarTransaksi = useRef<any>()
     const submitBayarRef = useRef<any>()
 
-    const openEnterDialog = async(event: any): Promise<void> => {
-        if(event.keyCode === 13) {
+    const openEnterDialog = async(event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): Promise<void> => {
+        if((event as KeyboardEvent).keyCode === 13) {
             setOpen(true)
             try {
                 const { data } = await axios.get(
                     route('api.medicines.get-all'),
                     {
                         params:{
-                            medicine:event.target.value,
+                            medicine:(event.target as HTMLInputElement).value,
                             data_location:'kasir'
                         }
                     }
@@ -301,8 +289,8 @@ export default function TransactionResep({
                 sell_price: parseInt(hargaObat.current.value),
                 qty: parseInt(qtyObat.current.value),
                 prescription_packs: bungkusRef.current.value,
-                sub_total: subTotal,
                 dose:dosisRacikRef.current.value,
+                sub_total: subTotal,
                 jasa,
                 total: parseInt(jumlahHarga.current.value),
                 faktor,
@@ -318,7 +306,7 @@ export default function TransactionResep({
 
             const medicinesData = [...data.medicines, ...result]
 
-            setData(data => ({
+            setData((data: MedicalRecordForm) => ({
                 ...data,
                 medicines:medicinesData,
                 sub_total_grand:subTotalGrandData,
@@ -357,7 +345,7 @@ export default function TransactionResep({
             jasaRef.current.value = ""
             bungkusRef.current.value = ""
 
-            setData(data => ({
+            setData((data: MedicalRecordForm) => ({
                 ...data,
                 medicines:medicinesData,
                 sub_total_grand: subTotalGrandData,
@@ -379,29 +367,12 @@ export default function TransactionResep({
             const subTotalGrandData = data.sub_total_grand - data.medicines[event.target.value].sub_total
             const totalGrandData    = data.total_grand - data.medicines[event.target.value].total
 
-            setData(data => ({...data,
+            setData((data: MedicalRecordForm) => ({...data,
                 medicines:medicinesData,
                 sub_total_grand:subTotalGrandData,
                 total_grand:totalGrandData
             }))
         }
-    }
-
-    const calculateBayar = (event: any): void => {
-        event.preventDefault()
-
-        setData(data => ({...data, bayar:event.target.value}))
-        const total_grand = data.total_grand
-
-        let calculate = total_grand - parseInt(event.target.value)
-
-        setData(data => ({...data, kembalian:calculate}))
-
-        if(event.keyCode == 13) {
-            post(route('administrator.transaction-resep.store'))
-            submitBayarRef.current.focus()
-        }
-
     }
 
     const pasienKeyUpAct = async(event: KeyboardEvent<HTMLInputElement>): Promise<void> => {
@@ -426,32 +397,21 @@ export default function TransactionResep({
 
     const selectPatientAct = async(event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): Promise<void> => {
         if((event as KeyboardEvent).keyCode == 13) {
-            try {                
-                const responseData = await axios.get(route('api.patients.get-by-id', (event.target as HTMLInputElement).value))
+            const responseData = await axios.get(route('api.patients.get-by-id', (event.target as HTMLInputElement).value))
 
-                patientNameRef.current.value        = responseData.data.data.patient.name
-                patientPhoneNumberRef.current.value = responseData.data.data.patient.phone_number
-                patientAddressRef.current.value     = responseData.data.data.patient.address
-                patientCityPlaceRef.current.value   = responseData.data.data.patient.city_place
+            patientNameRef.current.value        = responseData.data.data.patient.name
+            patientPhoneNumberRef.current.value = responseData.data.data.patient.phone_number
+            patientAddressRef.current.value     = responseData.data.data.patient.address
+            patientCityPlaceRef.current.value   = responseData.data.data.patient.city_place
 
-                setOpenPasienDialog(false)
+            setOpenPasienDialog(false)
 
-                setRowPatients([])
+            setRowPatients([])
 
-                setData(data => ({
-                    ...data,
-                    patient_id:responseData.data.data.patient.id
-                }))
-            } catch(error) {
-                if(axios.isAxiosError(error)) {
-                    toast({
-                      variant: "destructive",
-                      title: "Error!",
-                      description: error.response?.data.message,
-                    })
-                }
-            }
-            
+            setData((data: MedicalRecordForm) => ({
+                ...data,
+                patient_id:responseData.data.data.patient.id
+            }))
         }
     }
 
@@ -488,7 +448,7 @@ export default function TransactionResep({
 
                 setRowDoctors([])
 
-                setData(data => ({
+                setData((data: MedicalRecordForm) => ({
                     ...data,
                     doctor_id:responseData.data.data.doctor.id
                 }))
@@ -528,9 +488,9 @@ export default function TransactionResep({
                 calculate = Math.round((total_grand - diskon_grand) / price_parameter.pembulatan) * price_parameter.pembulatan
             }
 
-            setData(data => ({...data, diskon_grand:diskon_grand}))
+            setData((data: MedicalRecordForm) => ({...data, diskon_grand:diskon_grand}))
 
-            setData(data => ({...data, total_grand:calculate}))
+            setData((data: MedicalRecordForm) => ({...data, total_grand:calculate}))
 
             bayarTransaksi.current.focus()
         }
@@ -545,30 +505,34 @@ export default function TransactionResep({
         setIsHjaNet(false)
         setPriceMedicine(0)
         setJualObat([])
-        reset()
+        setData((data: MedicalRecordForm) => ({
+            ...data,
+            medicines:[],
+            sub_total_grand:0,
+            diskon_grand:0,
+            total_grand:0,
+            bayar:0,
+            kembalian:0
+        }))
     }
 
     const onKeyDownAct = (event: any): void => {
-        if(event.ctrlKey && event.altKey && event.keyCode == 80) {
-            window.open(
-                route('administrator.dashboard'),
-                '_blank'
-            )
-        }
-        else if(event.keyCode == 114) {
-            window.open(
-                route('administrator.transaction-hv'),
-                '_blank'
-            )
-        }
-        else if(event.keyCode == 118) {
+        if(event.keyCode == 118) {
             event.preventDefault()
 
             setRowObat([])
             setIsHjaNet(false)
             setPriceMedicine(0)
             setJualObat([])
-            reset()
+            setData((data: MedicalRecordForm) => ({
+                ...data,
+                medicines:[],
+                sub_total_grand:0,
+                diskon_grand:0,
+                total_grand:0,
+                bayar:0,
+                kembalian:0
+            }))
         }
         else if(event.ctrlKey && event.keyCode == 70) {
 
@@ -601,14 +565,6 @@ export default function TransactionResep({
             }
 
         }
-        else if(event.ctrlKey && event.altKey && event.keyCode == 79) {
-            setCekHargaObatDialog(true)
-        }
-        else if(event.keyCode == 123) {
-            event.preventDefault()
-
-            setBayarDialog(true)
-        }
     }
 
     useEffect(() => {
@@ -620,14 +576,14 @@ export default function TransactionResep({
         }
     },[])
 
-    console.log({columns, columnLists, medicine_price_parameters})
+    console.log({columns, columnLists})
 
     return(
-        <TransactionLayout
-            title="Penjualan Resep Tunai"
-            bgColor="bg-amber-500"
-        >
-
+        // <TransactionLayout
+        //     title="Penjualan Resep Tunai"
+        //     bgColor="bg-amber-500"
+        // >
+        <>
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogContent onCloseAutoFocus={(event) => {
                     if(kodeObat.current.value != "") {
@@ -681,30 +637,12 @@ export default function TransactionResep({
               </DialogContent>
             </Dialog>
 
-            <Dialog open={cekHargaObatDialog} onOpenChange={setCekHargaObatDialog}>
-              <DialogContent className="max-w-7xl">
-                <DialogHeader>
-                  <DialogTitle>Data Harga Obat</DialogTitle>
-                </DialogHeader>
-                <DataTable columns={columns} data={medicine_price_parameters} columnLists={columnLists}/>
-              </DialogContent>
-            </Dialog>
-
             <Dialog open={openMasterObat} onOpenChange={setOpenMasterObat}>
               <DialogContent className="max-w-7xl">
                 <DialogHeader>
                   <DialogTitle>Data Master Obat</DialogTitle>
                 </DialogHeader>
                 <DataTable columns={columnMedicines} data={medicines} columnLists={columnListMedicines}/>
-              </DialogContent>
-            </Dialog>
-
-            <Dialog open={openPasienList} onOpenChange={setOpenPasienList}>
-              <DialogContent className="max-w-7xl">
-                <DialogHeader>
-                  <DialogTitle>Data Pasien</DialogTitle>
-                </DialogHeader>
-                <DataTable columns={columnPatients} data={patients} columnLists={columnListPatients}/>
               </DialogContent>
             </Dialog>
 
@@ -723,263 +661,9 @@ export default function TransactionResep({
                 </AlertDialogContent>
             </AlertDialog>
 
-            <Dialog open={openPasienDialog} onOpenChange={setOpenPasienDialog}>
-                
-              <DialogContent onCloseAutoFocus={(event) => {
-                    if(patientNameRef.current.value != "") {
-                        doctorCodeRef.current.focus()
-                    }
-                }} className="max-w-5xl">
-                <DialogHeader>
-                  <DialogTitle>Data Pasien</DialogTitle>
-                </DialogHeader>
-                 
-              <Table className="border-collapse border border-slate-100 mt-4">
-                <TableHeader>
-                    <TableRow>
-                      <TableHead className="border border-slate-100">#</TableHead>
-                      <TableHead className="border border-slate-100">No</TableHead>
-                      <TableHead className="border border-slate-100">Nama Pasien</TableHead>
-                      <TableHead className="border border-slate-100">Nomor HP</TableHead>
-                      <TableHead className="border border-slate-100">Alamat</TableHead>
-                      <TableHead className="border border-slate-100">Kota</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                {
-                    rowPatients.length == 0 ? 
-                    <TableRow>
-                        <TableCell colSpan={8} align="center">Pasien Tidak Ada!</TableCell>
-                    </TableRow>
-                    :
-                    rowPatients.map((row: any, key: number) => (
-                        <TableRow key={key}>
-                            <TableCell className="border border-slate-100">
-                            {
-                                key == 0 ?
-                                <input type="radio" name="select_patient" value={row.id} onKeyUp={selectPatientAct} autoFocus/>
-                                : <input type="radio" name="select_patient" value={row.id} onKeyUp={selectPatientAct} />
-                            }
-                            </TableCell>
-                            <TableCell className="border border-slate-100">{key+1}</TableCell>
-                            <TableCell className="border border-slate-100">{row.name}</TableCell>
-                            <TableCell className="border border-slate-100">{row.phone_number}</TableCell>
-                            <TableCell className="border border-slate-100">{row.address}</TableCell>
-                            <TableCell className="border border-slate-100">{row.city_place}</TableCell>
-                        </TableRow>
-                    ))
-                }
-                </TableBody>
-              </Table>
-              </DialogContent>
-            </Dialog>
-
-            <Dialog open={openDoctorDialog} onOpenChange={setOpenDoctorDialog}>
-                
-              <DialogContent className="max-w-5xl" onCloseAutoFocus={(event) => {
-                    if(doctorNameRef.current.value != "") {
-                        diskonGrandRef.current.focus()
-                    }
-                }}>
-                <DialogHeader>
-                  <DialogTitle>Data Dokter</DialogTitle>
-                </DialogHeader>
-                 
-              <Table className="border-collapse border border-slate-100 mt-4">
-                <TableHeader>
-                    <TableRow>
-                      <TableHead className="border border-slate-100">#</TableHead>
-                      <TableHead className="border border-slate-100">No</TableHead>
-                      <TableHead className="border border-slate-100">Kode Dokter</TableHead>
-                      <TableHead className="border border-slate-100">Nama Dokter</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                {
-                    rowDoctors.length == 0 ? 
-                    <TableRow>
-                        <TableCell colSpan={8} align="center">Pasien Tidak Ada!</TableCell>
-                    </TableRow>
-                    :
-                    rowDoctors.map((row: any, key: number) => (
-                        <TableRow key={key}>
-                            <TableCell className="border border-slate-100">
-                            {
-                                key == 0 ?
-                                <input type="radio" name="select_doctor" value={row.id} onKeyUp={selectDoctorAct} autoFocus/>
-                                : <input type="radio" name="select_doctor" value={row.id} onKeyUp={selectDoctorAct} />
-                            }
-                            </TableCell>
-                            <TableCell className="border border-slate-100">{key+1}</TableCell>
-                            <TableCell className="border border-slate-100">{row.code}</TableCell>
-                            <TableCell className="border border-slate-100">{row.name}</TableCell>
-                        </TableRow>
-                    ))
-                }
-                </TableBody>
-              </Table>
-              </DialogContent>
-            </Dialog>
-
-            <Dialog open={bayarDialog} onOpenChange={setBayarDialog}>
-                <DialogContent className="max-w-l">
-                    <DialogHeader>
-                        <DialogTitle>Pembayaran</DialogTitle>
-                    </DialogHeader>
-                <Separator />
-                <form onSubmit={(event) => event.preventDefault()}>
-                    <div className="grid grid-cols-2 gap-5">
-                        <div>
-                            <div className="w-3/6">
-                                <Label htmlFor="kode-transaksi">Pasien :</Label>
-                            </div>
-                            <div className="w-full mb-4">
-                                <Input ref={patientNameRef} id="pasien" type="text" onKeyUp={pasienKeyUpAct} />
-                            </div>
-
-                            <div className="w-3/6">
-                                <Label htmlFor="kode-transaksi">Telepon :</Label>
-                            </div>
-                            <div className="w-full mb-4">
-                                <Input ref={patientPhoneNumberRef} id="pasien" type="text" />
-                            </div>
-
-                            <div className="w-3/6">
-                                <Label htmlFor="kode-transaksi">Kode Dokter :</Label>
-                            </div>
-                            <div className="w-full mb-4">
-                                <Input ref={doctorCodeRef} id="doctor" type="text" onKeyUp={doctorKeyUpAct} />
-                            </div>
-                        </div>
-                        <div>
-                            <div className="w-3/6">
-                                <Label htmlFor="kode-transaksi">Alamat :</Label>
-                            </div>
-                            <div className="w-full mb-4">
-                                <Input ref={patientAddressRef} id="pasien" type="text" />
-                            </div>
-
-                            <div className="w-3/6">
-                                <Label htmlFor="kode-transaksi">Kota :</Label>
-                            </div>
-                            <div className="w-full mb-4">
-                                <Input ref={patientCityPlaceRef} id="pasien" type="text" />
-                            </div>
-
-                            <div className="w-3/6">
-                                <Label htmlFor="kode-transaksi">Nama Dokter :</Label>
-                            </div>
-                            <div className="w-full mb-4">
-                                <Input ref={doctorNameRef} id="pasien" type="text" />
-                            </div>
-                        </div>
-                    </div>
-                    <Separator />
-                    <div className="flex mt-4">
-                        <div className="w-3/6">
-                            <Label htmlFor="kode-transaksi">Jenis Bayar</Label>
-                        </div>
-                        <div className="w-full">
-                            <Select defaultValue={data.jenis_pembayaran} onValueChange={(value) => setData('jenis_pembayaran', value)}>
-                              <SelectTrigger className="w-full">
-                                <SelectValue placeholder="=== Pilih Jenis Pembayaran ===" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value={"tunai"}>Tunai</SelectItem>
-                                <SelectItem value={"kartu-debit-kredit"}>Kartu Debit/Kredit</SelectItem>
-                              </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                    <div className="flex mt-4">
-                        <div className="w-3/6 pt-[1%]">
-                            <Label htmlFor="kode-transaksi">Diskon</Label>
-                        </div>
-                        <div className="w-full">
-                            <Input type="text" name="diskon" onChange={calculateDiskon} onKeyUp={calculateDiskon} />
-                        </div>
-                    </div>
-                    <div className="flex mt-4">
-                        <div className="w-3/6 pt-[1%]">
-                            <Label htmlFor="kode-transaksi">Sub Total</Label>
-                        </div>
-                        <div className="w-full">
-                            <Input type="text" name="sub_total_grand" className="bg-slate-200" value={data.sub_total_grand} readOnly />
-                        </div>
-                    </div>
-                    <div className="flex mt-4">
-                        <div className="w-3/6 pt-[1%]">
-                            <Label htmlFor="kode-transaksi">Total</Label>
-                        </div>
-                        <div className="w-full">
-                            <Input type="text" name="total_grand" className="bg-slate-200" value={data.total_grand} readOnly />
-                        </div>
-                    </div>
-                    <div className="flex mt-4">
-                        <div className="w-3/6 pt-[1%]">
-                            <Label htmlFor="kode-transaksi">Bayar</Label>
-                        </div>
-                        <div className="w-full">
-                            <Input 
-                                ref={bayarTransaksi} 
-                                type="number" 
-                                name="bayar" 
-                                value={data.bayar} 
-                                onChange={calculateBayar} 
-                                onKeyUp={calculateBayar} 
-                            />
-                        </div>
-                    </div>
-                    <div className="flex mt-4 mb-4">
-                        <div className="w-3/6 pt-[1%]">
-                            <Label htmlFor="kode-transaksi">Kembali</Label>
-                        </div>
-                        <div className="w-full">
-                            <Input type="text" name="kembali" className="bg-slate-200" value={data.kembalian} readOnly />
-                        </div>
-                    </div>
-                    <Separator />
-                    <Button 
-                        ref={submitBayarRef}
-                        variant="success" 
-                        className="mt-4" 
-                        disabled={processing}
-                        onClick={submitTransaction}
-                    >Bayar</Button>
-                </form>
-                </DialogContent>
-            </Dialog>
-
             <div className="flex justify-center space-x-2 mb-3">
-                <Link href={route('administrator.dashboard')}>
-                    <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">
-                        DASHBOARD [CTRL+ALT+P]
-                    </Button>
-                </Link>
-                <Button 
-                    size="lg" 
-                    variant="secondary" 
-                    className="shadow-sm shadow-slate-500/40" 
-                    onClick={() => setCekHargaObatDialog(!cekHargaObatDialog)}
-                >
-                    CEK HARGA OBAT [CTRL+ALT+O]
-                </Button>
-                <a href={route('administrator.transaction-upds')} target="_blank">
-                    <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">UPDS [F2]</Button>
-                </a>
-                <a href={route('administrator.transaction-hv')} target="_blank">
-                    <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">
-                        HV/OTC [F3]
-                    </Button>
-                </a>
                 <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40" onClick={batalAct}>BATAL [F7]</Button>
                 <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">HAPUS [F8]</Button>
-                <Button 
-                    size="lg" 
-                    variant="secondary" 
-                    className="shadow-sm shadow-slate-500/40"
-                    onClick={() => setBayarDialog(!bayarDialog)}
-                >PROSES [F12]</Button>
             </div>
             <Separator className="bg-slate-200" />
             <div className="grid grid-cols-4 gap-4 mt-4 mb-4">
@@ -1141,12 +825,12 @@ export default function TransactionResep({
                 </TableHeader>
                 <TableBody>
                     {
-                        rowObat.length == 0 ?
+                        data.medicines.length == 0 ?
                         <TableRow>
                             <TableCell className="border border-slate-100" colSpan={11} align="center">Tidak Ada Transaksi Obat</TableCell>
                         </TableRow>
                         : 
-                        rowObat.map((row, key) => (
+                        data.medicines.map((row, key) => (
                             <TableRow key={key}>
                                 <TableCell className="border border-slate-100">
                                     <input type="radio" name="medicine_id" onKeyDown={rowObatAct} value={key} />
@@ -1172,7 +856,6 @@ export default function TransactionResep({
             <div className="grid grid-cols-3 place-items-center mt-4 w-full">
                 <div className="flex space-x-4">
                     <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40" onClick={() => setOpenMasterObat(!openMasterObat)}>Master Obat</Button>
-                    <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">Rekam Medis</Button>
                 </div>
                 <div className="flex w-full">
                     <div className="flex-none w-20">
@@ -1182,11 +865,8 @@ export default function TransactionResep({
                         <Input className="bg-slate-200" type="text" value={data.total_grand} readOnly />
                     </div>
                 </div>
-                <div className="flex space-x-4">
-                    <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40" onClick={() => setOpenPasienList(!openPasienList)}>Pasien</Button>
-                    <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">Transaksi</Button>
-                </div>
             </div>
-        </TransactionLayout>
+        {/*</TransactionLayout>*/}
+        </>
     )
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Administrator\DistributionMedicineController;
 use App\Http\Controllers\Administrator\DoctorController;
 use App\Http\Controllers\Administrator\DrugClassificationController;
 use App\Http\Controllers\Administrator\MedicineController;
+use App\Http\Controllers\Administrator\MedicalRecordController;
 use App\Http\Controllers\Administrator\MedicalSupplierController;
 use App\Http\Controllers\Administrator\MedicineFactoryController;
 use App\Http\Controllers\Administrator\OrderMedicineController;
@@ -215,6 +216,14 @@ Route::group(['middleware' => 'auth'], function() {
         Route::get('/', [TransactionController::class, 'index'])->name('administrator.transactions');
         Route::get('/detail/{id}', [TransactionController::class, 'detail'])->name('administrator.transactions.detail');
         Route::delete('/delete/{id}', [TransactionController::class, 'delete'])->name('administrator.transactions.delete');
+    });
+
+    Route::group(['prefix' => 'medical-records'], function() {
+        Route::get('/', [MedicalRecordController::class, 'index'])->name('administrator.medical-records');
+        Route::get('/create', [MedicalRecordController::class, 'create'])->name('administrator.medical-records.create');
+        Route::post('/store', [MedicalRecordController::class, 'store'])->name('administrator.medical-records.store');
+        Route::get('/list-records/{medical_record_id}', [MedicalRecordController::class, 'listRecords'])->name('administrator.medical-records.list-records');
+        Route::get('/list-records/{medical_record_id}/detail-records/{medical_record_list_id}', [MedicalRecordController::class, 'detailRecords'])->name('administrator.medical-records.detail-records');
     });
 
     Route::group(['prefix' => 'users'], function() {

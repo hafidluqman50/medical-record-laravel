@@ -36,6 +36,12 @@ export interface PatientCategory {
     name:string;
 }
 
+export interface PaginationData {
+    url?:string
+    label:string
+    active:boolean
+}
+
 export type PageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
     session:{
         success:string;

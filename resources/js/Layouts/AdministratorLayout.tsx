@@ -20,6 +20,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/Components/ui/dropdown-menu"
+import { Toaster } from "@/Components/ui/toaster"
 
 export default function Authenticated({ user, header, routeParent = null, routeChild = null, children }: PropsWithChildren<{ 
     user: User, 
@@ -219,7 +220,7 @@ export default function Authenticated({ user, header, routeParent = null, routeC
                                 <NavLink href={route('administrator.registrations')} active={route().current('administrator.registrations')}>
                                     Pendaftaran
                                 </NavLink>
-                                <NavLink href='#'>
+                                <NavLink href={route('administrator.medical-records')} active={routeParent == 'rekam-medis'}>
                                     Rekam Medis
                                 </NavLink>
                                 <NavLink href='#'>
@@ -326,6 +327,7 @@ export default function Authenticated({ user, header, routeParent = null, routeC
             )}
 
             <main className="mb-auto">{children}</main>
+            <Toaster />
             <footer className="bg-white p-5">
                 <p className="text-center font-medium">
                     &copy; Copyright Jupiter IT Solutions - {new Date().getFullYear()}
