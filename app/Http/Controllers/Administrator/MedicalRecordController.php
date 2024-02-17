@@ -208,6 +208,9 @@ class MedicalRecordController extends Controller
                 'updated_at'           => date('Y-m-d H:i:s')
             ]);
 
+            /* Update Status Register from 0 to 1 */
+            Registration::where('id', $request->registration_id)->update(['status_register' => 1]);
+
             DB::commit();
 
             return redirect()->intended('/administrator/medical-records')->with('success', 'Berhasil Input Rekam Medis!');

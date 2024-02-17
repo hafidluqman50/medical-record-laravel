@@ -108,8 +108,7 @@ export default function Create({
     return(
         <AdministratorLayout
             user={auth.user}
-            routeParent="data-master"
-            routeChild="data-dokter"
+            routeParent="rekam-medis"
             header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Form Rekam Medis</h2>}
         >
             <Head title="Form Rekam Medis" />
