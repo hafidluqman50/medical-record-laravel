@@ -108,7 +108,7 @@ export default function Index({auth, app, card_stocks, page_num, medicines}: Pag
         <AdministratorLayout
             user={auth.user}
             routeParent="pembelian"
-            routeChild="data-pemesanan"
+            routeChild="kartu-stok"
             header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Kartu Stok</h2>}
         >
             <Head title="Kartu Stok" />

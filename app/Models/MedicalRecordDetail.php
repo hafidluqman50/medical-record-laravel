@@ -5,30 +5,30 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class PrescriptionDetail extends Model
+class MedicalRecordDetail extends Model
 {
     use HasFactory;
 
-    protected $table = 'prescription_details';
+    protected $table = 'medical_record_details';
 
     protected $fillable = [
-        'prescription_list_id',
+        'medical_record_list_id',
         'medicine_id',
         'qty',
-        'prescription_packs',
-        'dose',
-        'sub_total',
-        'total',
-        'service_fee',
-        'prescription_name',
-        'faktor'
+        'dose'
     ];
 
     protected $hidden = [
         'created_at',
         'updated_at'
     ];
+
+    public function medicalRecordList(): BelongsTo
+    {
+        return $this->belongsTo(MedicalRecordList::class, 'medical_record_list_id', 'id');
+    }
 
     public function medicine(): BelongsTo
     {

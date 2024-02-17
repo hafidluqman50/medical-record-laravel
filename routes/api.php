@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\DrugClassificationController;
 use App\Http\Controllers\Api\DoctorController;
 use App\Http\Controllers\Api\MedicineController;
+use App\Http\Controllers\Api\MedicalRecordController;
 use App\Http\Controllers\Api\MedicalSupplierController;
 use App\Http\Controllers\Api\PatientController;
 use App\Http\Controllers\Api\PurchaseMedicineController;
@@ -55,6 +56,10 @@ Route::group(['prefix' => 'medical-suppliers'], function() {
 Route::group(['prefix' => 'transactions'], function() {
     Route::get('/get-by-date/{date}', [TransactionController::class, 'getByDate'])->name('api.transactions.get-by-date');
     Route::get('/get-by-invoice/{invoice}', [TransactionController::class, 'getByInvoice'])->name('api.transactions.get-by-invoice');
+});
+
+Route::group(['prefix' => 'medical-records'], function() {
+    Route::get('/get-registration-by-id/{id}', [MedicalRecordController::class, 'getRegisterById'])->name('api.medical-records.get-registration-by-id');
 });
 
 Route::group(['prefix' => 'purchases'], function() {
