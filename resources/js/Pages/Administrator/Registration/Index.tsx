@@ -2,7 +2,7 @@ import { useState, useEffect, FormEventHandler } from 'react'
 import axios from 'axios'
 import AdministratorLayout from '@/Layouts/AdministratorLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { PageProps, Doctor } from '@/types';
+import { PageProps, PaginationData } from '@/types';
 import { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from '@/Components/DataTable'
 import { SkeletonTable } from "@/Components/SkeletonTable"
@@ -52,30 +52,13 @@ import { Input } from '@/Components/ui/input'
 
 import { Badge } from "@/Components/ui/badge"
 
+import { Registration } from './type'
+
+import { Doctor } from '@/Pages/Administrator/Doctor/type'
+
 interface Registrations {
-    data:Array<{
-        id: number,
-        number_register:string,
-        patient:{
-            name:string
-        },
-        doctor:{
-            name:string
-        },
-        date_register:string,
-        body_height:number,
-        body_weight:number,
-        body_temp:number,
-        blood_pressure:string,
-        complains_of_pain:string,
-        supporting_examinations:string,
-        status_register:number
-    }>;
-    links:Array<{
-        url?:string,
-        label:string,
-        active:boolean
-    }>;
+    data:Array<Registration>;
+    links:Array<PaginationData>;
 }
 
 type RegistrationProps = {

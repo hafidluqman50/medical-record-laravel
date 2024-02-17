@@ -4,6 +4,27 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+DROP TABLE IF EXISTS `card_stocks`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `card_stocks` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `date_stock` date NOT NULL,
+  `invoice_number` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'layanan; Ex: Beli, Jual, Retur',
+  `medicine_id` bigint unsigned NOT NULL,
+  `buy` int NOT NULL,
+  `sell` int NOT NULL,
+  `return` int NOT NULL,
+  `accumulated_stock` int NOT NULL,
+  `notes` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `card_stocks_medicine_id_foreign` (`medicine_id`),
+  CONSTRAINT `card_stocks_medicine_id_foreign` FOREIGN KEY (`medicine_id`) REFERENCES `medicines` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `customers`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -18,6 +39,41 @@ CREATE TABLE `customers` (
   PRIMARY KEY (`id`),
   KEY `customers_price_parameter_id_foreign` (`price_parameter_id`),
   CONSTRAINT `customers_price_parameter_id_foreign` FOREIGN KEY (`price_parameter_id`) REFERENCES `price_parameters` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `distribution_medicine_details`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `distribution_medicine_details` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `distribution_medicine_id` bigint unsigned NOT NULL,
+  `medicine_id` bigint unsigned NOT NULL,
+  `qty` int NOT NULL,
+  `stock_per_unit` int NOT NULL COMMENT 'Isi Obat Per Satuan',
+  `unit_order` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `data_location` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `distribution_medicine_details_distribution_medicine_id_foreign` (`distribution_medicine_id`),
+  KEY `distribution_medicine_details_medicine_id_foreign` (`medicine_id`),
+  CONSTRAINT `distribution_medicine_details_distribution_medicine_id_foreign` FOREIGN KEY (`distribution_medicine_id`) REFERENCES `distribution_medicines` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `distribution_medicine_details_medicine_id_foreign` FOREIGN KEY (`medicine_id`) REFERENCES `medicines` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `distribution_medicines`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `distribution_medicines` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `invoice_number` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `date_distribution` date NOT NULL,
+  `user_id` bigint unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `distribution_medicines_user_id_foreign` (`user_id`),
+  CONSTRAINT `distribution_medicines_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `doctors`;
@@ -67,6 +123,68 @@ CREATE TABLE `failed_jobs` (
   `failed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `failed_jobs_uuid_unique` (`uuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `medical_record_details`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `medical_record_details` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `medical_record_list_id` bigint unsigned NOT NULL,
+  `medicine_id` bigint unsigned NOT NULL,
+  `qty` int NOT NULL,
+  `dose` int NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `medical_record_details_medical_record_list_id_foreign` (`medical_record_list_id`),
+  KEY `medical_record_details_medicine_id_foreign` (`medicine_id`),
+  CONSTRAINT `medical_record_details_medical_record_list_id_foreign` FOREIGN KEY (`medical_record_list_id`) REFERENCES `medical_record_lists` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `medical_record_details_medicine_id_foreign` FOREIGN KEY (`medicine_id`) REFERENCES `medicines` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `medical_record_lists`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `medical_record_lists` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `medical_record_id` bigint unsigned NOT NULL,
+  `registration_id` bigint unsigned NOT NULL,
+  `date_check_up` date NOT NULL,
+  `body_height` double NOT NULL,
+  `body_weight` double NOT NULL,
+  `body_temp` double NOT NULL,
+  `blood_pressure` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `main_complaint` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `diagnose` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `anemnesis` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `physical_examinations` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `supporting_examinations` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `therapy` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `referral` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `notes` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `next_control_date` date NOT NULL COMMENT 'tanggal kontrol selanjutnya',
+  `lab_action` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `medical_record_lists_medical_record_id_foreign` (`medical_record_id`),
+  KEY `medical_record_lists_registration_id_foreign` (`registration_id`),
+  CONSTRAINT `medical_record_lists_medical_record_id_foreign` FOREIGN KEY (`medical_record_id`) REFERENCES `medical_records` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `medical_record_lists_registration_id_foreign` FOREIGN KEY (`registration_id`) REFERENCES `registrations` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `medical_records`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `medical_records` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `patient_id` bigint unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `medical_records_patient_id_foreign` (`patient_id`),
+  CONSTRAINT `medical_records_patient_id_foreign` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `medical_suppliers`;
@@ -148,6 +266,46 @@ CREATE TABLE `migrations` (
   `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `batch` int NOT NULL,
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `order_medicine_details`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `order_medicine_details` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `order_medicine_id` bigint unsigned NOT NULL,
+  `medicine_id` bigint unsigned NOT NULL,
+  `qty` int NOT NULL,
+  `price` int NOT NULL COMMENT 'HARGA HNA',
+  `stock_per_unit` int NOT NULL COMMENT 'Isi Obat Per Satuan',
+  `unit_order` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sub_total` int NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `order_medicine_details_order_medicine_id_foreign` (`order_medicine_id`),
+  KEY `order_medicine_details_medicine_id_foreign` (`medicine_id`),
+  CONSTRAINT `order_medicine_details_medicine_id_foreign` FOREIGN KEY (`medicine_id`) REFERENCES `medicines` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `order_medicine_details_order_medicine_id_foreign` FOREIGN KEY (`order_medicine_id`) REFERENCES `order_medicines` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `order_medicines`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `order_medicines` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `invoice_number` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `date_order` date NOT NULL,
+  `medical_supplier_id` bigint unsigned NOT NULL,
+  `total_grand` int NOT NULL,
+  `user_id` bigint unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `order_medicines_medical_supplier_id_foreign` (`medical_supplier_id`),
+  KEY `order_medicines_user_id_foreign` (`user_id`),
+  CONSTRAINT `order_medicines_medical_supplier_id_foreign` FOREIGN KEY (`medical_supplier_id`) REFERENCES `medical_suppliers` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `order_medicines_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `password_reset_tokens`;
@@ -243,6 +401,7 @@ CREATE TABLE `prescription_details` (
   `medicine_id` bigint unsigned NOT NULL,
   `qty` int NOT NULL,
   `prescription_packs` int NOT NULL,
+  `dose` int NOT NULL,
   `sub_total` int NOT NULL,
   `service_fee` int NOT NULL,
   `total` int NOT NULL,
@@ -311,6 +470,27 @@ CREATE TABLE `price_parameters` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `purchase_histories`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `purchase_histories` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `invoice_number` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `date_purchase` date NOT NULL,
+  `medical_supplier_id` bigint unsigned NOT NULL,
+  `medicine_id` bigint unsigned NOT NULL,
+  `qty` int NOT NULL,
+  `unit_medicine` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sub_total` int NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `purchase_histories_medical_supplier_id_foreign` (`medical_supplier_id`),
+  KEY `purchase_histories_medicine_id_foreign` (`medicine_id`),
+  CONSTRAINT `purchase_histories_medical_supplier_id_foreign` FOREIGN KEY (`medical_supplier_id`) REFERENCES `medical_suppliers` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `purchase_histories_medicine_id_foreign` FOREIGN KEY (`medicine_id`) REFERENCES `medicines` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `purchase_medicine_details`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -361,6 +541,82 @@ CREATE TABLE `purchase_medicines` (
   CONSTRAINT `purchase_medicines_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `purchase_return_details`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `purchase_return_details` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `purchase_return_id` bigint unsigned NOT NULL,
+  `medicine_id` bigint unsigned NOT NULL,
+  `qty_purchase` int NOT NULL COMMENT 'Stok dari pembelian',
+  `qty_return` int NOT NULL COMMENT 'Stok yang diretur',
+  `sub_total` int NOT NULL,
+  `sub_total_custom` int NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `purchase_return_details_purchase_return_id_foreign` (`purchase_return_id`),
+  KEY `purchase_return_details_medicine_id_foreign` (`medicine_id`),
+  CONSTRAINT `purchase_return_details_medicine_id_foreign` FOREIGN KEY (`medicine_id`) REFERENCES `medicines` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `purchase_return_details_purchase_return_id_foreign` FOREIGN KEY (`purchase_return_id`) REFERENCES `purchase_returns` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `purchase_returns`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `purchase_returns` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `invoice_number` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `invoice_number_purchase` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `medical_supplier_id` bigint unsigned NOT NULL,
+  `date_return` date NOT NULL,
+  `date_return_purchase` date NOT NULL,
+  `total_return` int NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `purchase_returns_medical_supplier_id_foreign` (`medical_supplier_id`),
+  CONSTRAINT `purchase_returns_medical_supplier_id_foreign` FOREIGN KEY (`medical_supplier_id`) REFERENCES `medical_suppliers` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `receiving_medicine_details`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `receiving_medicine_details` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `receiving_medicine_id` bigint unsigned NOT NULL,
+  `medicine_id` bigint unsigned NOT NULL,
+  `qty` int NOT NULL,
+  `price` int NOT NULL COMMENT 'HARGA HNA',
+  `stock_per_unit` int NOT NULL COMMENT 'Isi Obat Per Satuan',
+  `unit_order` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sub_total` int NOT NULL,
+  `notes` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `receiving_medicine_details_receiving_medicine_id_foreign` (`receiving_medicine_id`),
+  KEY `receiving_medicine_details_medicine_id_foreign` (`medicine_id`),
+  CONSTRAINT `receiving_medicine_details_medicine_id_foreign` FOREIGN KEY (`medicine_id`) REFERENCES `medicines` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `receiving_medicine_details_receiving_medicine_id_foreign` FOREIGN KEY (`receiving_medicine_id`) REFERENCES `receiving_medicines` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `receiving_medicines`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `receiving_medicines` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `invoice_number` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `date_receive` date NOT NULL,
+  `total_grand` int NOT NULL,
+  `user_id` bigint unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `receiving_medicines_user_id_foreign` (`user_id`),
+  CONSTRAINT `receiving_medicines_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `registrations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -397,6 +653,41 @@ CREATE TABLE `roles` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `sales_return_details`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `sales_return_details` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `sales_return_id` bigint unsigned NOT NULL,
+  `medicine_id` bigint unsigned NOT NULL,
+  `qty_transaction` int NOT NULL COMMENT 'Stok dari penjualan(resep, upds, HV)',
+  `qty_return` int NOT NULL COMMENT 'Stok yang diretur',
+  `sub_total` int NOT NULL,
+  `sub_total_custom` int NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `sales_return_details_sales_return_id_foreign` (`sales_return_id`),
+  KEY `sales_return_details_medicine_id_foreign` (`medicine_id`),
+  CONSTRAINT `sales_return_details_medicine_id_foreign` FOREIGN KEY (`medicine_id`) REFERENCES `medicines` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `sales_return_details_sales_return_id_foreign` FOREIGN KEY (`sales_return_id`) REFERENCES `sales_returns` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `sales_returns`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `sales_returns` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `invoice_number` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `invoice_number_transaction` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `date_return` date NOT NULL,
+  `date_return_transaction` date NOT NULL,
+  `total_return` int NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -550,3 +841,19 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (48,'2024_02_08_222
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (50,'2024_02_10_231951_create_transaction_credits_table',21);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (51,'2024_02_12_132920_create_purchase_medicines_table',22);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (52,'2024_02_12_132926_create_purchase_medicine_details_table',22);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (53,'2024_02_13_122701_create_order_medicines_table',23);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (54,'2024_02_13_122711_create_order_medicine_details_table',23);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (55,'2024_02_13_212053_create_receiving_medicines_table',24);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (56,'2024_02_13_212103_create_receiving_medicine_details_table',24);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (57,'2024_02_14_000651_create_distribution_medicines_table',25);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (58,'2024_02_14_000702_create_distribution_medicine_details_table',25);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (59,'2024_02_14_095250_create_card_stocks_table',26);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (61,'2024_02_14_095327_create_purchase_histories_table',27);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (62,'2024_02_14_231034_create_sales_returns_table',28);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (63,'2024_02_14_231040_create_sales_return_details_table',28);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (64,'2024_02_16_005439_create_purchase_returns_table',29);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (65,'2024_02_16_005452_create_purchase_return_details_table',29);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (66,'2024_02_16_142258_create_medical_records_table',30);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (67,'2024_02_16_142920_create_medical_record_lists_table',30);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (68,'2024_02_16_142928_create_medical_record_details_table',30);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (69,'2024_02_18_004311_add_dose_into_prescription_details_table',31);

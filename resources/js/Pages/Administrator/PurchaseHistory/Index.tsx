@@ -108,7 +108,7 @@ export default function Index({auth, app, purchase_histories, page_num, medicine
         <AdministratorLayout
             user={auth.user}
             routeParent="pembelian"
-            routeChild="data-pemesanan"
+            routeChild="history-beli"
             header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">History Beli</h2>}
         >
             <Head title="History Beli" />

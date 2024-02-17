@@ -139,7 +139,8 @@ class TransactionResepController extends Controller
                             'medicine_id'          => $v['id'],
                             'sub_total'            => $v['sub_total'],
                             'qty'                  => $v['qty'],
-                            'prescription_packs'   => $v['bungkus'],
+                            'prescription_packs'   => $v['prescription_packs'],
+                            'dose'                 => $v['dose'],
                             'service_fee'          => $v['jasa'],
                             'total'                => $v['total'],
                             'faktor'               => $v['faktor'],
@@ -147,7 +148,7 @@ class TransactionResepController extends Controller
                         ]);
 
                         PrescriptionList::where('id', $prescription_list_id)->where('prescription_id',$prescription_id)->increment('service_fee', (int)$v['jasa']);
-                        PrescriptionList::where('id', $prescription_list_id)->where('prescription_id',$prescription_id)->increment('total_cost', (int)$v['total']);
+                        PrescriptionList::where('id', $prescription_list_id)->where('prescription_id',$prescription_id)->increment('total_costs', (int)$v['total']);
                         PrescriptionList::where('id', $prescription_list_id)->where('prescription_id',$prescription_id)->increment('total_prescription_packs', (int)$v['bungkus']);
                     }
                 }

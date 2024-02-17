@@ -5,7 +5,7 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import { Head, Link, useForm, router } from '@inertiajs/react';
-import { PageProps, Doctor } from '@/types'
+import { PageProps } from '@/types'
 import {
   Select,
   SelectContent,
@@ -15,6 +15,8 @@ import {
 } from "@/Components/ui/select"
 import { Textarea } from "@/Components/ui/textarea"
 import { Button } from '@/Components/ui/button'
+
+import { Doctor } from './type'
 
 type DoctorProps = {
     doctor:Doctor
