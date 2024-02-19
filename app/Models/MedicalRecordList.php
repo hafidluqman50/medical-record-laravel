@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class MedicalRecordList extends Model
 {
@@ -32,6 +33,20 @@ class MedicalRecordList extends Model
         'next_control_date',
         'lab_action'
     ];
+
+    protected function dateCheckUp(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value, $attributes) => human_date($value)
+        );
+    }
+
+    protected function nextControlDate(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value, $attributes) => human_date($value)
+        );
+    }
 
     public function medicalRecord(): BelongsTo
     {

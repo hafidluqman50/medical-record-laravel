@@ -2,13 +2,11 @@ import { useState, useEffect, FormEventHandler } from 'react'
 import axios from 'axios'
 import AdministratorLayout from '@/Layouts/AdministratorLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { PageProps } from '@/types';
-import { Transaction } from './type';
+import { PageProps, PaginationData } from '@/types';
 import { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from '@/Components/DataTable'
 import { SkeletonTable } from "@/Components/SkeletonTable"
 import { Button } from '@/Components/ui/button'
-
 import {
   Table,
   TableBody,
@@ -50,32 +48,22 @@ import {
 
 import { Input } from '@/Components/ui/input'
 
-import { Badge } from '@/Components/ui/badge'
+import { StockOpnameDetail } from './type'
 
-import { formatRupiah } from '@/lib/helper'
-
-interface Transactions {
-    data:Array<Transaction>;
-    links:Array<{
-        url?:string,
-        label:string,
-        active:boolean
-    }>;
+interface StockOpnameDetails {
+    data:Array<StockOpnameDetail>;
+    links:Array<PaginationData>;
 }
 
-type TransactionProps = {
-    transactions:Transactions
+type StockOpnameDetailProps = {
+    stock_opname_details:StockOpnameDetails
 }
 
-export default function Index({auth, app, transactions, page_num}: PageProps<TransactionProps>) {
+export default function Index({auth, app, stock_opname_details, page_num}: PageProps<StockOpnameDetailProps>) {
 
     const [searchData, setSearchData] = useState<string>('')
 
     const { session } = usePage<PageProps>().props
-
-    const submitDelete = (id: number): void => {
-        router.delete(route('administrator.transactions.delete', id))
-    }
 
     const dismissAlert = (): void => {
         // document.getElementById('alert-success').remove()
@@ -83,7 +71,7 @@ export default function Index({auth, app, transactions, page_num}: PageProps<Tra
 
     const search = (): void => {
         router.get(
-            route('administrator.transactions'),
+            route('administrator.stock-opnames.detail', stock_opname_details.data[0].stock_opname_id),
             {
                 search:searchData
             },
@@ -97,15 +85,15 @@ export default function Index({auth, app, transactions, page_num}: PageProps<Tra
     return (
         <AdministratorLayout
             user={auth.user}
-            routeParent="penjualan"
-            routeChild="data-penjualan"
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Penjualan</h2>}
+            routeParent="stok-opname"
+            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Stok Opname</h2>}
         >
-            <Head title="Data Penjualan" />
+            <Head title="Data Stok Opname" />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg py-4 px-4">
+                        {/*<DataTable columns={columns} data={doctor}/>*/}
                     {
                         session.success && (
                         <Alert id="alert-success" className="mb-5 flex" variant="success">
@@ -120,12 +108,17 @@ export default function Index({auth, app, transactions, page_num}: PageProps<Tra
                           </div>
                         </Alert>
                     )}
-                        <div className="flex justify-end">
-                            <div className="w-1/3 flex space-x-4">
+                        <div className="flex">
+                            <div className="grow">
+                                <Button variant="secondary" className="mb-2" asChild>
+                                    <Link href={route('administrator.stock-opnames')}>Kembali</Link>
+                                </Button>
+                            </div>
+                            <div className="w-1/3 flex-none flex space-x-4">
                                 <Input
                                     type="search" 
                                     name="search_data"
-                                    placeholder="Cari Penjualan" 
+                                    placeholder="Cari Stok Opname" 
                                     value={searchData}
                                     onChange={(e) => setSearchData(e.target.value)}
                                 />
@@ -138,85 +131,52 @@ export default function Index({auth, app, transactions, page_num}: PageProps<Tra
                           <TableHeader>
                             <TableRow>
                               <TableHead className="border border-slate-200">No</TableHead>
-                              <TableHead className="border border-slate-200">Nomor Invoice</TableHead>
-                              <TableHead className="border border-slate-200">Tanggal Transaksi</TableHead>
-                              <TableHead className="border border-slate-200">Sub Total</TableHead>
-                              <TableHead className="border border-slate-200">Diskon</TableHead>
-                              <TableHead className="border border-slate-200">Total</TableHead>
-                              <TableHead className="border border-slate-200">Bayar</TableHead>
-                              <TableHead className="border border-slate-200">Kembalian</TableHead>
-                              <TableHead className="border border-slate-200">Jenis Pembayaran</TableHead>
-                              <TableHead className="border border-slate-200">Jenis Transaksi</TableHead>
-                              <TableHead className="border border-slate-200">Input By</TableHead>
-                              <TableHead className="border border-slate-200">#</TableHead>
+                              <TableHead className="border border-slate-200">Nama Obat</TableHead>
+                              <TableHead className="border border-slate-200">Satuan</TableHead>
+                              <TableHead className="border border-slate-200">Harga HNA</TableHead>
+                              <TableHead className="border border-slate-200">Stok Komputer</TableHead>
+                              <TableHead className="border border-slate-200">Stok Fisik</TableHead>
+                              <TableHead className="border border-slate-200">Stok Selisih</TableHead>
+                              <TableHead className="border border-slate-200">Sub Nilai</TableHead>
+                              <TableHead className="border border-slate-200">Tanggal Exp</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
                             {
-                                transactions.data.length == 0 ? 
+                                stock_opname_details.data.length == 0 ? 
                                 <TableRow>
-                                    <TableCell colSpan={13} align="center">
+                                    <TableCell colSpan={10} align="center">
                                         Empty Data!
                                     </TableCell>
                                 </TableRow>
-                                : transactions.data.map((row, key) => (
+                                : stock_opname_details.data.map((row, key) => (
                                     <TableRow key={row.id}>
                                         <TableCell className="border border-slate-200">
                                             {page_num+key}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.invoice_number}
+                                            {row.medicine.name}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.date_transaction}
+                                            {row.unit_medicine}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            Rp. {formatRupiah(row.sub_total)}
+                                            {row.price}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            Rp. {formatRupiah(row.discount_pay)}
+                                            {row.stock_computer}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            Rp. {formatRupiah(row.total)}
+                                            {row.stock_display}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            Rp. {formatRupiah(row.pay_total)}
+                                            {row.stock_deviation}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            Rp. {formatRupiah(row.change_money)}
+                                            {row.sub_value}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.transaction_pay_type}
-                                        </TableCell>
-                                        <TableCell className="border border-slate-200">
-                                            {row.type}
-                                        </TableCell>
-                                        <TableCell className="border border-slate-200">
-                                            {row.user.name}
-                                        </TableCell>
-                                        <TableCell className="border border-slate-200">
-                                            <div className="flex space-x-4">
-                                                <Button className="bg-cyan-500 text-white hover:bg-cyan-500" asChild>
-                                                    <Link href={route('administrator.transactions.detail', row.id)}>Detail</Link>
-                                                </Button>
-                                                <AlertDialog>
-                                                  <AlertDialogTrigger asChild>
-                                                    <Button variant="destructive">Delete</Button>
-                                                  </AlertDialogTrigger>
-                                                  <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                                      <AlertDialogDescription>
-                                                        This action cannot be undone. This will delete your transactions data from our servers.
-                                                      </AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                      <AlertDialogAction onClick={() => submitDelete(row.id)}>Continue</AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                  </AlertDialogContent>
-                                                </AlertDialog>
-                                            </div>
+                                            {row.date_expired}
                                         </TableCell>
                                     </TableRow>
                                 ))
@@ -224,11 +184,11 @@ export default function Index({auth, app, transactions, page_num}: PageProps<Tra
                           </TableBody>
                           <TableFooter>
                             <TableRow>
-                                <TableCell colSpan={13}>
+                                <TableCell colSpan={10}>
                                     <Pagination>
                                         <PaginationContent>    
                                     {
-                                        transactions.links.map((pagination, key) => (
+                                        stock_opname_details.links.map((pagination, key) => (
                                             
                                             <div key={key}>
                                             {   

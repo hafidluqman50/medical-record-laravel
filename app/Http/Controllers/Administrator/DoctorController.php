@@ -28,16 +28,10 @@ class DoctorController extends Controller
                   ->orWhere('phone_number', 'like', "%{$search}%");
         })->orderByDesc('id')->paginate(5)->withQueryString()->through(function(Doctor $map) {
             $format_rupiah = format_rupiah($map->fee);
-            
-            $status_dokter = match($map->status_doctor) {
-                0 => 'Tidak Aktif',
-                1 => 'Aktif'
-            };
 
             unset($map->fee);
 
             $map->fee = $format_rupiah;
-            $map->status_doctor_text = $status_dokter;
 
             return $map;
         });
@@ -121,6 +115,22 @@ class DoctorController extends Controller
 
             throw new Exception($e->getMessage().' - Line:'.$e->getLine());
         }
+    }
+
+    public function updateStatus(int $id): RedirectResponse
+    {
+        $doctor = Doctor::where('id',$id)->firstOrFail();
+
+        if ($doctor->status_doctor == 1) {
+            Doctor::where('id',$id)->update(['status_doctor' => 0]);
+            $message = 'Berhasil Non Aktifkan Dokter!';
+        }
+        else {
+            Doctor::where('id',$id)->update(['status_doctor' => 1]);
+            $message = 'Berhasil Aktifkan Dokter!';
+        }
+
+        return redirect()->intended('/administrator/doctors')->with('success', $message);
     }
 
     public function delete(int $id): RedirectResponse

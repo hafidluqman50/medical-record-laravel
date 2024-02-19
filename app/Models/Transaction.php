@@ -42,7 +42,7 @@ class Transaction extends Model
     protected function dateTransaction(): Attribute
     {
         return Attribute::make(
-            get: fn ($value, $attributes) => Carbon::create($value)->format("d, M Y")
+            get: fn ($value, $attributes) => human_date($value)
         );
     }
 

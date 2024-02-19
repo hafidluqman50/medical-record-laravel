@@ -67,7 +67,7 @@ type SalesReturnProps = {
     sales_returns:SalesReturns
 }
 
-export default function Index({auth, app, sales_returns, page_num}: PageProps & SalesReturnProps) {
+export default function Index({auth, app, sales_returns, page_num}: PageProps<SalesReturnProps>) {
 
     const [searchData, setSearchData] = useState<string>('')
 
