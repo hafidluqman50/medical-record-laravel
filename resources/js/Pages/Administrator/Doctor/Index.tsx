@@ -48,6 +48,8 @@ import {
 
 import { Input } from "@/Components/ui/input"
 
+import { Badge } from "@/Components/ui/badge"
+
 import { Doctor } from './type'
 
 interface Doctors {
@@ -59,7 +61,7 @@ type DoctorProps = {
     doctors:Doctors
 }
 
-export default function Index({auth, app, doctors, page_num}: PageProps & DoctorProps) {
+export default function Index({auth, app, doctors, page_num}: PageProps<DoctorProps>) {
 
     const [searchData, setSearchData] = useState<string>('');
 
@@ -71,6 +73,10 @@ export default function Index({auth, app, doctors, page_num}: PageProps & Doctor
 
     const dismissAlert = (): void => {
         // document.getElementById('alert-success').remove()
+    }
+
+    const updateStatusDoctor = (id: number): void => {
+        router.patch(route('administrator.doctors.update-status', id))
     }
 
     const search = (): void => {
@@ -113,139 +119,145 @@ export default function Index({auth, app, doctors, page_num}: PageProps & Doctor
                           </div>
                         </Alert>
                     )}
-                            <div className="flex">
-                                <div className="grow">
-                                    <Button className="mb-2" asChild>
-                                        <Link href={route('administrator.doctors.create')}>Tambah Dokter</Link>
-                                    </Button>
-                                </div>
-                                <div className="w-1/3 flex-none flex space-x-4">
-                                    <Input
-                                        type="search" 
-                                        name="search_data"
-                                        placeholder="Cari Dokter" 
-                                        value={searchData}
-                                        onChange={(e) => setSearchData(e.target.value)}
-                                    />
-                                    <Button className="mb-2" variant="secondary" onClick={search}>
-                                        Cari
-                                    </Button>
-                                </div>
+                        <div className="flex">
+                            <div className="grow">
+                                <Button className="mb-2" asChild>
+                                    <Link href={route('administrator.doctors.create')}>Tambah Dokter</Link>
+                                </Button>
                             </div>
-                            <Table className="border-collapse border border-slate-200">
-                              <TableHeader>
+                            <div className="w-1/3 flex-none flex space-x-4">
+                                <Input
+                                    type="search" 
+                                    name="search_data"
+                                    placeholder="Cari Dokter" 
+                                    value={searchData}
+                                    onChange={(e) => setSearchData(e.target.value)}
+                                />
+                                <Button className="mb-2" variant="secondary" onClick={search}>
+                                    Cari
+                                </Button>
+                            </div>
+                        </div>
+                        <Table className="border-collapse border border-slate-200">
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className="border border-slate-200">No</TableHead>
+                              <TableHead className="border border-slate-200">Nama Dokter</TableHead>
+                              <TableHead className="border border-slate-200">Username</TableHead>
+                              <TableHead className="border border-slate-200">Alamat</TableHead>
+                              <TableHead className="border border-slate-200">Nomor HP</TableHead>
+                              <TableHead className="border border-slate-200">Biaya Dokter</TableHead>
+                              <TableHead className="border border-slate-200">Status Dokter</TableHead>
+                              <TableHead className="border border-slate-200">#</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {
+                                doctors.data.length == 0 ? 
                                 <TableRow>
-                                  <TableHead className="border border-slate-200">No</TableHead>
-                                  <TableHead className="border border-slate-200">Nama Dokter</TableHead>
-                                  <TableHead className="border border-slate-200">Username</TableHead>
-                                  <TableHead className="border border-slate-200">Alamat</TableHead>
-                                  <TableHead className="border border-slate-200">Nomor HP</TableHead>
-                                  <TableHead className="border border-slate-200">Biaya Dokter</TableHead>
-                                  <TableHead className="border border-slate-200">Status Dokter</TableHead>
-                                  <TableHead className="border border-slate-200">#</TableHead>
-                                </TableRow>
-                              </TableHeader>
-                              <TableBody>
-                                {
-                                    doctors.data.length == 0 ? 
-                                    <TableRow>
-                                        <TableCell colSpan={7} align="center">
-                                            Empty Data!
-                                        </TableCell>
-                                    </TableRow>
-                                    : doctors.data.map((row, key) => (
-                                        <TableRow key={row.id}>
-                                            <TableCell className="border border-slate-200">
-                                                {page_num+key}
-                                            </TableCell>
-                                            <TableCell className="border border-slate-200">
-                                                {row.name}
-                                            </TableCell>
-                                            <TableCell className="border border-slate-200">
-                                                {row.username}
-                                            </TableCell>
-                                            <TableCell className="border border-slate-200">
-                                                {row.address}
-                                            </TableCell>
-                                            <TableCell className="border border-slate-200">
-                                                {row.phone_number}
-                                            </TableCell>
-                                            <TableCell className="border border-slate-200">
-                                                {row.fee}
-                                            </TableCell>
-                                            <TableCell className="border border-slate-200">
-                                                {row.status_doctor_text}
-                                            </TableCell>
-                                            <TableCell className="border border-slate-200">
-                                                <div className="flex space-x-4">
-                                                    <Button className="bg-amber-500 text-white hover:bg-amber-500" asChild>
-                                                        <Link href={route('administrator.doctors.edit', row.id)}>Edit</Link>
-                                                    </Button>
-                                                    <AlertDialog>
-                                                      <AlertDialogTrigger asChild>
-                                                        <Button variant="destructive">Delete</Button>
-                                                      </AlertDialogTrigger>
-                                                      <AlertDialogContent>
-                                                        <AlertDialogHeader>
-                                                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                                          <AlertDialogDescription>
-                                                            This action cannot be undone. This will delete your doctors data from our servers.
-                                                          </AlertDialogDescription>
-                                                        </AlertDialogHeader>
-                                                        <AlertDialogFooter>
-                                                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                          <AlertDialogAction onClick={() => submitDelete(row.id)}>Continue</AlertDialogAction>
-                                                        </AlertDialogFooter>
-                                                      </AlertDialogContent>
-                                                    </AlertDialog>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                }
-                              </TableBody>
-                              <TableFooter>
-                                <TableRow>
-                                    <TableCell colSpan={8}>
-                                        <Pagination>
-                                            <PaginationContent>    
-                                        {
-                                            doctors.links.map((pagination, key) => (
-                                                <div key={key}>
-                                                {   
-                                                    pagination.label.includes('Previous') ? 
-                                                    <Link href={pagination.url === undefined ? '#' : pagination.url}>
-                                                        <PaginationPrevious/>
-                                                    </Link> : ''
-                                                }
-                                                {
-                                                    !pagination.label.includes('Previous') && !pagination.label.includes('Next') ? 
-
-                                                    <Link href={pagination.url === undefined ? '#' : pagination.url}>
-                                                        <PaginationItem key={key}>
-                                                          <PaginationLink isActive={pagination.active}>
-                                                            {pagination.label}
-                                                          </PaginationLink>
-                                                        </PaginationItem>
-                                                    </Link>
-                                                    :''
-
-                                                }
-                                                {
-                                                    pagination.label.includes('Next') ?
-                                                    <Link href={pagination.url === undefined ? '#' : pagination.url}>
-                                                        <PaginationNext/>
-                                                    </Link> : ''
-                                                }
-                                                </div>
-                                            ))
-                                        }
-                                            </PaginationContent>
-                                        </Pagination>
+                                    <TableCell colSpan={7} align="center">
+                                        Empty Data!
                                     </TableCell>
                                 </TableRow>
-                              </TableFooter>
-                            </Table>
+                                : doctors.data.map((row, key) => (
+                                    <TableRow key={row.id}>
+                                        <TableCell className="border border-slate-200">
+                                            {page_num+key}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            {row.name}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            {row.username}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            {row.address}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            {row.phone_number}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            {row.fee}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            {
+                                                row.status_doctor == 0 ? 
+                                                <Badge variant="destructive">Tidak Aktif</Badge> :
+                                                <Badge variant="success">Aktif</Badge>
+                                            }
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            <div className="flex space-x-4">
+                                                <Button className="bg-amber-500 text-white hover:bg-amber-500" asChild>
+                                                    <Link href={route('administrator.doctors.edit', row.id)}>Edit</Link>
+                                                </Button>
+                                                <Button className="bg-cyan-500 text-white hover:bg-cyan-500" onClick={() => updateStatusDoctor(row.id)}>
+                                                    Update Status
+                                                </Button>
+                                                <AlertDialog>
+                                                  <AlertDialogTrigger asChild>
+                                                    <Button variant="destructive">Delete</Button>
+                                                  </AlertDialogTrigger>
+                                                  <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                      <AlertDialogDescription>
+                                                        This action cannot be undone. This will delete your doctors data from our servers.
+                                                      </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                      <AlertDialogAction onClick={() => submitDelete(row.id)}>Continue</AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                  </AlertDialogContent>
+                                                </AlertDialog>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            }
+                          </TableBody>
+                          <TableFooter>
+                            <TableRow>
+                                <TableCell colSpan={8}>
+                                    <Pagination>
+                                        <PaginationContent>    
+                                    {
+                                        doctors.links.map((pagination, key) => (
+                                            <div key={key}>
+                                            {   
+                                                pagination.label.includes('Previous') ? 
+                                                <Link href={pagination.url === undefined ? '#' : pagination.url}>
+                                                    <PaginationPrevious/>
+                                                </Link> : ''
+                                            }
+                                            {
+                                                !pagination.label.includes('Previous') && !pagination.label.includes('Next') ? 
+
+                                                <Link href={pagination.url === undefined ? '#' : pagination.url}>
+                                                    <PaginationItem key={key}>
+                                                      <PaginationLink isActive={pagination.active}>
+                                                        {pagination.label}
+                                                      </PaginationLink>
+                                                    </PaginationItem>
+                                                </Link>
+                                                :''
+                                            }
+                                            {
+                                                pagination.label.includes('Next') ?
+                                                <Link href={pagination.url === undefined ? '#' : pagination.url}>
+                                                    <PaginationNext/>
+                                                </Link> : ''
+                                            }
+                                            </div>
+                                        ))
+                                    }
+                                        </PaginationContent>
+                                    </Pagination>
+                                </TableCell>
+                            </TableRow>
+                          </TableFooter>
+                        </Table>
                     </div>
                 </div>
             </div>

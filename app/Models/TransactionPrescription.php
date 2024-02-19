@@ -24,6 +24,7 @@ class TransactionPrescription extends Model
         'pay_total',
         'change_money',
         'user_id',
+        'doctor_id',
         'status_transaction'
     ];
 
@@ -41,7 +42,7 @@ class TransactionPrescription extends Model
     protected function dateTransaction(): Attribute
     {
         return Attribute::make(
-            get: fn ($value, $attributes) => Carbon::create($value)->format("d, M Y")
+            get: fn ($value, $attributes) => human_date($value)
         );
     }
 

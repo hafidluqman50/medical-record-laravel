@@ -59,7 +59,7 @@ type MedicalRecordDetailProps = {
     medical_record_details:MedicalRecordDetails
 }
 
-export default function Index({auth, app, medical_record_details, page_num}: PageProps & MedicalRecordDetailProps) {
+export default function DetailRecord({auth, app, medical_record_details, page_num}: PageProps & MedicalRecordDetailProps) {
 
     const [searchData, setSearchData] = useState<string>('')
 

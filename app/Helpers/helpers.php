@@ -6,12 +6,14 @@ function format_rupiah(string $money): string
     return $hasil_rupiah;
 }
 
-function tambah_hari(string $date): string {
+function tambah_hari(string $date): string 
+{
     $tiga_hari = date('Y-m-d', strtotime('+3 days', strtotime($date)));
     return $tiga_hari;
 }
 
-function human_date(string|null $date): string {
+function human_date(string|null $date): string 
+{
     if($date != null && $date != '0000-00-00') {
         $explode = explode('-',$date);
         return $explode[2].' '.month($explode[1]).' '.$explode[0];
@@ -21,7 +23,8 @@ function human_date(string|null $date): string {
     }
 }
 
-function month(string $month): string {
+function month(string $month): string 
+{
     $array = [
         '01' => 'Januari',
         '02' => 'Februari',

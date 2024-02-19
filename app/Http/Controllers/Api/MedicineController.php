@@ -55,4 +55,41 @@ class MedicineController extends ApiBaseController
 
         return response()->json(compact('medicine'));
     }
+
+    public function getByLocationRack(string $location_rack): JsonResponse
+    {
+        $count_obat = Medicine::where('location_rack', $location_rack)->where('data_location', 'kasir')->count();
+
+        $results = [];
+
+        $data  = 160;
+        $hasil = ceil($count_obat / 160);
+        $no    = 0;
+
+        for ($i=1; $i <= $hasil ; $i++) {
+            $hitung = ($i > 1) ? ($i * $data) - $data : 0;
+
+            $medicines = Medicine::where('location_rack', $location_rack)->where('data_location', 'kasir')->limit($data)->offset(0)->get();
+
+            foreach ($medicines as $key => $value) {
+                $results[$no][] = [
+                    'medicine_id'     => $value->id,
+                    'unit_medicine'   => $value->unit_medicine,
+                    'medicine_name'   => $value->name,
+                    'stock_computer'  => $value->stock,
+                    'stock_display'   => 0,
+                    'stock_deviation' => 0,
+                    'price'           => $value->capital_price,
+                    'sub_value'       => 0,
+                    'date_expired'    => $value->date_expired,
+                ];
+            }
+
+            $no++;
+        }
+
+        return $this->responseResult(compact('results'))
+                    ->message('Success Get Medicines By Location Rack!')
+                    ->ok();
+    }
 }
