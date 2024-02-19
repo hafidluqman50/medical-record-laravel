@@ -66,7 +66,7 @@ export default function Index({auth, app, medical_records, page_num}: PageProps 
     const { session } = usePage<PageProps>().props
 
     const submitDelete = (id: number): void => {
-        // router.delete(route('administrator.medical-records.delete',id))
+        router.delete(route('administrator.medical-records.delete',id))
     }
 
     const dismissAlert = (): void => {

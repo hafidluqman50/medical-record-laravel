@@ -20,6 +20,7 @@ use App\Http\Controllers\Administrator\PpnController;
 use App\Http\Controllers\Administrator\ReceivingMedicineController;
 use App\Http\Controllers\Administrator\RegistrationController;
 use App\Http\Controllers\Administrator\SalesReturnController;
+use App\Http\Controllers\Administrator\StockOpnameController;
 use App\Http\Controllers\Administrator\TransactionController;
 use App\Http\Controllers\Administrator\TransactionCreditController;
 use App\Http\Controllers\Administrator\TransactionHvController;
@@ -39,6 +40,7 @@ Route::group(['middleware' => 'auth'], function() {
         Route::post('/store', [DoctorController::class, 'store'])->name('administrator.doctors.store');
         Route::get('/edit/{id}', [DoctorController::class, 'edit'])->name('administrator.doctors.edit');
         Route::put('/update/{id}', [DoctorController::class, 'update'])->name('administrator.doctors.update');
+        Route::patch('/update-status/{id}', [DoctorController::class, 'updateStatus'])->name('administrator.doctors.update-status');
         Route::delete('/delete/{id}', [DoctorController::class, 'delete'])->name('administrator.doctors.delete');
     });
 
@@ -224,6 +226,15 @@ Route::group(['middleware' => 'auth'], function() {
         Route::post('/store', [MedicalRecordController::class, 'store'])->name('administrator.medical-records.store');
         Route::get('/list-records/{medical_record_id}', [MedicalRecordController::class, 'listRecords'])->name('administrator.medical-records.list-records');
         Route::get('/list-records/{medical_record_id}/detail-records/{medical_record_list_id}', [MedicalRecordController::class, 'detailRecords'])->name('administrator.medical-records.detail-records');
+    });
+
+    Route::group(['prefix' => 'stock-opnames'], function() {
+        Route::get('/', [StockOpnameController::class, 'index'])->name('administrator.stock-opnames');
+        Route::get('/create', [StockOpnameController::class, 'create'])->name('administrator.stock-opnames.create');
+        Route::post('/store', [StockOpnameController::class, 'store'])->name('administrator.stock-opnames.store');
+        Route::get('/print/{id}', [StockOpnameController::class, 'printStockOpname'])->name('administrator.stock-opnames.print');
+        Route::get('/detail/{id}', [StockOpnameController::class, 'detail'])->name('administrator.stock-opnames.detail');
+        Route::delete('/delete/{id}', [StockOpnameController::class, 'delete'])->name('administrator.stock-opnames.delete');
     });
 
     Route::group(['prefix' => 'users'], function() {

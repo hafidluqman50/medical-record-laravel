@@ -223,7 +223,7 @@ export default function Authenticated({ user, header, routeParent = null, routeC
                                 <NavLink href={route('administrator.medical-records')} active={routeParent == 'rekam-medis'}>
                                     Rekam Medis
                                 </NavLink>
-                                <NavLink href='#'>
+                                <NavLink href={route('administrator.stock-opnames')} active={routeParent == 'stok-opname'}>
                                     Stok Opnem
                                 </NavLink>
                                 <NavLink href={route('administrator.users')} active={route().current('administrator.users')}>

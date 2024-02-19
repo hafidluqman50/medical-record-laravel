@@ -37,6 +37,7 @@ Route::group(['prefix' => 'drug-classifications'], function () {
 Route::group(['prefix' => 'medicines'], function() {
     Route::get('/', [MedicineController::class, 'getAll'])->name('api.medicines.get-all');
     Route::get('/{id}', [MedicineController::class, 'getById'])->name('api.medicines.get-by-id');
+    Route::get('/location-rack/{location_rack}', [MedicineController::class, 'getByLocationRack'])->name('api.medicines.get-by-location-rack');
 });
 
 Route::group(['prefix' => 'patients'], function() {
