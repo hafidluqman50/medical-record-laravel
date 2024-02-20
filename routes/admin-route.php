@@ -136,20 +136,20 @@ Route::group(['middleware' => 'auth'], function() {
 
     Route::group(['prefix' => 'transaction-upds'], function() {
         Route::get('/', [TransactionUpdsController::class, 'index'])->name('administrator.transaction-upds');
-        Route::post('/', [TransactionUpdsController::class, 'store'])->name('administrator.transaction-upds.store');
-        Route::get('/{id}/print', [TransactionUpdsController::class, 'printInvoice'])->name('administrator.transaction-upds.print-invoice');
+        Route::post('/store', [TransactionUpdsController::class, 'store'])->name('administrator.transaction-upds.store');
+        Route::get('/print/{id}', [TransactionUpdsController::class, 'printInvoice'])->name('administrator.transaction-upds.print-invoice');
     });
 
     Route::group(['prefix' => 'transaction-hv'], function() {
         Route::get('/', [TransactionHvController::class, 'index'])->name('administrator.transaction-hv');
-        Route::post('/', [TransactionHvController::class, 'store'])->name('administrator.transaction-hv.store');
-        Route::get('/{id}/print', [TransactionHvController::class, 'printInvoice'])->name('administrator.transaction-hv.print-invoice');
+        Route::post('/store', [TransactionHvController::class, 'store'])->name('administrator.transaction-hv.store');
+        Route::get('/print/{id}', [TransactionHvController::class, 'printInvoice'])->name('administrator.transaction-hv.print-invoice');
     });
 
     Route::group(['prefix' => 'transaction-resep'], function() {
         Route::get('/', [TransactionResepController::class, 'index'])->name('administrator.transaction-resep');
-        Route::post('/', [TransactionResepController::class, 'store'])->name('administrator.transaction-resep.store');
-        Route::get('/{id}/print', [TransactionResepController::class, 'printInvoice'])->name('administrator.transaction-resep.print-invoice');
+        Route::post('/store', [TransactionResepController::class, 'store'])->name('administrator.transaction-resep.store');
+        Route::get('/print/{id}', [TransactionResepController::class, 'printInvoice'])->name('administrator.transaction-resep.print-invoice');
     });
 
     Route::group(['prefix' => 'customers'], function() {
@@ -163,8 +163,8 @@ Route::group(['middleware' => 'auth'], function() {
 
     Route::group(['prefix' => 'transaction-credit'], function() {
         Route::get('/', [TransactionCreditController::class, 'index'])->name('administrator.transaction-credit');
-        Route::post('/', [TransactionCreditController::class, 'store'])->name('administrator.transaction-credit.store');
-        Route::get('/{id}/print', [TransactionCreditController::class, 'printInvoice'])->name('administrator.transaction-credit.print-invoice');
+        Route::post('/store', [TransactionCreditController::class, 'store'])->name('administrator.transaction-credit.store');
+        Route::get('/print/{id}', [TransactionCreditController::class, 'printInvoice'])->name('administrator.transaction-credit.print-invoice');
     });
 
     Route::group(['prefix' => 'purchase-medicines'], function() {
