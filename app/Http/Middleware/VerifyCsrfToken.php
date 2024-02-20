@@ -12,6 +12,10 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        //
+        'administrator/stock-opnames/store',
+        'administrator/transaction-upds/store',
+        'administrator/transaction-hv/store',
+        'administrator/transaction-resep/store',
+        'administrator/transaction-credit/store'
     ];
 }

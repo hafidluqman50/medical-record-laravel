@@ -135,7 +135,7 @@ class TransactionHvController extends Controller
 
             DB::commit();
 
-            return redirect()->intended('/administrator/transaction-hv/'.$transaction_id.'/print');
+            return redirect()->intended('/administrator/transaction-hv/print/'.$transaction_id);
         } catch (Exception $e) {
             DB::rollBack();
 

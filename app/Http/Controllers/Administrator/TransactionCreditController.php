@@ -174,7 +174,7 @@ class TransactionCreditController extends Controller
 
             DB::commit();
 
-            return redirect()->intended('/administrator/transaction-credit/'.$transaction_id.'/print');
+            return redirect()->intended('/administrator/transaction-credit/print/'.$transaction_id);
         } catch (Exception $e) {
             DB::rollBack();
 
