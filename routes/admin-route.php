@@ -5,6 +5,7 @@ use App\Http\Controllers\Administrator\DashboardController;
 use App\Http\Controllers\Administrator\DistributionMedicineController;
 use App\Http\Controllers\Administrator\DoctorController;
 use App\Http\Controllers\Administrator\DrugClassificationController;
+use App\Http\Controllers\Administrator\LabActionController;
 use App\Http\Controllers\Administrator\MedicineController;
 use App\Http\Controllers\Administrator\MedicalRecordController;
 use App\Http\Controllers\Administrator\MedicalSupplierController;
@@ -42,6 +43,15 @@ Route::group(['middleware' => 'auth'], function() {
         Route::put('/update/{id}', [DoctorController::class, 'update'])->name('administrator.doctors.update');
         Route::patch('/update-status/{id}', [DoctorController::class, 'updateStatus'])->name('administrator.doctors.update-status');
         Route::delete('/delete/{id}', [DoctorController::class, 'delete'])->name('administrator.doctors.delete');
+    });
+
+    Route::group(['prefix' => 'lab-actions'], function() {
+        Route::get('/', [LabActionController::class, 'index'])->name('administrator.lab-actions');
+        Route::get('/create', [LabActionController::class, 'create'])->name('administrator.lab-actions.create');
+        Route::post('/store', [LabActionController::class, 'store'])->name('administrator.lab-actions.store');
+        Route::get('/edit/{id}', [LabActionController::class, 'edit'])->name('administrator.lab-actions.edit');
+        Route::put('/update/{id}', [LabActionController::class, 'update'])->name('administrator.lab-actions.update');
+        Route::delete('/delete/{id}', [LabActionController::class, 'delete'])->name('administrator.lab-actions.delete');
     });
 
     Route::group(['prefix' => 'patient-categories'], function() {
