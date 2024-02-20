@@ -30,6 +30,10 @@ import {
     AxiosGetRegistration
 } from './type'
 
+import { columnLabActions } from './columnDatatable'
+
+import { DataTable } from '@/Components/DataTable'
+
 export default function Create({
     auth, patients, doctors, registrations, kode_transaksi, medicines, price_parameter, lab_actions
 }: PageProps<FormCreateProps>) {
@@ -408,6 +412,9 @@ export default function Create({
                                     />
                                 </TabsContent>
                                 <TabsContent value="data-tindakan">
+                                    <div className="max-w-2xl mx-auto border-stone-100 border-2 p-4 rounded-lg backdrop-blur-lg">
+                                        <DataTable columns={columnLabActions} data={lab_actions} />
+                                    </div>
                                 </TabsContent>
                             </Tabs>
                         </div>

@@ -1,15 +1,24 @@
 import { ColumnDef } from "@tanstack/react-table"
 
-import { MedicinePriceParameters } from './typeProps'
-
 import { Medicine } from '@/Pages/Administrator/Medicine/type'
 
+import { MedicinePriceParameters } from './typeProps'
+
 import { Patient } from '@/Pages/Administrator/Patient/type'
+
+import { LabAction } from '@/Pages/Administrator/LabAction/type'
 
 interface ColumnLists {
     columnFilter:string
     columnName:string
 }
+
+export const columnLabActions: ColumnDef<LabAction>[] = [
+{
+    accessorKey: "name",
+    header:"Nama Tindakan Lab"
+}
+]
 
 export const columns: ColumnDef<MedicinePriceParameters>[] = [
   {

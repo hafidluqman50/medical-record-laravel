@@ -40,7 +40,7 @@ interface ColumnLists {
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
-  columnLists: ColumnLists[]
+  columnLists?: ColumnLists[]
   data: TData[]
 }
 
@@ -52,7 +52,8 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   )
-  const [selectColumn, setSelectColumn] = React.useState<string>(columnLists[0].columnFilter)
+  const [selectColumn, setSelectColumn] = React.useState<string>(columnLists !== undefined ? columnLists[0].columnFilter : '')
+  const [globalFilter, setGlobalFilter] = React.useState<string>('')
 
   const table = useReactTable({
     data,
@@ -62,7 +63,8 @@ export function DataTable<TData, TValue>({
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     state: {
-      columnFilters
+      columnFilters,
+      globalFilter
     },
   })
 
@@ -73,6 +75,8 @@ export function DataTable<TData, TValue>({
   return (
         <>
         <div className="grid grid-cols-2 items-end gap-7 py-4">
+        {
+            columnLists !== undefined ?
             <Select onValueChange={selectColumnAct}>
                 <SelectTrigger className="w-full">
                     <SelectValue placeholder="=== Filter Kolom ===" />
@@ -85,11 +89,13 @@ export function DataTable<TData, TValue>({
                         }
                 </SelectContent>
             </Select>
+            : ''
+            }
             <Input
-                placeholder={`Filter ${selectColumn[0].toUpperCase()}${selectColumn.substring(1)}...`}
-                value={(table.getColumn(selectColumn)?.getFilterValue() as string) ?? ""}
+                placeholder={`Cari ...`}
+                value={globalFilter ?? ""}
                 onChange={(event) => 
-                    table.getColumn(selectColumn)?.setFilterValue(event.target.value)
+                    setGlobalFilter(event.target.value)
                 }
                 className="max-w-md"
                 autoFocus
