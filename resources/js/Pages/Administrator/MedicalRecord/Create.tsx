@@ -31,8 +31,8 @@ import {
 } from './type'
 
 export default function Create({
-    auth, patients, doctors, registrations, kode_transaksi, medicines, price_parameter
-}: PageProps & FormCreateProps) {
+    auth, patients, doctors, registrations, kode_transaksi, medicines, price_parameter, lab_actions
+}: PageProps<FormCreateProps>) {
 
     const { toast } = useToast();
 
@@ -47,7 +47,7 @@ export default function Create({
         physical_examinations:'',
         supporting_examinations:'',
         diagnose:'',
-        lab_action:'',
+        lab_action_id:null,
         therapy:'',
         referral:'',
         next_control_date:'',
@@ -313,23 +313,22 @@ export default function Create({
                                         </div>
 
                                         <div className="mt-4">
-                                            <InputLabel htmlFor="lab_action" value="Tindakan Lab" />
+                                            <InputLabel htmlFor="lab_action_id" value="Tindakan Lab" />
 
-                                            <Select onValueChange={(value) => setData('lab_action', value)}>
+                                            <Select onValueChange={(value) => setData('lab_action_id', parseInt(value))}>
                                               <SelectTrigger className="w-full">
                                                 <SelectValue placeholder="=== Pilih Tindakan Lab ===" />
                                               </SelectTrigger>
                                               <SelectContent>
-                                                <SelectItem value="pemeriksaan-umum">Pemeriksaan Umum</SelectItem>
-                                              {/*{
-                                                registrations.map((row, key) => (
-                                                    <SelectItem value={row.id.toString()} key={key}>{row.number_register} | {row.patient.name} | {row.doctor.name}</SelectItem>
+                                              {
+                                                lab_actions.map((row, key) => (
+                                                    <SelectItem value={row.id.toString()} key={key}>{row.name}</SelectItem>
                                                 ))
-                                              }*/}
+                                              }
                                               </SelectContent>
                                             </Select>
 
-                                            <InputError message={errors.lab_action} className="mt-2" />
+                                            <InputError message={errors.lab_action_id} className="mt-2" />
                                         </div>
 
                                         <div className="mt-4">

@@ -7,6 +7,12 @@ import { Medicine } from '@/Pages/Administrator/Medicine/type'
 
 import { PriceParameter } from '@/Pages/Administrator/PriceParameter/type'
 
+import { LabAction } from '@/Pages/Administrator/LabAction/type'
+
+import { Doctor } from '@/Pages/Administrator/Doctor/type'
+
+import { Patient } from '@/Pages/Administrator/Patient/type'
+
 export interface MedicalRecord {
     id:number;
     patient_id:number;
@@ -36,6 +42,9 @@ export interface MedicalRecordList {
     anemnesis:string;
     physical_examinations:string;
     supporting_examinations:string;
+    lab_action:{
+        name:string
+    }
     therapy:string;
     referral:string;
     notes:string;
@@ -80,6 +89,9 @@ export type FormCreateProps = {
     kode_transaksi: string
     medicines: Medicine[]
     price_parameter: PriceParameter
+    doctors: Doctor[]
+    lab_actions: LabAction[]
+    patients: Patient[]
 }
 
 export interface MedicalRecordForm {
@@ -93,7 +105,7 @@ export interface MedicalRecordForm {
     physical_examinations:string
     supporting_examinations:string
     diagnose:string
-    lab_action:string
+    lab_action_id:number|null
     therapy:string
     referral:string
     next_control_date:string

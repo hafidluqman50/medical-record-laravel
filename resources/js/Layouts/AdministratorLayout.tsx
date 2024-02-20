@@ -59,6 +59,11 @@ export default function Authenticated({ user, header, routeParent = null, routeC
                                             </NavLink>
                                           </DropdownMenuItem>
                                           <DropdownMenuItem>
+                                            <NavLink href={route('administrator.lab-actions')} active={routeChild == 'data-tindakan-lab'}>
+                                                Data Tindakan Lab
+                                            </NavLink>
+                                          </DropdownMenuItem>
+                                          <DropdownMenuItem>
                                             <NavLink href={route('administrator.patient-categories')} active={routeChild == 'data-kategori-pasien'}>
                                                 Data Kategori Pasien
                                             </NavLink>
