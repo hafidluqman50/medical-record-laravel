@@ -117,7 +117,7 @@ export const columnMedicines: ColumnDef<Medicine>[] = [
     header: "Nama Obat",
   },
   {
-    accessorKey: "medicine_factory_name",
+    accessorKey: "medicine_factory.name",
     header: "Pabrik",
   },
   {
