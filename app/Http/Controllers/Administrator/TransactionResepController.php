@@ -172,7 +172,7 @@ class TransactionResepController extends Controller
 
             DB::commit();
 
-            return redirect()->intended('/administrator/transaction-resep/'.$transaction_id.'/print');
+            return redirect()->intended('/administrator/transaction-resep/print/'.$transaction_id);
         } catch (Exception $e) {
             DB::rollBack();
 

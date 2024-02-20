@@ -135,7 +135,7 @@ class TransactionUpdsController extends Controller
 
             DB::commit();
 
-            return redirect()->intended('/administrator/transaction-upds/'.$transaction_id.'/print');
+            return redirect()->intended('/administrator/transaction-upds/print/'.$transaction_id);
         } catch (Exception $e) {
             DB::rollBack();
 
