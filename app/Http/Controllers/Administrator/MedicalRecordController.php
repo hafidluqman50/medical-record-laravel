@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Administrator;
 
+use App\Models\LabAction;
 use App\Models\Medicine;
 use App\Models\MedicalRecord;
 use App\Models\MedicalRecordDetail;
@@ -44,6 +45,8 @@ class MedicalRecordController extends Controller
 
         $kode_transaksi = TransactionPrescription::generateCode();
 
+        $lab_actions = LabAction::all();
+
         $price_parameter = PriceParameter::where('label', 'Tunai')->firstOrFail();
 
         $medicines = Medicine::with(['medicineFactory'])->get()->map(function(Medicine $medicine) {
@@ -65,7 +68,7 @@ class MedicalRecordController extends Controller
             return $medicine;
         });
         
-        return Inertia::render('Administrator/MedicalRecord/Create', compact('registrations', 'kode_transaksi', 'price_parameter', 'medicines'));
+        return Inertia::render('Administrator/MedicalRecord/Create', compact('registrations', 'kode_transaksi', 'price_parameter', 'medicines', 'lab_actions'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -81,7 +84,7 @@ class MedicalRecordController extends Controller
             'physical_examinations'   => 'required|string',
             'supporting_examinations' => 'required|string',
             'diagnose'                => 'required|string',
-            'lab_action'              => 'required|string',
+            'lab_action_id'           => 'required|integer|exists:'.LabAction::class.',id',
             'therapy'                 => 'required|string',
             'referral'                => 'required|string',
             'next_control_date'       => 'required|string',
@@ -225,7 +228,7 @@ class MedicalRecordController extends Controller
     {   
         $search = $request->search;
 
-        $medical_record_lists = MedicalRecordList::with(['registration.patient','registration.doctor'])
+        $medical_record_lists = MedicalRecordList::with(['registration.patient','registration.doctor', 'labAction'])
                                 ->when($search != '', function(Builder $query) use ($search) {
                                     $query->whereHas('registration.patient', function(Builder $queryHas) use ($search) {
                                         $queryHas->where('name', 'like', "%{$search}%");

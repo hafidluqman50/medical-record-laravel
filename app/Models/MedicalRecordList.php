@@ -53,6 +53,11 @@ class MedicalRecordList extends Model
         return $this->belongsTo(MedicalRecord::class, 'medical_record_id', 'id');
     }
 
+    public function labAction(): BelongsTo
+    {
+        return $this->belongsTo(LabAction::class, 'lab_action_id', 'id');
+    }
+
     public function registration(): BelongsTo
     {
         return $this->belongsTo(Registration::class, 'registration_id', 'id');
