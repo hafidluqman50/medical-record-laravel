@@ -23,7 +23,7 @@ class CardStockController extends Controller
         $card_stocks = CardStock::whereBetween('date_stock',[$from_date,$to_date])
                       ->whereHas('medicine', function(Builder $queryHas) use ($medicine_batch_number) {
                         $queryHas->where('batch_number', $medicine_batch_number);
-                      })->orderBy('accumulated_stock','DESC')->paginate(10)->withQueryString();
+                      })->orderBy('accumulated_stock','DESC')->paginate(10)->onEachSide(3)->withQueryString();
 
         $page_num = ($card_stocks->currentPage() - 1) * $card_stocks->perPage() + 1;
 

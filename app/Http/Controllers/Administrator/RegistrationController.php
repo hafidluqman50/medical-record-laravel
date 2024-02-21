@@ -28,7 +28,7 @@ class RegistrationController extends Controller
                             $query->whereHas('patient', function(Builder $queryEloquent) use ($search) {
                                 $queryEloquent->where('name', 'like', "%{$search}%");
                             });
-                        })->paginate(5)->withQueryString()->through(function(Registration $through) {
+                        })->paginate(5)->onEachSide(3)->withQueryString()->through(function(Registration $through) {
                             $human_date = human_date($through->date_register);
 
                             unset($through->date_register);

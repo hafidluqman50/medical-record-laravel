@@ -21,7 +21,7 @@ class StockOpnameController extends Controller
 
         $stock_opnames = StockOpname::with(['user'])->when($search != '', function(Builder $query)use($search){
             $query->where('notes', 'like', "%{$search}%");
-        })->paginate(5)->withQueryString();
+        })->paginate(5)->onEachSide(3)->withQueryString();
 
         $page_num = ($stock_opnames->currentPage() - 1) * $stock_opnames->perPage() + 1;
 
@@ -92,7 +92,7 @@ class StockOpnameController extends Controller
             $query->whereHas('medicine', function(Builder $queryHas) use ($search) {
                         $queryHas->where('name', 'like', "%{$search}%");
                     });
-        })->with(['medicine'])->where('stock_opname_id', $id)->paginate(5)->withQueryString();
+        })->with(['medicine'])->where('stock_opname_id', $id)->paginate(5)->onEachSide(3)->withQueryString();
 
         $page_num = ($stock_opname_details->currentPage() - 1) * $stock_opname_details->perPage() + 1;
 

@@ -23,7 +23,7 @@ class SalesReturnController extends Controller
         $sales_returns = SalesReturn::when($search != '', function(Builder $query)use($search) {
                             $query->where('invoice_number','like',"%{$search}%")
                                   ->orWhere('invoice_number_transaction');
-                        })->paginate(5)->withQueryString();
+                        })->paginate(5)->onEachSide(3)->withQueryString();
 
         $page_num = ($sales_returns->currentPage() - 1) * $sales_returns->perPage() + 1;
 
@@ -110,7 +110,7 @@ class SalesReturnController extends Controller
     {
         $search = $request->search;
 
-        $sales_return_details = SalesReturnDetail::with(['medicine'])->where('sales_return_id', $id)->paginate(5)->withQueryString();
+        $sales_return_details = SalesReturnDetail::with(['medicine'])->where('sales_return_id', $id)->paginate(5)->onEachSide(3)->withQueryString();
 
         $page_num = ($sales_return_details->currentPage() - 1) * $sales_return_details->perPage() + 1;        
 
