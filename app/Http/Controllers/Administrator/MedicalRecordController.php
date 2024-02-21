@@ -32,7 +32,7 @@ class MedicalRecordController extends Controller
                                 $query->whereHas('patient', function(Builder $queryHas) use ($search) {
                                     $queryHas->where('name', 'like', "%{$search}%");
                                 });
-                            })->paginate(5)->withQueryString();
+                            })->paginate(5)->onEachSide(3)->withQueryString();
 
         $page_num = ($medical_records->currentPage() - 1) * $medical_records->perPage() + 1;
 
@@ -235,7 +235,7 @@ class MedicalRecordController extends Controller
                                     })->orWhereHas('registration.doctor', function(Builder $queryHas) use ($search) {
                                         $queryHas->where('name', 'like', "%{$search}%");
                                     });
-                                })->where('medical_record_id', $medical_record_id)->paginate(5)->withQueryString();
+                                })->where('medical_record_id', $medical_record_id)->paginate(5)->onEachSide(3)->withQueryString();
 
         $page_num = ($medical_record_lists->currentPage() - 1) * $medical_record_lists->perPage() + 1;
 
@@ -256,7 +256,7 @@ class MedicalRecordController extends Controller
                                     $queryHas->where('medical_record_id', $medical_record_id);
                                 })
                                 ->where('medical_record_list_id', $medical_record_list_id)
-                                ->paginate(5)->withQueryString();
+                                ->paginate(5)->onEachSide(3)->withQueryString();
 
         $page_num = ($medical_record_details->currentPage() - 1) * $medical_record_details->perPage() + 1;
 

@@ -21,7 +21,7 @@ class MedicineFactoryController extends Controller
                                 $query->where('name','like',"%{$search}%")
                                       ->orWhere('address','like',"%{$search}%")
                                       ->orWhere('phone_number', 'like', "%{$search}%");
-                             })->paginate(5)->withQueryString();
+                             })->paginate(5)->onEachSide(3)->withQueryString();
 
         $page_num = ($medicine_factories->currentPage() - 1) * $medicine_factories->perPage() + 1;
 

@@ -25,7 +25,7 @@ class PurchaseMedicineController extends Controller
 
         $purchase_medicines = PurchaseMedicine::with(['medicalSupplier','user'])->when($search != '', function(Builder $query)use($search) {
                                 $query->where('invoice_number', 'like', "%{$search}%");
-                            })->paginate(5)->withQueryString()->through(function(PurchaseMedicine $purchase_medicine) {
+                            })->paginate(5)->onEachSide(3)->withQueryString()->through(function(PurchaseMedicine $purchase_medicine) {
                                 $total_dpp   = format_rupiah($purchase_medicine->total_dpp);
                                 $total_ppn   = format_rupiah($purchase_medicine->total_ppn);
                                 $total_grand = format_rupiah($purchase_medicine->total_grand);
@@ -153,7 +153,7 @@ class PurchaseMedicineController extends Controller
 
     public function detail(Request $request, int $id): Response
     {
-        $purchase_medicine_details = PurchaseMedicineDetail::with(['medicine'])->where('purchase_medicine_id',$id)->paginate(5)->withQueryString();
+        $purchase_medicine_details = PurchaseMedicineDetail::with(['medicine'])->where('purchase_medicine_id',$id)->paginate(5)->onEachSide(3)->withQueryString();
 
         $page_num = ($purchase_medicine_details->currentPage() - 1) * $purchase_medicine_details->perPage() + 1;
 

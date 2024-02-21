@@ -69,7 +69,7 @@ import {
 
 import { columns } from './columnDatatable'
 
-import { DataTableMasterObat } from './DataTableMasterObat'
+import { DataTableMasterObat } from './DataTableServer'
 
 import { useToast } from '@/Components/ui/use-toast'
 

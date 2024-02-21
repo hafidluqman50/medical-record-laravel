@@ -20,7 +20,7 @@ class DrugClassificationController extends Controller
 
         $drug_classifications = DrugClassification::when($search != '', function(Builder $query)use($search) {
             $query->where('name','like',"%{$search}%");
-        })->paginate(5)->withQueryString();
+        })->paginate(5)->onEachSide(3)->withQueryString();
 
         $page_num = ($drug_classifications->currentPage() - 1) * $drug_classifications->perPage() + 1;
 

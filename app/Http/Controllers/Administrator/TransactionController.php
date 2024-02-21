@@ -21,7 +21,7 @@ class TransactionController extends Controller
 
         $transactions = Transaction::with(['user'])->when($search != '', function(Builder $query)use($search) {
                             $query->where('invoice_number','like',"%{$search}%");
-                        })->paginate(5)->withQueryString();
+                        })->paginate(5)->onEachSide(3)->withQueryString();
 
         $page_num = ($transactions->currentPage() - 1) * $transactions->perPage() + 1;
 
@@ -34,7 +34,7 @@ class TransactionController extends Controller
 
         $transaction_details = TransactionDetail::with(['medicine'])->when($search != '', function(Builder $query)use($search) {
                                     $query->where('invoice_number','like',"%{$search}%");
-                                })->paginate(5)->withQueryString();
+                                })->paginate(5)->onEachSide(3)->withQueryString();
 
         $page_num = ($transaction_details->currentPage() - 1) * $transaction_details->perPage() + 1;
 

@@ -606,3 +606,16 @@ export function DataTableRekamMedisDetail({
         </>
     )
 }
+
+export function DataTableTransaction() {
+    const [pageNum, setPageNum]                       = useState<number>(0)
+    const [search, setSearch]                         = useState<string>('')
+    const [prescriptionId, setPrescriptionId]         = useState<number>(0)
+    const [prescriptionListId, setPrescriptionListId] = useState<number>(0)
+    const [openDialog, setOpenDialog]                 = useState<string>('transaksi')
+
+    return(
+        <>
+        </>
+    )
+}

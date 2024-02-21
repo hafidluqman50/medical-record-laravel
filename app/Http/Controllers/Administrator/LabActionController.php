@@ -20,7 +20,7 @@ class LabActionController extends Controller
 
         $lab_actions = LabAction::when($search != '', function(Builder $query)use($search){
             $query->where('name', 'like', "%{$search}%");
-        })->paginate(5)->withQueryString();
+        })->paginate(5)->onEachSide(3)->withQueryString();
 
         $page_num = ($lab_actions->currentPage() - 1) * $lab_actions->perPage() + 1;
 

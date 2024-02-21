@@ -20,7 +20,7 @@ class PriceParameterController extends Controller
 
         $price_parameters = PriceParameter::when($search != '', function(Builder $query)use($search) {
             $query->where('name','like',"%{$search}%");
-        })->paginate(5)->withQueryString()->through(function(PriceParameter $price_parameter) {
+        })->paginate(5)->onEachSide(3)->withQueryString()->through(function(PriceParameter $price_parameter) {
             $embalase   = format_rupiah($price_parameter->embalase);
             $jasa_racik = format_rupiah($price_parameter->jasa_racik);
             $pembulatan = format_rupiah($price_parameter->pembulatan);

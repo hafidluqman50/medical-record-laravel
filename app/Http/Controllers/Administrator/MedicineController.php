@@ -25,7 +25,7 @@ class MedicineController extends Controller
         $medicines = Medicine::with(['drugClassification', 'medicalSupplier', 'medicineFactory'])
                             ->when($search != '', function(Builder $query) use ($search) {
                                 $query->where('name','like',"%{$search}%");
-                            })->paginate(5)->withQueryString()->through(function(Medicine $query) {
+                            })->paginate(5)->onEachSide(3)->withQueryString()->through(function(Medicine $query) {
 
                                 $harga_modal     = format_rupiah($query->capital_price);
                                 $harga_modal_ppn = format_rupiah($query->capital_price_vat);

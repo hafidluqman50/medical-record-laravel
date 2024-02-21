@@ -23,7 +23,7 @@ class OrderMedicineController extends Controller
         $order_medicines = OrderMedicine::with(['user','medicalSupplier'])
                         ->when($search != '', function(Builder $query) use ($search) {
                             $query->where('invoice_number', 'like', "%{$search}%");
-                        })->paginate(5)->withQueryString();
+                        })->paginate(5)->onEachSide(3)->withQueryString();
 
         $page_num = ($order_medicines->currentPage() - 1) * $order_medicines->perPage() + 1;
 
@@ -90,7 +90,7 @@ class OrderMedicineController extends Controller
                             $query->whereHas('medicine', function(Builder $queryHas) use ($search) {
                                 $queryHas->where('name', 'like', "%{$search}%");
                             });
-                        })->paginate(5)->withQueryString();
+                        })->paginate(5)->onEachSide(3)->withQueryString();
 
         $page_num = ($order_medicine_details->currentPage() - 1) * $order_medicine_details->perPage() + 1;
 

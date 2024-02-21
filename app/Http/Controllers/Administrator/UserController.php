@@ -26,7 +26,7 @@ class UserController extends Controller
                   ->orWhereHas('role', function(Builder $queryRole) use ($search) {
                         $queryRole->where('name', 'like', "%{$search}%");
                   });
-            })->orderByDesc('id')->paginate(5)->withQueryString();
+            })->orderByDesc('id')->paginate(5)->onEachSide(3)->withQueryString();
 
         $page_num = ($users->currentPage() - 1) * $users->perPage() + 1;
 
