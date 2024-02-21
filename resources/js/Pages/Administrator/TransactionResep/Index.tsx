@@ -712,7 +712,6 @@ export default function TransactionResep({
               </DialogContent>
             </Dialog>
 
-
             <Dialog open={openTransaction} onOpenChange={setOpenTransaction}>
               <DialogContent className="max-w-7xl">
                 <DialogHeader>

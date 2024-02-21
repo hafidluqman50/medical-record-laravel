@@ -69,7 +69,10 @@ import {
 
 import { columns } from './columnDatatable'
 
-import { DataTableMasterObat } from './DataTableServer'
+import { 
+    DataTableMasterObat,
+    DataTableTransactionCredit
+} from './DataTableServer'
 
 import { useToast } from '@/Components/ui/use-toast'
 
@@ -98,6 +101,7 @@ export default function TransactionCredit({
     const [openPasienDialog, setOpenPasienDialog]     = useState<boolean>(false)
     const [openDoctorDialog, setOpenDoctorDialog]     = useState<boolean>(false)
     const [openMasterObat, setOpenMasterObat]         = useState<boolean>(false)
+    const [openTransaction, setOpenTransaction]       = useState<boolean>(false)
     /* END DIALOG USE STATE HOOKS */
 
     /* MECHANISM TRANSACTION USE STATE HOOKS */
@@ -699,6 +703,15 @@ export default function TransactionCredit({
               </DialogContent>
             </Dialog>
 
+            <Dialog open={openTransaction} onOpenChange={setOpenTransaction}>
+              <DialogContent className="max-w-7xl">
+                <DialogHeader>
+                  <DialogTitle>Data Transaksi</DialogTitle>
+                </DialogHeader>
+                <DataTableTransactionCredit onOpenTransaction={setOpenTransaction} />
+              </DialogContent>
+            </Dialog>
+
             <AlertDialog open={openWarningJasa} onOpenChange={setOpenWarningJasa}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
@@ -1131,7 +1144,7 @@ export default function TransactionCredit({
                     </div>
                 </div>
                 <div className="flex space-x-4">
-                    <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">Transaksi</Button>
+                    <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40" onClick={() => setOpenTransaction(!openTransaction)}>Transaksi</Button>
                 </div>
             </div>
         </TransactionLayout>

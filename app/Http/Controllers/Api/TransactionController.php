@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\PriceParameter;
 use App\Models\Transaction;
+use App\Models\TransactionCredit;
 use App\Models\TransactionPrescription;
 use App\Models\PrescriptionList;
 use App\Models\PrescriptionDetail;
@@ -113,6 +114,27 @@ class TransactionController extends ApiBaseController
                     ->ok();
     }
 
+    public function getTransactionCredit(Request $request): JsonResponse
+    {
+        $search   = $request->search;
+        $page_num = $request->page_num;
+
+        $transaction_credit = TransactionCredit::with(['customer', 'prescription.patient','prescription.doctor','user'])
+                            ->when($page_num != '', function(Builder $query) use ($page_num) {
+                                $query->offset($page_num)->limit(5);
+                            })->when($search != '', function(Builder $query) use ($search) {
+                                $query->where('invoice_number', 'like', "%{$search}%");
+                            })->get();
+
+        $count = TransactionCredit::where('invoice_number', 'like', "%{$search}%")->count();
+
+        $max_page = ceil($count / 5);
+
+        return $this->responseResult(compact('transaction_credit', 'max_page'))
+                    ->message('Success Get Transaction Resep!')
+                    ->ok();
+    }
+
     public function getPrescriptionLists(Request $request, int $prescription_id): JsonResponse
     {
         $search   = $request->search;
@@ -169,6 +191,15 @@ class TransactionController extends ApiBaseController
 
         return $this->responseResult(compact('racik_detail', 'max_page'))
                     ->message('Success Get Prescription Lists !')
+                    ->ok();
+    }
+
+    public function setStatusCredit(int $id): JsonResponse
+    {
+        TransactionCredit::where('id', $id)->update(['status_transaction' => 1]);
+
+        return $this->responseResult()
+                    ->message('Success Change Status Credit!')
                     ->ok();
     }
 }

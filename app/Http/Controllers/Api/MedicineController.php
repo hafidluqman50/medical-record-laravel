@@ -18,8 +18,9 @@ class MedicineController extends ApiBaseController
         $search        = $request->search;
         $filter        = $request->filter;
 
-        $medicines = Medicine::with('medicineFactory')->when($medicine != '', function(Builder $query) use ($medicine) {
+        $medicines = Medicine::with('medicineFactory')->when($medicine != '', function(Builder $query) use ($medicine, $data_location) {
             $query->where('name','like',"%{$medicine}%")
+                  ->where('data_location', $data_location)
                   ->orWhere('code','like',"%{$medicine}%");
         })->when($page_num != '', function(Builder $query) use ($page_num) {
             $query->offset($page_num)->limit(5);
@@ -47,7 +48,7 @@ class MedicineController extends ApiBaseController
              return $query;
         });
 
-        $count = Medicine::where('data_location', $data_location)->where($filter, 'like', "%{$search}%")->count();
+        $count = Medicine::where('data_location', $data_location)->count();
 
         $max_page = ceil($count / 5);
 
