@@ -34,6 +34,9 @@ export interface Patient {
     code:string,
     bpjs_number:string,
     patient_category_id:number,
+    patient_category:{
+        name:string
+    }
     name:string,
     phone_number:number,
     address:string,

@@ -14,10 +14,22 @@ class MedicineController extends ApiBaseController
     {
         $medicine      = $request->medicine;
         $data_location = $request->data_location ?? 'gudang';
+        $page_num      = $request->page_num;
+        $search        = $request->search;
+        $filter        = $request->filter;
 
-        $medicines = Medicine::with('medicineFactory')->when($medicine != '', function(Builder $query) use ($medicine) {
+        $medicines = Medicine::with('medicineFactory')->when($medicine != '', function(Builder $query) use ($medicine, $data_location) {
             $query->where('name','like',"%{$medicine}%")
+                  ->where('data_location', $data_location)
                   ->orWhere('code','like',"%{$medicine}%");
+        })->when($page_num != '', function(Builder $query) use ($page_num) {
+            $query->offset($page_num)->limit(5);
+        })->when($filter != '', function(Builder $query) use ($search, $filter) {
+            if($filter == 'generic') {
+                $query->where('is_generic', 1);
+            } else {
+                $query->where($filter, 'like', "%{$search}%");
+            }
         })->where('data_location', $data_location)->get()->map(function(Medicine $query) {
             $harga_modal     = format_rupiah($query->capital_price);
             $harga_modal_ppn = format_rupiah($query->capital_price_vat);
@@ -36,7 +48,11 @@ class MedicineController extends ApiBaseController
              return $query;
         });
 
-        return response()->json(compact('medicines'));
+        $count = Medicine::where('data_location', $data_location)->count();
+
+        $max_page = ceil($count / 5);
+
+        return response()->json(compact('medicines', 'max_page'));
     }
 
     public function getById(int $id): JsonResponse
@@ -90,6 +106,21 @@ class MedicineController extends ApiBaseController
 
         return $this->responseResult(compact('results'))
                     ->message('Success Get Medicines By Location Rack!')
+                    ->ok();
+    }
+
+    public function setStatus(int $id): JsonResponse 
+    {
+        $medicine = Medicine::where('id', $id)->firstOrFail();
+
+        if ($medicine->is_active == 1) {
+            Medicine::where('id', $id)->update(['is_active' => 0]);
+        } else {
+            Medicine::where('id', $id)->update(['is_active' => 1]);
+        }
+
+        return $this->responseResult()
+                    ->message('Success Set Status Medicine ID '.$id)
                     ->ok();
     }
 }

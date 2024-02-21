@@ -49,7 +49,7 @@ import {
 
 import { Input } from "@/Components/ui/input"
 
-export default function Index({auth, app, patients, page_num}: PageProps & PatientIndexProps) {
+export default function Index({auth, app, patients, page_num}: PageProps<PatientIndexProps>) {
 
     const [searchData, setSearchData] = useState<string>('');
 

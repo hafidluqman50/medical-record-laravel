@@ -64,3 +64,52 @@ export interface RowObat {
     faktor:string
     prefixNum:string
 }
+
+export interface TransactionCredit {
+    id:number;
+    prescription_id:number
+    invoice_number:string;
+    date_transaction:string;
+    date_prescription:string;
+    customer_id:number;
+    customer:{
+        name:string;
+    }
+    group_name:string;
+    prescription:{
+        patient:{
+            name:string
+        },
+        doctor:{
+            name:string
+        }
+    }
+    sub_total:number
+    total:number
+    user:{
+        name:string
+    }
+    status_transaction:number
+}
+
+export interface PrescriptionList {
+    id:number;
+    prescription_id:number;
+    name:string;
+    service_fee:number;
+    total_costs:number;
+    total_prescription_packs:number
+}
+
+export interface PrescriptionDetail {
+    id:number;
+    medicine:{
+        name:string
+    }
+    qty:number
+    dose:number
+    sub_total:number
+    service_fee:number
+    total:number
+    faktor:string
+}

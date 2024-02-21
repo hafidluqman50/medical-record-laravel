@@ -22,7 +22,7 @@ class CustomerController extends Controller
         $customers = Customer::when($search != '', function(Builder $query)use($search){
                         $query->where('name', 'like', "%{$search}%")
                               ->orWhere('debitur_number', 'like', "%{$search}%");
-                    })->paginate(5)->withQueryString();
+                    })->paginate(5)->onEachSide(3)->withQueryString();
 
         $page_num = ($customers->currentPage() - 1) * $customers->perPage() + 1;
 
