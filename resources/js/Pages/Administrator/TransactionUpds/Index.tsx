@@ -136,7 +136,6 @@ export default function TransactionUpds({kode_transaksi, price_parameter, medici
                 setOpen(false)
                 setIsHjaNet(data.medicine.is_hja_net)
                 setPriceMedicine(data.medicine.price)
-                console.log(data.medicine)
 
                 obatId.current.value     = data.medicine.id
                 kodeObat.current.value   = data.medicine.code
