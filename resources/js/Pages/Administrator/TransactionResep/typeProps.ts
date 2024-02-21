@@ -14,8 +14,8 @@ export interface MedicinePriceParameters {
   resep_tunai_price: string
   upds_price : string
   hv_otc_price : string
-  resep_kredit : string
-  enggros_faktur : string
+  resep_kredit_price : string
+  enggros_faktur_price : string
 }
 
 export type TransactionResepPageProps = {

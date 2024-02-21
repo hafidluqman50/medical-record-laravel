@@ -71,14 +71,17 @@ import {
 
 import {
     columns,
-    columnLists,
     columnPatients,
-    columnListPatients,
     columnMedicines,
     columnListMedicines
 } from './columnDatatable'
 
 import { useToast } from '@/Components/ui/use-toast'
+
+import { 
+    DataTableMasterObat,
+    DataTableRekamMedis
+} from './DataTableServer'
 
 export default function TransactionResep({
     kode_transaksi, price_parameter, medicine_price_parameters, patients, medicines
@@ -113,6 +116,7 @@ export default function TransactionResep({
     const [openDoctorDialog, setOpenDoctorDialog]     = useState<boolean>(false)
     const [openPasienList, setOpenPasienList]         = useState<boolean>(false)
     const [openMasterObat, setOpenMasterObat]         = useState<boolean>(false)
+    const [openRekamMedis, setOpenRekamMedis]         = useState<boolean>(false)
     /* END DIALOG USE STATE HOOKS */
 
     /* MECHANISM TRANSACTION USE STATE HOOKS */
@@ -620,8 +624,6 @@ export default function TransactionResep({
         }
     },[])
 
-    console.log({columns, columnLists, medicine_price_parameters})
-
     return(
         <TransactionLayout
             title="Penjualan Resep Tunai"
@@ -686,7 +688,7 @@ export default function TransactionResep({
                 <DialogHeader>
                   <DialogTitle>Data Harga Obat</DialogTitle>
                 </DialogHeader>
-                <DataTable columns={columns} data={medicine_price_parameters} columnLists={columnLists}/>
+                <DataTable columns={columns} data={medicine_price_parameters} />
               </DialogContent>
             </Dialog>
 
@@ -695,7 +697,16 @@ export default function TransactionResep({
                 <DialogHeader>
                   <DialogTitle>Data Master Obat</DialogTitle>
                 </DialogHeader>
-                <DataTable columns={columnMedicines} data={medicines} columnLists={columnListMedicines}/>
+                <DataTableMasterObat />
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={openRekamMedis} onOpenChange={setOpenRekamMedis}>
+              <DialogContent className="max-w-7xl">
+                <DialogHeader>
+                  <DialogTitle>Data Rekam Medis</DialogTitle>
+                </DialogHeader>
+                <DataTableRekamMedis />
               </DialogContent>
             </Dialog>
 
@@ -704,7 +715,7 @@ export default function TransactionResep({
                 <DialogHeader>
                   <DialogTitle>Data Pasien</DialogTitle>
                 </DialogHeader>
-                <DataTable columns={columnPatients} data={patients} columnLists={columnListPatients}/>
+                <DataTable columns={columnPatients} data={patients} />
               </DialogContent>
             </Dialog>
 
@@ -1172,7 +1183,7 @@ export default function TransactionResep({
             <div className="grid grid-cols-3 place-items-center mt-4 w-full">
                 <div className="flex space-x-4">
                     <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40" onClick={() => setOpenMasterObat(!openMasterObat)}>Master Obat</Button>
-                    <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">Rekam Medis</Button>
+                    <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40" onClick={() => setOpenRekamMedis(!openRekamMedis)}>Rekam Medis</Button>
                 </div>
                 <div className="flex w-full">
                     <div className="flex-none w-20">
