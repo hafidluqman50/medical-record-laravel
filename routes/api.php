@@ -37,6 +37,7 @@ Route::group(['prefix' => 'drug-classifications'], function () {
 Route::group(['prefix' => 'medicines'], function() {
     Route::get('/', [MedicineController::class, 'getAll'])->name('api.medicines.get-all');
     Route::get('/{id}', [MedicineController::class, 'getById'])->name('api.medicines.get-by-id');
+    Route::get('/set-status/{id}', [MedicineController::class, 'setStatus'])->name('api.medicines.set-status');
     Route::get('/location-rack/{location_rack}', [MedicineController::class, 'getByLocationRack'])->name('api.medicines.get-by-location-rack');
 });
 
@@ -61,6 +62,9 @@ Route::group(['prefix' => 'transactions'], function() {
 
 Route::group(['prefix' => 'medical-records'], function() {
     Route::get('/get-registration-by-id/{id}', [MedicalRecordController::class, 'getRegisterById'])->name('api.medical-records.get-registration-by-id');
+    Route::get('/get-patients', [MedicalRecordController::class, 'getPatients'])->name('api.medical-records.get-patients');
+    Route::get('/get-medical-record-lists/{id}', [MedicalRecordController::class, 'getMedicalRecordLists'])->name('api.medical-records.get-medical-record-lists');
+    Route::get('/get-medical-record-details/{medical_record_id}/{medical_record_list_id}', [MedicalRecordController::class, 'getMedicalRecordDetails'])->name('api.medical-records.get-medical-record-details');
 });
 
 Route::group(['prefix' => 'purchases'], function() {

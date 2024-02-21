@@ -67,18 +67,17 @@ import {
     RowObat 
 } from './typeProps'
 
-import {
-    columns,
-    columnLists,
-    columnPatients,
-    columnListPatients,
-    columnMedicines,
-    columnListMedicines
-} from './columnDatatable'
+import { columns } from './columnDatatable'
+
+import { DataTableMasterObat } from './DataTableMasterObat'
+
+import { useToast } from '@/Components/ui/use-toast'
 
 export default function TransactionCredit({
     kode_transaksi, price_parameter, medicine_price_parameters, patients, medicines, debitur, customers
 }: TransactionCreditPageProps) {
+
+    const { toast } = useToast();
 
     const { data, setData, post, processing, errors, reset } = useForm<ResepCreditForm>({
         medicines: [],
@@ -98,7 +97,6 @@ export default function TransactionCredit({
     const [cekHargaObatDialog, setCekHargaObatDialog] = useState<boolean>(false)
     const [openPasienDialog, setOpenPasienDialog]     = useState<boolean>(false)
     const [openDoctorDialog, setOpenDoctorDialog]     = useState<boolean>(false)
-    const [openPasienList, setOpenPasienList]         = useState<boolean>(false)
     const [openMasterObat, setOpenMasterObat]         = useState<boolean>(false)
     /* END DIALOG USE STATE HOOKS */
 
@@ -178,7 +176,13 @@ export default function TransactionCredit({
 
                 setJualObat(medicines)
             } catch(error) {
-                console.error(error)
+                if(axios.isAxiosError(error)) {
+                    toast({
+                      variant: "destructive",
+                      title: "Error!",
+                      description: error.response?.data.message,
+                    })
+                }
             }
         }
     }
@@ -209,7 +213,13 @@ export default function TransactionCredit({
 
                 setJualObat([])
             } catch(error) {
-                console.error(error)
+                if(axios.isAxiosError(error)) {
+                    toast({
+                      variant: "destructive",
+                      title: "Error!",
+                      description: error.response?.data.message,
+                    })
+                }
             }
         }
     }
@@ -379,83 +389,123 @@ export default function TransactionCredit({
     const pasienKeyUpAct = async(event: any): Promise<void> => {
         if(event.keyCode == 13) {
             setOpenPasienDialog(true)
-            const { data } = await axios.get<{
-                    data:{
-                        patients:Array<{
-                            id:number,
-                            name:string
-                        }>
-                    }
-                }>(route('api.patients.get-all'))
+            try {
+                const { data } = await axios.get<{
+                        data:{
+                            patients:Array<{
+                                id:number,
+                                name:string
+                            }>
+                        }
+                    }>(route('api.patients.get-all'))
 
-            setRowPatients(data.data.patients)
+                setRowPatients(data.data.patients)
+            } catch(error) {
+                if(axios.isAxiosError(error)) {
+                    toast({
+                      variant: "destructive",
+                      title: "Error!",
+                      description: error.response?.data.message,
+                    })
+                }
+            }
         }
     }
 
     const selectPatientAct = async(event: any): Promise<void> => {
         if(event.keyCode == 13) {
-            const responseData = await axios.get<{
-                    data:{
-                        patient:{
-                            id:number,
-                            name:string
+            try {
+                const responseData = await axios.get<{
+                        data:{
+                            patient:{
+                                id:number,
+                                name:string
+                            }
                         }
-                    }
-                }>(route('api.patients.get-by-id', event.target.value))
+                    }>(route('api.patients.get-by-id', event.target.value))
 
-            patientNameRef.current.value        = responseData.data.data.patient.name
+                patientNameRef.current.value        = responseData.data.data.patient.name
 
-            setOpenPasienDialog(false)
+                setOpenPasienDialog(false)
 
-            setRowPatients([])
+                setRowPatients([])
 
-            setData(data => ({
-                ...data,
-                patient_id:responseData.data.data.patient.id
-            }))
+                setData(data => ({
+                    ...data,
+                    patient_id:responseData.data.data.patient.id
+                }))
+            } catch(error) {
+                if(axios.isAxiosError(error)) {
+                    toast({
+                      variant: "destructive",
+                      title: "Error!",
+                      description: error.response?.data.message,
+                    })
+                }
+            }
         }
     }
 
     const doctorKeyUpAct = async(event: any): Promise<void> => {
         if(event.keyCode == 13) {
             setOpenDoctorDialog(true)
-            const { data } = await axios.get<{
-                    data:{
-                        doctors:Array<{
-                            id:number, 
-                            code:string, 
-                            name:string
-                        }>
-                    }
-                }>(route('api.doctors.get-all'))
+            try {
+                const { data } = await axios.get<{
+                        data:{
+                            doctors:Array<{
+                                id:number, 
+                                code:string, 
+                                name:string
+                            }>
+                        }
+                    }>(route('api.doctors.get-all'))
 
-            setRowDoctors(data.data.doctors)
+                setRowDoctors(data.data.doctors)
+            } catch(error) {
+                if(axios.isAxiosError(error)) {
+                    toast({
+                      variant: "destructive",
+                      title: "Error!",
+                      description: error.response?.data.message,
+                    })
+                }
+            }
         }
     }
 
     const selectDoctorAct = async(event: any): Promise<void> => {
         if(event.keyCode == 13) {
-            const responseData = await axios.get<{
-                    data:{
-                        doctor:{
-                            id:number, 
-                            code:string, 
-                            name:string
+            try {
+                const responseData = await axios.get<{
+                        data:{
+                            doctor:{
+                                id:number, 
+                                code:string, 
+                                name:string
+                            }
                         }
-                    }
-                }>(route('api.doctors.get-by-id', event.target.value))
+                    }>(route('api.doctors.get-by-id', event.target.value))
 
-            doctorCodeRef.current.value = responseData.data.data.doctor.code ?? ''
-            doctorNameRef.current.value = responseData.data.data.doctor.name
+                doctorCodeRef.current.value = responseData.data.data.doctor.code ?? ''
+                doctorNameRef.current.value = responseData.data.data.doctor.name
 
-            setOpenDoctorDialog(false)
+                setOpenDoctorDialog(false)
 
-            setRowDoctors([])
+                setRowDoctors([])
 
-            setData(data => ({
-                ...data,
-                doctor_id:responseData.data.data.doctor.id
-            }))
+                setData(data => ({
+                    ...data,
+                    doctor_id:responseData.data.data.doctor.id
+                }))
+            } catch(error) {
+                if(axios.isAxiosError(error)) {
+                    toast({
+                      variant: "destructive",
+                      title: "Error!",
+                      description: error.response?.data.message,
+                    })
+                }
+            }
         }
     }
 
@@ -572,8 +622,6 @@ export default function TransactionCredit({
         }
     },[])
 
-    console.log({columns, columnLists, medicine_price_parameters})
-
     return(
         <TransactionLayout
             title="Penjualan Resep Tunai"
@@ -638,7 +686,7 @@ export default function TransactionCredit({
                 <DialogHeader>
                   <DialogTitle>Data Pelanggan</DialogTitle>
                 </DialogHeader>
-                <DataTable columns={columns} data={customers} columnLists={columnLists}/>
+                <DataTable columns={columns} data={customers} />
               </DialogContent>
             </Dialog>
 
@@ -647,16 +695,7 @@ export default function TransactionCredit({
                 <DialogHeader>
                   <DialogTitle>Data Master Obat</DialogTitle>
                 </DialogHeader>
-                <DataTable columns={columnMedicines} data={medicines} columnLists={columnListMedicines}/>
-              </DialogContent>
-            </Dialog>
-
-            <Dialog open={openPasienList} onOpenChange={setOpenPasienList}>
-              <DialogContent className="max-w-7xl">
-                <DialogHeader>
-                  <DialogTitle>Data Pasien</DialogTitle>
-                </DialogHeader>
-                <DataTable columns={columnPatients} data={patients} columnLists={columnListPatients}/>
+                <DataTableMasterObat />
               </DialogContent>
             </Dialog>
 
@@ -1082,7 +1121,6 @@ export default function TransactionCredit({
             <div className="grid grid-cols-3 place-items-center mt-4 w-full">
                 <div className="flex space-x-4">
                     <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40" onClick={() => setOpenMasterObat(!openMasterObat)}>Master Obat</Button>
-                    <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">Rekam Medis</Button>
                 </div>
                 <div className="flex w-full">
                     <div className="flex-none w-20">
@@ -1093,7 +1131,6 @@ export default function TransactionCredit({
                     </div>
                 </div>
                 <div className="flex space-x-4">
-                    <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40" onClick={() => setOpenPasienList(!openPasienList)}>Pasien</Button>
                     <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">Transaksi</Button>
                 </div>
             </div>

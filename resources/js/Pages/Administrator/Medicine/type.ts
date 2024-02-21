@@ -5,6 +5,9 @@ export interface Medicine {
     barcode:string;
     batch_number:string;
     name:string;
+    medicine_factory:{
+        name:string
+    }
     drug_classification:{
         is_prekursor:number,
         is_narcotic:number,
