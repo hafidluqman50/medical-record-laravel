@@ -18,6 +18,51 @@ export interface MedicinePriceParameters {
   enggros_faktur_price : string
 }
 
+export interface TransactionPrescription {
+    id:number;
+    prescription_id:number
+    invoice_number:string;
+    date_transaction:string;
+    prescription:{
+        patient:{
+            name:string
+        },
+        doctor:{
+            name:string
+        }
+    }
+    discount:number
+    total:number
+    pay_total:number
+    change_money:number
+    user:{
+        name:string
+    }
+    status_transaction:number
+}
+
+export interface PrescriptionList {
+    id:number;
+    prescription_id:number;
+    name:string;
+    service_fee:number;
+    total_costs:number;
+    total_prescription_packs:number
+}
+
+export interface PrescriptionDetail {
+    id:number;
+    medicine:{
+        name:string
+    }
+    qty:number
+    dose:number
+    sub_total:number
+    service_fee:number
+    total:number
+    faktor:string
+}
+
 export type TransactionResepPageProps = {
     kode_transaksi:string
     price_parameter:PriceParameter
