@@ -58,6 +58,9 @@ Route::group(['prefix' => 'medical-suppliers'], function() {
 Route::group(['prefix' => 'transactions'], function() {
     Route::get('/get-by-date/{date}', [TransactionController::class, 'getByDate'])->name('api.transactions.get-by-date');
     Route::get('/get-by-invoice/{invoice}', [TransactionController::class, 'getByInvoice'])->name('api.transactions.get-by-invoice');
+    Route::get('/get-transaction-resep', [TransactionController::class, 'getTransactionResep'])->name('api.transactions.get-transaction-resep');
+    Route::get('/get-prescription-lists/{prescription_id}', [TransactionController::class, 'getPrescriptionLists'])->name('api.transactions.get-prescription-lists');
+    Route::get('/get-prescription-detail/{prescription_id}/{prescription_list_id}', [TransactionController::class, 'getPrescriptionDetails'])->name('api.transactions.get-prescription-details');
 });
 
 Route::group(['prefix' => 'medical-records'], function() {

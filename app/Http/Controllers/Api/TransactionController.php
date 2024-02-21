@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Models\PriceParameter;
 use App\Models\Transaction;
 use App\Models\TransactionPrescription;
+use App\Models\PrescriptionList;
+use App\Models\PrescriptionDetail;
 use App\Http\Controllers\ApiBaseController;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -86,6 +89,86 @@ class TransactionController extends ApiBaseController
 
         return $this->responseResult(compact('results'))
                     ->message('Success Get By Invoice')
+                    ->ok();
+    }
+
+    public function getTransactionResep(Request $request): JsonResponse
+    {
+        $search   = $request->search;
+        $page_num = $request->page_num;
+
+        $transaction_resep = TransactionPrescription::with(['prescription.patient','prescription.doctor','user'])
+                            ->when($page_num != '', function(Builder $query) use ($page_num) {
+                                $query->offset($page_num)->limit(5);
+                            })->when($search != '', function(Builder $query) use ($search) {
+                                $query->where('invoice_number', 'like', "%{$search}%");
+                            })->get();
+
+        $count = TransactionPrescription::where('invoice_number', 'like', "%{$search}%")->count();
+
+        $max_page = ceil($count / 5);
+
+        return $this->responseResult(compact('transaction_resep', 'max_page'))
+                    ->message('Success Get Transaction Resep!')
+                    ->ok();
+    }
+
+    public function getPrescriptionLists(Request $request, int $prescription_id): JsonResponse
+    {
+        $search   = $request->search;
+        $page_num = $request->page_num;
+
+        $racik = PrescriptionList::when($page_num != '', function(Builder $query) use ($page_num) {
+                                $query->offset($page_num)->limit(5);
+                            })->when($search != '', function(Builder $query) use ($search) {
+                                $query->where('name', 'like', "%{$search}%");
+                            })->whereHas('prescription', function(Builder $query)use($prescription_id){
+                                $query->where('id', $prescription_id);
+                            })->get();
+
+        $count = PrescriptionList::where('name', 'like', "%{$search}%")
+                            ->whereHas('prescription', function(Builder $query)use($prescription_id){
+                                $query->where('id', $prescription_id);
+                            })->count();
+
+        $max_page = ceil($count / 5);
+
+        return $this->responseResult(compact('racik', 'max_page'))
+                    ->message('Success Get Prescription Lists !')
+                    ->ok();
+    }
+
+    public function getPrescriptionDetails(Request $request, int $prescription_id, int $prescription_list_id): JsonResponse
+    {
+        $search   = $request->search;
+        $page_num = $request->page_num;
+
+        $racik_detail = PrescriptionDetail::with(['medicine'])->when($page_num != '', function(Builder $query) use ($page_num) {
+                                $query->offset($page_num)->limit(5);
+                            })->when($search != '', function(Builder $query) use ($search) {
+                                $query->whereHas('medicine', function(Builder $queryHas)use($search) {
+                                    $queryHas->where('name', 'like', "%{$search}%");
+                                });
+                            })->whereHas('prescriptionList', function(Builder $query)use($prescription_list_id){
+                                $query->where('id', $prescription_list_id);
+                            })->whereHas('prescriptionList.prescription', function(Builder $query)use($prescription_id){
+                                $query->where('id', $prescription_id);
+                            })->get();
+
+        $count = PrescriptionDetail::whereHas('medicine', function(Builder $query)use($search) {
+                                $query->where('name', 'like', "%{$search}%");
+                            })
+                            ->whereHas('prescriptionList', function(Builder $query)use($prescription_list_id){
+                                $query->where('id', $prescription_list_id);
+                            })
+                            ->whereHas('prescriptionList.prescription', function(Builder $query)use($prescription_id){
+                                $query->where('id', $prescription_id);
+                            })->count();
+
+        $max_page = ceil($count / 5);
+
+        return $this->responseResult(compact('racik_detail', 'max_page'))
+                    ->message('Success Get Prescription Lists !')
                     ->ok();
     }
 }

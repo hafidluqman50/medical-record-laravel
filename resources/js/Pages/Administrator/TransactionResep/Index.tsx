@@ -80,7 +80,8 @@ import { useToast } from '@/Components/ui/use-toast'
 
 import { 
     DataTableMasterObat,
-    DataTableRekamMedis
+    DataTableRekamMedis,
+    DataTableTransaction
 } from './DataTableServer'
 
 export default function TransactionResep({
@@ -117,6 +118,7 @@ export default function TransactionResep({
     const [openPasienList, setOpenPasienList]         = useState<boolean>(false)
     const [openMasterObat, setOpenMasterObat]         = useState<boolean>(false)
     const [openRekamMedis, setOpenRekamMedis]         = useState<boolean>(false)
+    const [openTransaction, setOpenTransaction]       = useState<boolean>(false)
     /* END DIALOG USE STATE HOOKS */
 
     /* MECHANISM TRANSACTION USE STATE HOOKS */
@@ -710,6 +712,16 @@ export default function TransactionResep({
               </DialogContent>
             </Dialog>
 
+
+            <Dialog open={openTransaction} onOpenChange={setOpenTransaction}>
+              <DialogContent className="max-w-7xl">
+                <DialogHeader>
+                  <DialogTitle>Data Transaksi</DialogTitle>
+                </DialogHeader>
+                <DataTableTransaction onOpenTransaction={setOpenTransaction} />
+              </DialogContent>
+            </Dialog>
+
             <Dialog open={openPasienList} onOpenChange={setOpenPasienList}>
               <DialogContent className="max-w-7xl">
                 <DialogHeader>
@@ -1195,7 +1207,7 @@ export default function TransactionResep({
                 </div>
                 <div className="flex space-x-4">
                     <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40" onClick={() => setOpenPasienList(!openPasienList)}>Pasien</Button>
-                    <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">Transaksi</Button>
+                    <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40" onClick={() => setOpenTransaction(!openTransaction)}>Transaksi</Button>
                 </div>
             </div>
         </TransactionLayout>

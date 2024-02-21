@@ -30,6 +30,11 @@ class PrescriptionDetail extends Model
         'updated_at'
     ];
 
+    public function prescriptionList(): BelongsTo
+    {
+        return $this->belongsTo(PrescriptionList::class, 'prescription_list_id', 'id');
+    }
+
     public function medicine(): BelongsTo
     {
         return $this->belongsTo(Medicine::class, 'medicine_id', 'id');
