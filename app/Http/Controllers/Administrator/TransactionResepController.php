@@ -149,26 +149,50 @@ class TransactionResepController extends Controller
 
                         PrescriptionList::where('id', $prescription_list_id)->where('prescription_id',$prescription_id)->increment('service_fee', (int)$v['jasa']);
                         PrescriptionList::where('id', $prescription_list_id)->where('prescription_id',$prescription_id)->increment('total_costs', (int)$v['total']);
-                        PrescriptionList::where('id', $prescription_list_id)->where('prescription_id',$prescription_id)->increment('total_prescription_packs', (int)$v['bungkus']);
+                        PrescriptionList::where('id', $prescription_list_id)->where('prescription_id',$prescription_id)->increment('total_prescription_packs', (int)$v['prescription_packs']);
                     }
                 }
             }
 
-            $transaction_id = TransactionPrescription::insertGetId([
-                'invoice_number'       => $kode_transaksi,
-                'date_transaction'     => date('Y-m-d'),
-                'prescription_id'      => $prescription_id,
-                'sub_total'            => $sub_total_grand,
-                'discount'             => $discount_grand,
-                'total'                => $total_grand,
-                'pay_total'            => $bayar,
-                'change_money'         => $kembalian,
-                'transaction_pay_type' => $jenis_pembayaran,
-                'status_transaction'   => 1,
-                'user_id'              => $request->user()->id,
-                'created_at'           => date('Y-m-d H:i:s'),
-                'updated_at'           => date('Y-m-d H:i:s')
-            ]);
+            $check = TransactionPrescription::where('invoice_number', $kode_transaksi)->exists();
+            if($check) {
+                TransactionPrescription::where('invoice_number', $kode_transaksi)->delete();
+
+                $transaction_id = TransactionPrescription::insertGetId([
+                    'invoice_number'       => $kode_transaksi,
+                    'date_transaction'     => date('Y-m-d'),
+                    'prescription_id'      => $prescription_id,
+                    'sub_total'            => $sub_total_grand,
+                    'discount'             => $discount_grand,
+                    'total'                => $total_grand,
+                    'pay_total'            => $bayar,
+                    'change_money'         => $kembalian,
+                    'transaction_pay_type' => $jenis_pembayaran,
+                    'status_transaction'   => 1,
+                    'doctor_id'            => $doctor_id,
+                    'user_id'              => $request->user()->id,
+                    'created_at'           => date('Y-m-d H:i:s'),
+                    'updated_at'           => date('Y-m-d H:i:s')
+                ]);
+            }
+            else {
+                $transaction_id = TransactionPrescription::insertGetId([
+                    'invoice_number'       => $kode_transaksi,
+                    'date_transaction'     => date('Y-m-d'),
+                    'prescription_id'      => $prescription_id,
+                    'sub_total'            => $sub_total_grand,
+                    'discount'             => $discount_grand,
+                    'total'                => $total_grand,
+                    'pay_total'            => $bayar,
+                    'change_money'         => $kembalian,
+                    'transaction_pay_type' => $jenis_pembayaran,
+                    'status_transaction'   => 1,
+                    'user_id'              => $request->user()->id,
+                    'created_at'           => date('Y-m-d H:i:s'),
+                    'updated_at'           => date('Y-m-d H:i:s')
+                ]);
+            }
+
 
             DB::commit();
 

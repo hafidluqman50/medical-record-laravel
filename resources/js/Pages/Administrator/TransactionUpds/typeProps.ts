@@ -24,6 +24,7 @@ export interface MedicinePriceParameters {
 }
 
 export interface RowObat {
+    code:string
     name:string
     unit_medicine:string
     sell_price:number

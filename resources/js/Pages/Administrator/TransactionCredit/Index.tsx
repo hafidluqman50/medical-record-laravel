@@ -10,9 +10,10 @@ import {
     useEffect, 
     useState, 
     KeyboardEvent, 
+    MouseEvent,
     useRef, 
     Ref,
-    ChangeEventHandler,
+    ChangeEvent,
     FormEventHandler
 } from 'react'
 
@@ -112,6 +113,7 @@ export default function TransactionCredit({
     const [subTotal, setSubTotal]                     = useState<number>(0)
     const [isHjaNet, setIsHjaNet]                     = useState<boolean>(false)
     const [priceMedicine, setPriceMedicine]           = useState<number>(0)
+    const [indexRowObat, setIndexRowObat]             = useState<number|null>(null)
     /* END MECHANISM TRANSACTION USE STATE HOOKS */
 
     /* COUNTER USE STATE HOOKS */
@@ -162,15 +164,15 @@ export default function TransactionCredit({
     const bayarTransaksi = useRef<any>()
     const submitBayarRef = useRef<any>()
 
-    const openEnterDialog = async(event: any): Promise<void> => {
-        if(event.keyCode === 13) {
+    const openEnterDialog = async(event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): Promise<void> => {
+        if((event as KeyboardEvent).keyCode === 13) {
             setOpen(true)
             try {
                 const { data } = await axios.get(
                     route('api.medicines.get-all'),
                     {
                         params:{
-                            medicine:event.target.value,
+                            medicine:(event.target as HTMLInputElement).value,
                             data_location:'kasir'
                         }
                     }
@@ -191,17 +193,17 @@ export default function TransactionCredit({
         }
     }
 
-    const bungkusAct = (event: any): void => {
+    const bungkusAct = (event: KeyboardEvent<HTMLInputElement>): void => {
         if(event.keyCode == 13 && bungkusRef.current?.value != '')
         {
             kodeObat.current.focus()
         }
     }
 
-    const selectObatAct = async(event: any): Promise<void> => {
-        if(event.keyCode == 13) {
+    const selectObatAct = async(event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): Promise<void> => {
+        if((event as KeyboardEvent).keyCode == 13) {
             try {
-                const { data } = await axios.get(route('api.medicines.get-by-id', event.target.value))
+                const { data } = await axios.get(route('api.medicines.get-by-id', (event.target as HTMLInputElement).value))
                 setOpen(false)
                 setIsHjaNet(data.medicine.is_hja_net)
                 setPriceMedicine(data.medicine.price)
@@ -228,7 +230,7 @@ export default function TransactionCredit({
         }
     }
 
-    const dosisRacikAct = (event: any): void => {
+    const dosisRacikAct = (event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): void => {
         const dosisObatVal  = parseInt(dosisObatRef.current.value)
         const bungkusVal    = parseInt(bungkusRef.current.value)
         const dosisRacikVal = parseInt(dosisRacikRef.current.value)
@@ -250,13 +252,13 @@ export default function TransactionCredit({
         jumlahHarga.current.value = Math.round((calculateJumlah / price_parameter.pembulatan)) * price_parameter.pembulatan
         qtyObat.current.value = calculateQty
 
-        if(event.keyCode == 13 && dosisRacikRef.current.value != '')
+        if((event as KeyboardEvent).keyCode == 13 && dosisRacikRef.current.value != '')
         {
             qtyObat.current.focus()
         }
     }
 
-    const qtyJualAct = (event: any): void => {
+    const qtyJualAct = (event: KeyboardEvent<HTMLInputElement>): void => {
 
         setSubTotal(jumlahHarga.current.value)
 
@@ -269,40 +271,76 @@ export default function TransactionCredit({
             jumlahHarga.current.value = calculateJumlah
         }
 
-        let prefixNum: string = ''
+        let prefixNum: string        = ''
+        let prefixNumDisplay: string = ''
+
+        let subTotalGrandData: number = 0
+        let totalGrandData: number    = 0
+
+        let medicinesData: Array<any> = []
 
         if(event.keyCode == 13) {
-            if(isRacikan) {
-                prefixNum = `R${racikNum}`
-                setNonRacikNum(nonRacikNum => nonRacikNum + 1)
+            if(indexRowObat != null) {
+                const getRowObat = rowObat
+                
+                getRowObat[indexRowObat].qty                = parseInt(qtyObat.current.value)
+                getRowObat[indexRowObat].prescription_packs = bungkusRef.current.value
+                getRowObat[indexRowObat].sub_total          = subTotal
+                getRowObat[indexRowObat].dose               = dosisRacikRef.current.value
+                getRowObat[indexRowObat].jasa               = jasa
+                getRowObat[indexRowObat].total              = parseInt(jumlahHarga.current.value)
+
+                console.log(getRowObat)
+
+                subTotalGrandData = getRowObat[indexRowObat].sub_total + data.sub_total_grand
+                totalGrandData    = getRowObat[indexRowObat].total + data.total_grand
+                
+                medicinesData   = data.medicines
+
+                medicinesData[indexRowObat] = getRowObat[indexRowObat]
+
+            } else {
+                if(isRacikan) {
+                    prefixNum        = `R${racikNum}`
+                    prefixNumDisplay = `R${racikNum}`
+                    setNonRacikNum(nonRacikNum => nonRacikNum + 1)
+                }
+                else {
+                    prefixNum        = `tanpa-racik`
+                    prefixNumDisplay = `P${nonRacikNum}`
+
+                    setNonRacikNum(nonRacikNum => nonRacikNum + 1)
+                }
+
+                const result = [{
+                    code: kodeObat.current.value,
+                    id: obatId.current.value,
+                    name: namaObat.current.value,
+                    unit_medicine: satuanObat.current.value,
+                    dose_medicine: dosisObatRef.current.value,
+                    sell_price: parseInt(hargaObat.current.value),
+                    qty: parseInt(qtyObat.current.value),
+                    prescription_packs: bungkusRef.current.value,
+                    sub_total: subTotal,
+                    dose:dosisRacikRef.current.value,
+                    jasa,
+                    total: parseInt(jumlahHarga.current.value),
+                    faktor,
+                    prefixNum,
+                    prefixNumDisplay
+                }]
+                setRowObat([
+                    ...rowObat,
+                    ...result
+                ])
+
+                subTotalGrandData = result[0].sub_total + data.sub_total_grand
+                totalGrandData    = result[0].total + data.total_grand
+                medicinesData = [...data.medicines, ...result]
+
             }
-            else {
-                prefixNum = `tanpa-racik`
-                setNonRacikNum(nonRacikNum => nonRacikNum + 1)
-            }
 
-            const result = [{
-                id: obatId.current.value,
-                name: namaObat.current.value,
-                unit_medicine: satuanObat.current.value,
-                sell_price: parseInt(hargaObat.current.value),
-                qty: parseInt(qtyObat.current.value),
-                prescription_packs: bungkusRef.current.value,
-                sub_total: subTotal,
-                jasa,
-                total: parseInt(jumlahHarga.current.value),
-                faktor,
-                prefixNum
-            }]
-            setRowObat([
-                ...rowObat,
-                ...result
-            ])
-
-            let subTotalGrandData = result[0].sub_total + data.sub_total_grand
-            let totalGrandData    = result[0].total + data.total_grand
-
-            const medicinesData = [...data.medicines, ...result]
+            setIndexRowObat(null)
 
             setData(data => ({
                 ...data,
@@ -353,6 +391,51 @@ export default function TransactionCredit({
 
             bungkusRef.current.focus()
         }
+    }
+
+    const dblClickAct = (
+        event: MouseEvent<HTMLTableRowElement>,
+        index: number
+    ): void => {
+        const getRowObat = rowObat
+
+        kodeObat.current.value      = getRowObat[index].code
+        dosisObatRef.current.value  = getRowObat[index].dose_medicine
+        namaObat.current.value      = getRowObat[index].name
+        hargaObat.current.value     = getRowObat[index].sell_price
+        satuanObat.current.value    = getRowObat[index].unit_medicine
+        qtyObat.current.value       = getRowObat[index].qty
+        dosisRacikRef.current.value = getRowObat[index].dose
+        bungkusRef.current.value    = getRowObat[index].prescription_packs
+        jumlahHarga.current.value   = getRowObat[index].total
+        jasaRef.current.value       = getRowObat[index].jasa
+
+        setSubTotal(getRowObat[index].sub_total)
+
+        setJasa(getRowObat[index].jasa)
+
+        setIndexRowObat(index)
+
+        const subTotalGrandData = data.sub_total_grand - getRowObat[index].sub_total
+        const totalGrandData    = data.total_grand - getRowObat[index].total
+
+        setData(data => ({
+            ...data,
+            medicines:getRowObat,
+            sub_total_grand:subTotalGrandData,
+            total_grand:totalGrandData
+        }))
+
+        getRowObat[index].sell_price = 0
+        getRowObat[index].qty        = 0
+        getRowObat[index].dose       = 0
+        getRowObat[index].sub_total  = 0
+        getRowObat[index].total      = 0
+        getRowObat[index].jasa       = 0
+
+        setRowObat(getRowObat)
+
+        dosisRacikRef.current.focus()
     }
 
     const rowObatAct = (event: any): void => {
@@ -1109,7 +1192,7 @@ export default function TransactionCredit({
                         </TableRow>
                         : 
                         rowObat.map((row, key) => (
-                            <TableRow key={key}>
+                            <TableRow key={key} onDoubleClick={(event) => dblClickAct(event, key)}>
                                 <TableCell className="border border-slate-100">
                                     <input type="radio" name="medicine_id" onKeyDown={rowObatAct} value={key} />
                                 </TableCell>
@@ -1124,7 +1207,7 @@ export default function TransactionCredit({
                                 <TableCell className="border border-slate-100">{row.jasa}</TableCell>
                                 <TableCell className="border border-slate-100">{row.total}</TableCell>
                                 <TableCell className="border border-slate-100">{row.faktor}</TableCell>
-                                <TableCell className="border border-slate-100">{row.prefixNum}</TableCell>
+                                <TableCell className="border border-slate-100">{row.prefixNumDisplay}</TableCell>
                             </TableRow>
                         ))
                     }
