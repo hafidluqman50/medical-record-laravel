@@ -54,15 +54,20 @@ export interface ResepCreditForm {
 }
 
 export interface RowObat {
+    code:string
     name:string
     unit_medicine:string
     sell_price:number
+    dose_medicine:number
     qty:number
     sub_total:number
     jasa:number
     total:number
     faktor:string
     prefixNum:string
+    prefixNumDisplay:string
+    prescription_packs:number
+    dose:number
 }
 
 export interface TransactionCredit {

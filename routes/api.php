@@ -63,6 +63,7 @@ Route::group(['prefix' => 'transactions'], function() {
     Route::get('/get-prescription-lists/{prescription_id}', [TransactionController::class, 'getPrescriptionLists'])->name('api.transactions.get-prescription-lists');
     Route::get('/get-prescription-detail/{prescription_id}/{prescription_list_id}', [TransactionController::class, 'getPrescriptionDetails'])->name('api.transactions.get-prescription-details');
     Route::get('/set-status-credit/{id}', [TransactionController::class, 'setStatusCredit'])->name('api.transactions.set-status-credit');
+    Route::get('/get-transaction-resep-by-id/{id}', [TransactionController::class, 'getTransactionResepById'])->name('api.transactions.get-transaction-resep-by-id');
 });
 
 Route::group(['prefix' => 'medical-records'], function() {

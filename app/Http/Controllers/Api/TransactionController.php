@@ -202,4 +202,66 @@ class TransactionController extends ApiBaseController
                     ->message('Success Change Status Credit!')
                     ->ok();
     }
+
+    public function getTransactionResepById(int $id): JsonResponse
+    {
+        $transaction_prescriptions = TransactionPrescription::with(['prescription.patient','prescription.doctor','prescription.prescriptionToMedicines.medicine'])->where('id', $id)->firstOrFail();
+
+        $result_prescription = [];
+
+        $result_transaction = [];
+
+        $no = 1;
+
+        foreach ($transaction_prescriptions->prescription->prescriptionToMedicines as $key => $value) {
+            $price_parameter = PriceParameter::where('label', 'Tunai')->firstOrFail();
+
+            $sell_price = $value->medicine->sell_price == 0 ? ($value->medicine->capital_price_vat * $price_parameter->resep_tunai) : $value->medicine->sell_price;
+
+            $prefixNumDisplay = $value->prescription_name == 'tanpa-racik' ? "P{$no}" : $value->prescription_name;
+
+            $result_prescription[] = [
+                'code'               => $value->medicine->code,
+                'id'                 => $value->medicine->id,
+                'name'               => $value->medicine->name,
+                'unit_medicine'      => $value->medicine->unit_medicine,
+                'dose_medicine'      => $value->medicine->dose,
+                'sell_price'         => $sell_price,
+                'qty'                => $value->qty,
+                'prescription_packs' => $value->prescription_packs,
+                'sub_total'          => $value->sub_total,
+                'dose'               => $value->dose,
+                'jasa'               => $value->service_fee,
+                'total'              => $value->total,
+                'faktor'             => $value->faktor,
+                'prefixNum'          => $value->prescription_name,
+                'prefixNumDisplay'   => $prefixNumDisplay
+            ];
+
+            $no+=1;
+        }
+
+        $result_transaction = [
+            'medicines'            => $result_prescription,
+            'kode_transaksi'       => $transaction_prescriptions->invoice_number,
+            'patient_id'           => $transaction_prescriptions->prescription->patient->id,
+            'patient_name'         => $transaction_prescriptions->prescription->patient->name,
+            'patient_address'      => $transaction_prescriptions->prescription->patient->address,
+            'patient_phone_number' => $transaction_prescriptions->prescription->patient->phone_number,
+            'patient_city_place'   => $transaction_prescriptions->prescription->patient->city_place,
+            'doctor_id'            => $transaction_prescriptions->prescription->doctor->id,
+            'doctor_code'          => '',
+            'doctor_name'          => $transaction_prescriptions->prescription->doctor->name,
+            'sub_total_grand'      => $transaction_prescriptions->sub_total,
+            'diskon_grand'         => $transaction_prescriptions->discount,
+            'total_grand'          => $transaction_prescriptions->total,
+            'bayar'                => 0,
+            'kembalian'            => 0,
+            'jenis_pembayaran'     => $transaction_prescriptions->transaction_pay_type
+        ];
+
+        return $this->responseResult(compact('result_transaction'))
+                    ->message('Success Get Transaction Resep By Id')
+                    ->ok();
+    }
 }
