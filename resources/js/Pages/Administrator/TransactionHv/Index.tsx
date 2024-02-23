@@ -205,7 +205,9 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
 
         if(keyEvent.keyCode == 13) {
             diskonObat.current.focus()
-            diskonObat.current.value = ""
+            if(diskon == 0) {
+                diskonObat.current.value = 0
+            }
         }
     }
 
@@ -217,12 +219,18 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
 
         let jumlah: number    = 0
         let diskon: number    = 0
-        let calculate: number = Math.round(
-                        (parseInt(qtyObat.current.value) * parseInt(hargaObat.current.value) * price_parameter.upds) / price_parameter.pembulatan
-                    ) * price_parameter.pembulatan
+        let calculate: number = 0
 
-        if(diskonObat.current.value == "") {
-            jumlah = 0
+        if(isHjaNet) {
+            calculate = parseInt(qtyObat.current.value) * parseInt(hargaObat.current.value)
+        } else {
+            calculate = Math.round(
+                    (parseInt(qtyObat.current.value) * parseInt(hargaObat.current.value) * price_parameter.upds) / price_parameter.pembulatan
+                ) * price_parameter.pembulatan
+        }
+
+        if(diskonObat.current.value == 0) {
+            jumlah = calculate
         }
         else {
             if(diskonObat.current.value.includes('%')) {
