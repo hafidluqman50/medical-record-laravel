@@ -85,6 +85,8 @@ import {
     DataTableTransaction
 } from './DataTableServer'
 
+import { useStateWithCallback } from '@/lib/hooks'
+
 export default function TransactionResep({
     kode_transaksi, price_parameter, medicine_price_parameters, patients, medicines
 }: TransactionResepPageProps) {
@@ -130,7 +132,7 @@ export default function TransactionResep({
     const [subTotal, setSubTotal]                     = useState<number>(0)
     const [isHjaNet, setIsHjaNet]                     = useState<boolean>(false)
     const [priceMedicine, setPriceMedicine]           = useState<number>(0)
-    const [indexRowObat, setIndexRowObat]             = useState<number|null>(null)
+    const [indexRowObat, setIndexRowObat]             = useStateWithCallback<number|null>(null)
     /* END MECHANISM TRANSACTION USE STATE HOOKS */
 
     /* COUNTER USE STATE HOOKS */
@@ -413,8 +415,8 @@ export default function TransactionResep({
                 total_grand:totalGrandData
             }))
 
-            bungkusRef.current.focus()
-
+            setIsRacikan(false)
+            setFaktor('UM')
         }
     }
 
@@ -463,15 +465,16 @@ export default function TransactionResep({
         dosisRacikRef.current.focus()
     }
 
-    const rowObatAct = (event: any): void => {
-        event.preventDefault()
+    const rowObatAct = (event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): void => {
+        const keyEvent = event as KeyboardEvent
+        const targetValue = parseInt((event.target as HTMLInputElement).value)
 
-        if(event.keyCode == 118) {
-            setRowObat(row => row.filter((r, i) => (i != event.target.value)))
+        if(keyEvent.keyCode == 119) {
+            setRowObat(row => row.filter((r, i) => (i != targetValue)))
 
-            const medicinesData     = data.medicines.filter((row: any, i: number) => (i != event.target.value))
-            const subTotalGrandData = data.sub_total_grand - data.medicines[event.target.value].sub_total
-            const totalGrandData    = data.total_grand - data.medicines[event.target.value].total
+            const medicinesData     = data.medicines.filter((row: any, i: number) => (i != targetValue))
+            const subTotalGrandData = data.sub_total_grand - data.medicines[targetValue].sub_total
+            const totalGrandData    = data.total_grand - data.medicines[targetValue].total
 
             setData(data => ({...data,
                 medicines:medicinesData,
@@ -481,17 +484,20 @@ export default function TransactionResep({
         }
     }
 
-    const calculateBayar = (event: any): void => {
+    const calculateBayar = (event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): void => {
         event.preventDefault()
 
-        setData(data => ({...data, bayar:event.target.value}))
+        const keyEvent = event as KeyboardEvent
+        const targetValue = (event.target as HTMLInputElement).value
+
+        setData(data => ({...data, bayar:parseInt(targetValue)}))
         const total_grand = data.total_grand
 
-        let calculate = total_grand - parseInt(event.target.value)
+        let calculate = total_grand - parseInt(targetValue)
 
         setData(data => ({...data, kembalian:calculate}))
 
-        if(event.keyCode == 13) {
+        if(keyEvent.keyCode == 13) {
             post(route('administrator.transaction-resep.store'))
             submitBayarRef.current.focus()
         }
@@ -525,10 +531,10 @@ export default function TransactionResep({
             try {                
                 const responseData = await axios.get(route('api.patients.get-by-id', (event.target as HTMLInputElement).value))
 
-                patientNameRef.current.value        = responseData.data.data.patient.name
-                patientPhoneNumberRef.current.value = responseData.data.data.patient.phone_number
-                patientAddressRef.current.value     = responseData.data.data.patient.address
-                patientCityPlaceRef.current.value   = responseData.data.data.patient.city_place
+                // patientNameRef.current.value        = responseData.data.data.patient.name
+                // patientPhoneNumberRef.current.value = responseData.data.data.patient.phone_number
+                // patientAddressRef.current.value     = responseData.data.data.patient.address
+                // patientCityPlaceRef.current.value   = responseData.data.data.patient.city_place
 
                 setOpenPasienDialog(false)
 
@@ -536,7 +542,11 @@ export default function TransactionResep({
 
                 setData(data => ({
                     ...data,
-                    patient_id:responseData.data.data.patient.id
+                    patient_id:responseData.data.data.patient.id,
+                    patient_name:responseData.data.data.patient.name,
+                    patient_phone_number:responseData.data.data.patient.phone_number,
+                    patient_address:responseData.data.data.patient.address,
+                    patient_city_place:responseData.data.data.patient.city_place
                 }))
             } catch(error) {
                 if(axios.isAxiosError(error)) {
@@ -638,6 +648,22 @@ export default function TransactionResep({
         }
     }
 
+    const hapusAct = (): void => {
+        if(indexRowObat != null) {
+            setRowObat(row => row.filter((r, i) => (i != indexRowObat)))
+
+            const medicinesData     = data.medicines.filter((row: any, i: number) => (i != indexRowObat))
+            const subTotalGrandData = data.sub_total_grand - data.medicines[indexRowObat].sub_total
+            const totalGrandData    = data.total_grand - data.medicines[indexRowObat].total
+
+            setData(data => ({...data,
+                medicines:medicinesData,
+                sub_total_grand:subTotalGrandData,
+                total_grand:totalGrandData
+            }))
+        }
+    }
+
     const submitTransaction = (): void => {
         console.log('test')
     }
@@ -731,9 +757,14 @@ export default function TransactionResep({
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogContent onCloseAutoFocus={(event) => {
                     if(kodeObat.current.value != "") {
-                        dosisRacikRef.current.focus()
+                        if(isRacikan) {
+                            dosisRacikRef.current.focus()
+                        }
+                        else {
+                            qtyObat.current.focus()
+                        }
                     }
-                }} className="max-w-5xl">
+                }} className="max-w-5xl overflow-y-scroll max-h-screen">
                 <DialogHeader>
                   <DialogTitle>List Obat</DialogTitle>
                 </DialogHeader>
@@ -782,7 +813,7 @@ export default function TransactionResep({
             </Dialog>
 
             <Dialog open={cekHargaObatDialog} onOpenChange={setCekHargaObatDialog}>
-              <DialogContent className="max-w-7xl">
+              <DialogContent className="max-w-7xl overflow-y-scroll max-h-screen">
                 <DialogHeader>
                   <DialogTitle>Data Harga Obat</DialogTitle>
                 </DialogHeader>
@@ -791,7 +822,7 @@ export default function TransactionResep({
             </Dialog>
 
             <Dialog open={openMasterObat} onOpenChange={setOpenMasterObat}>
-              <DialogContent className="max-w-7xl">
+              <DialogContent className="max-w-7xl overflow-y-scroll max-h-screen">
                 <DialogHeader>
                   <DialogTitle>Data Master Obat</DialogTitle>
                 </DialogHeader>
@@ -800,7 +831,7 @@ export default function TransactionResep({
             </Dialog>
 
             <Dialog open={openRekamMedis} onOpenChange={setOpenRekamMedis}>
-              <DialogContent className="max-w-7xl">
+              <DialogContent className="max-w-7xl overflow-y-scroll max-h-screen">
                 <DialogHeader>
                   <DialogTitle>Data Rekam Medis</DialogTitle>
                 </DialogHeader>
@@ -809,7 +840,7 @@ export default function TransactionResep({
             </Dialog>
 
             <Dialog open={openTransaction} onOpenChange={setOpenTransaction}>
-              <DialogContent className="max-w-7xl">
+              <DialogContent className="max-w-7xl overflow-y-scroll max-h-screen">
                 <DialogHeader>
                   <DialogTitle>Data Transaksi</DialogTitle>
                 </DialogHeader>
@@ -822,7 +853,7 @@ export default function TransactionResep({
             </Dialog>
 
             <Dialog open={openPasienList} onOpenChange={setOpenPasienList}>
-              <DialogContent className="max-w-7xl">
+              <DialogContent className="max-w-7xl overflow-y-scroll max-h-screen">
                 <DialogHeader>
                   <DialogTitle>Data Pasien</DialogTitle>
                 </DialogHeader>
@@ -831,7 +862,11 @@ export default function TransactionResep({
             </Dialog>
 
             <AlertDialog open={openWarningJasa} onOpenChange={setOpenWarningJasa}>
-                <AlertDialogContent>
+                <AlertDialogContent onCloseAutoFocus={(event) => {
+                    if(jasaRef.current.value == '') {
+                        kodeObat.current.focus()
+                    }
+                }}>
                     <AlertDialogHeader>
                         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                         <AlertDialogDescription>
@@ -851,7 +886,7 @@ export default function TransactionResep({
                     if(patientNameRef.current.value != "") {
                         doctorCodeRef.current.focus()
                     }
-                }} className="max-w-5xl">
+                }} className="max-w-5xl overflow-y-scroll max-h-screen">
                 <DialogHeader>
                   <DialogTitle>Data Pasien</DialogTitle>
                 </DialogHeader>
@@ -898,7 +933,7 @@ export default function TransactionResep({
 
             <Dialog open={openDoctorDialog} onOpenChange={setOpenDoctorDialog}>
                 
-              <DialogContent className="max-w-5xl" onCloseAutoFocus={(event) => {
+              <DialogContent className="max-w-5xl overflow-y-scroll max-h-screen" onCloseAutoFocus={(event) => {
                     if(doctorNameRef.current.value != "") {
                         diskonGrandRef.current.focus()
                     }
@@ -944,7 +979,7 @@ export default function TransactionResep({
             </Dialog>
 
             <Dialog open={bayarDialog} onOpenChange={setBayarDialog}>
-                <DialogContent className="max-w-l">
+                <DialogContent className="max-w-l overflow-y-scroll max-h-screen">
                     <DialogHeader>
                         <DialogTitle>Pembayaran</DialogTitle>
                     </DialogHeader>
@@ -1008,7 +1043,7 @@ export default function TransactionResep({
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value={"tunai"}>Tunai</SelectItem>
-                                <SelectItem value={"kartu-debit-kredit"}>Kartu Debit/Kredit</SelectItem>
+                                <SelectItem value={"bank"}>Bank</SelectItem>
                               </SelectContent>
                             </Select>
                         </div>
@@ -1095,7 +1130,7 @@ export default function TransactionResep({
                     </Button>
                 </a>
                 <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40" onClick={batalAct}>BATAL [F7]</Button>
-                <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">HAPUS [F8]</Button>
+                <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40" onClick={hapusAct}>HAPUS [F8]</Button>
                 <Button 
                     size="lg" 
                     variant="secondary" 
