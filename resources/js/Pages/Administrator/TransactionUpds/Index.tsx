@@ -443,7 +443,7 @@ export default function TransactionUpds({
         setData(data => ({...data, bayar:parseInt(targetValue)}))
         const total_grand = data.total_grand
 
-        let calculate = total_grand - parseInt(targetValue)
+        let calculate = parseInt(targetValue) - total_grand
 
         setData(data => ({...data, kembalian:calculate}))
 

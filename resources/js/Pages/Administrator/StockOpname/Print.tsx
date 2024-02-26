@@ -24,16 +24,8 @@ type PrintPageProps = {
 export default function Print({stock_opname}: PrintPageProps) {
 
     useEffect(() => {
-        window.addEventListener('load', () => {
-            window.print();
-        })
-
-        return () => {
-            window.removeEventListener('load', () => {
-                window.print();
-            })
-        }
-    })
+        setTimeout(() => window.print(), 600)
+    },[])
 
     return(
         <>

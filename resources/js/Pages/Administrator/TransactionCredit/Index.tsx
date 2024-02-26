@@ -196,6 +196,31 @@ export default function TransactionCredit({
     }
 
     const bungkusAct = (event: KeyboardEvent<HTMLInputElement>): void => {
+        
+        if(indexRowObat != null) {
+            const dosisObatVal  = parseInt(dosisObatRef.current.value)
+            const bungkusVal    = parseInt(bungkusRef.current.value)
+            const dosisRacikVal = parseInt(dosisRacikRef.current.value)
+            const hargaObatVal  = parseInt(hargaObat.current.value)
+
+            let calculateQty   = isRacikan ? Math.round((dosisRacikVal * bungkusVal) / dosisObatVal) : 0
+            let priceCalculate = 0
+            
+            if(isHjaNet) {
+                priceCalculate = Math.round((hargaObatVal * price_parameter.resep_tunai))
+            } else {
+                priceCalculate = hargaObatVal
+            }
+
+            let calculateJumlah = priceCalculate * calculateQty
+
+            setSubTotal(calculateJumlah)
+
+            jumlahHarga.current.value = Math.round((calculateJumlah / price_parameter.pembulatan)) * price_parameter.pembulatan
+            qtyObat.current.value = calculateQty
+
+        }
+
         if(event.keyCode == 13 && bungkusRef.current?.value != '')
         {
             kodeObat.current.focus()
@@ -357,6 +382,7 @@ export default function TransactionCredit({
             qtyObat.current.value       = ""
             dosisRacikRef.current.value = ""
             jumlahHarga.current.value   = ""
+            jasaRef.current.value       = ""
 
             kodeObat.current.focus()
         }
@@ -463,12 +489,12 @@ export default function TransactionCredit({
         setData(data => ({...data, bayar:targetValue}))
         const total_grand: number = data.total_grand
 
-        let calculate: number = total_grand - targetValue
+        let calculate: number = targetValue - total_grand
 
         setData(data => ({...data, kembalian:calculate}))
 
         if(keyEvent.keyCode == 13) {
-            post(route('administrator.transaction-resep.store'))
+            post(route('administrator.transaction-credit.store'))
             submitBayarRef.current.focus()
         }
 

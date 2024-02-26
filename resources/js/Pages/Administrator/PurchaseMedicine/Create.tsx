@@ -105,11 +105,11 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
     const [namaObat, setNamaObat]         = useState<string>('')
 
     const invoiceNumberRef = useRef<any>()
-    const hnaRef = useRef<any>()
-    const satuanRef = useRef<any>()
-    const jumlahRef = useRef<any>()
-    const diskonRef = useRef<any>()
-    const obatRef = useRef<any>()
+    const hnaRef           = useRef<any>()
+    const satuanRef        = useRef<any>()
+    const jumlahRef        = useRef<any>()
+    const diskonRef        = useRef<any>()
+    const obatRef          = useRef<any>()
 
     const submitForm: FormEventHandler = (e) => {
         e.preventDefault()
@@ -567,7 +567,7 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
                                         <TableCell>Rp. {formatRupiah(row.price)}</TableCell>
                                         <TableCell>Rp. {formatRupiah(row.disc_1)}</TableCell>
                                         <TableCell>Rp. {formatRupiah(row.sub_total)}</TableCell>
-                                        <TableCell><Button variant="destructive" onClick={() => rowOrderAct(key)}>X</Button></TableCell>
+                                        <TableCell colSpan={2}><Button variant="destructive" onClick={() => rowOrderAct(key)}>X</Button></TableCell>
                                     </TableRow>
                                 ))
                             }

@@ -149,4 +149,11 @@ class TransactionUpdsController extends Controller
 
         return Inertia::render('Administrator/TransactionUpds/Print', compact('transaction'));
     }
+
+    public function printReceipt(int $id): Response
+    {
+       $transaction = Transaction::with(['user','transactionDetails.medicine'])->where('id',$id)->firstOrFail();
+
+        return Inertia::render('Administrator/TransactionUpds/Receipt', compact('transaction'));
+    }
 }

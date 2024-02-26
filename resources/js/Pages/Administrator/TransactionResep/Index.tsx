@@ -125,19 +125,21 @@ export default function TransactionResep({
     /* END DIALOG USE STATE HOOKS */
 
     /* MECHANISM TRANSACTION USE STATE HOOKS */
-    const [faktor, setFaktor]                         = useState<string>('UM')
-    const [isRacikan, setIsRacikan]                   = useState<boolean>(false)
-    const [bayarDialog, setBayarDialog]               = useState<boolean>(false)
-    const [jasa, setJasa]                             = useState<number>(0)
-    const [subTotal, setSubTotal]                     = useState<number>(0)
-    const [isHjaNet, setIsHjaNet]                     = useState<boolean>(false)
-    const [priceMedicine, setPriceMedicine]           = useState<number>(0)
-    const [indexRowObat, setIndexRowObat]             = useStateWithCallback<number|null>(null)
+    const [faktor, setFaktor]                       = useState<string>('UM')
+    const [isRacikan, setIsRacikan]                 = useState<boolean>(false)
+    const [bayarDialog, setBayarDialog]             = useState<boolean>(false)
+    const [jasa, setJasa]                           = useState<number>(0)
+    const [subTotal, setSubTotal]                   = useState<number>(0)
+    const [isHjaNet, setIsHjaNet]                   = useState<boolean>(false)
+    const [priceMedicine, setPriceMedicine]         = useState<number>(0)
+    const [indexRowObat, setIndexRowObat]           = useStateWithCallback<number|null>(null)
+    const [alertEmptyPatient, setAlertEmptyPatient] = useState<boolean>(false)
+    const [alertEmptyDoctor, setAlertEmptyDoctor]   = useState<boolean>(false)
     /* END MECHANISM TRANSACTION USE STATE HOOKS */
 
     /* COUNTER USE STATE HOOKS */
-    const [nonRacikNum, setNonRacikNum]               = useState<number>(1)
-    const [racikNum, setRacikNum]                     = useState<number>(1)
+    const [nonRacikNum, setNonRacikNum] = useState<number>(1)
+    const [racikNum, setRacikNum]       = useState<number>(1)
     /* END COUNTER USE STATE HOOKS */
 
     /* LIST MEDICINES USE STATE HOOKS */
@@ -152,6 +154,8 @@ export default function TransactionResep({
     /* LIST DOCTORS USE STATE HOOKS */
     const [rowDoctors, setRowDoctors] = useState<any>([])
     /* END LIST DOCTORS USE STATE HOOKS */
+
+    const [diskon, setDiskon] = useState<string|null>(null)
 
     const obatId        = useRef<any>()
     const namaObat      = useRef<any>()
@@ -170,6 +174,7 @@ export default function TransactionResep({
     const faktorRef     = useRef<any>()
 
     /* PATIENT USE REF */
+    const alertEmptyPatientRef  = useRef<any>()
     const patientNameRef        = useRef<any>()
     const patientPhoneNumberRef = useRef<any>()
     const patientAddressRef     = useRef<any>()
@@ -177,10 +182,12 @@ export default function TransactionResep({
     /* END PATIENT USE REF */
 
     /* DOCTOR USE REF */
-    const doctorNameRef = useRef<any>()
-    const doctorCodeRef = useRef<any>()
+    const alertEmptyDoctorRef = useRef<any>()
+    const doctorNameRef       = useRef<any>()
+    const doctorCodeRef       = useRef<any>()
     /* END DOCTOR USE REF */
 
+    const jenisBayarRef  = useRef<any>()
     const diskonGrandRef = useRef<any>()
     const bayarTransaksi = useRef<any>()
     const submitBayarRef = useRef<any>()
@@ -217,6 +224,30 @@ export default function TransactionResep({
     }
 
     const bungkusAct = (event: KeyboardEvent<HTMLInputElement>): void => {
+        if(indexRowObat != null) {
+            const dosisObatVal  = parseInt(dosisObatRef.current.value)
+            const bungkusVal    = parseInt(bungkusRef.current.value)
+            const dosisRacikVal = parseInt(dosisRacikRef.current.value)
+            const hargaObatVal  = parseInt(hargaObat.current.value)
+
+            let calculateQty   = isRacikan ? Math.round((dosisRacikVal * bungkusVal) / dosisObatVal) : 0
+            let priceCalculate = 0
+            
+            if(isHjaNet) {
+                priceCalculate = Math.round((hargaObatVal * price_parameter.resep_tunai))
+            } else {
+                priceCalculate = hargaObatVal
+            }
+
+            let calculateJumlah = priceCalculate * calculateQty
+
+            setSubTotal(calculateJumlah)
+
+            jumlahHarga.current.value = Math.round((calculateJumlah / price_parameter.pembulatan)) * price_parameter.pembulatan
+            qtyObat.current.value = calculateQty
+
+        }
+
         if(event.keyCode == 13 && bungkusRef.current?.value != '')
         {
             kodeObat.current.focus()
@@ -384,6 +415,7 @@ export default function TransactionResep({
             qtyObat.current.value       = ""
             dosisRacikRef.current.value = ""
             jumlahHarga.current.value   = ""
+            jasaRef.current.value       = ""
 
             kodeObat.current.focus()
         }
@@ -453,7 +485,6 @@ export default function TransactionResep({
             total_grand:totalGrandData
         }))
 
-        getRowObat[index].sell_price = 0
         getRowObat[index].qty        = 0
         getRowObat[index].dose       = 0
         getRowObat[index].sub_total  = 0
@@ -485,7 +516,6 @@ export default function TransactionResep({
     }
 
     const calculateBayar = (event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): void => {
-        event.preventDefault()
 
         const keyEvent = event as KeyboardEvent
         const targetValue = (event.target as HTMLInputElement).value
@@ -493,12 +523,11 @@ export default function TransactionResep({
         setData(data => ({...data, bayar:parseInt(targetValue)}))
         const total_grand = data.total_grand
 
-        let calculate = total_grand - parseInt(targetValue)
+        let calculate = parseInt(targetValue) - total_grand
 
         setData(data => ({...data, kembalian:calculate}))
 
         if(keyEvent.keyCode == 13) {
-            post(route('administrator.transaction-resep.store'))
             submitBayarRef.current.focus()
         }
 
@@ -506,11 +535,35 @@ export default function TransactionResep({
 
     const pasienKeyUpAct = async(event: KeyboardEvent<HTMLInputElement>): Promise<void> => {
         if((event as KeyboardEvent).keyCode == 13) {
-            setOpenPasienDialog(true)
-            
             try {
-                const { data } = await axios.get(route('api.patients.get-all'))
-                setRowPatients(data.data.patients)
+                const responseData = await axios.get<{
+                    data:{
+                        patients:Array<{
+                            id:number,
+                            code:string,
+                            name:string,
+                            phone_number:string,
+                            address:string,
+                            city_place:string
+                        }>
+                        count:number
+                    }
+                }>(
+                    route('api.patients.get-all'),
+                    {
+                        params:{
+                            search:data.patient_name
+                        }
+                    }
+                )
+
+                if(responseData.data.data.count == 0) {
+                    setAlertEmptyPatient(true)
+                }
+                else {
+                    setOpenPasienDialog(true)
+                    setRowPatients(responseData.data.data.patients)
+                }
             } catch(error) {
                 if(axios.isAxiosError(error)) {
                     toast({
@@ -565,12 +618,29 @@ export default function TransactionResep({
         event: KeyboardEvent<HTMLInputElement>
     ): Promise<void> => {
         if((event as KeyboardEvent).keyCode == 13) {
-            setOpenDoctorDialog(true)
 
             try {
-                const { data } = await axios.get(route('api.doctors.get-all'))
+                const responseData = await axios.get<{
+                    data:{
+                        doctors:Array<{
+                            id:number,
+                            code:string,
+                            name:string
+                        }>
+                        count:number
+                    }
+                }>(route('api.doctors.get-all'),{
+                    params:{
+                        search:data.doctor_code
+                    }
+                })
 
-                setRowDoctors(data.data.doctors)
+                if(responseData.data.data.count == 0) {
+                    setAlertEmptyDoctor(true)
+                } else {
+                    setOpenDoctorDialog(true)
+                    setRowDoctors(responseData.data.data.doctors)
+                }
             } catch(error) {
                 if(axios.isAxiosError(error)) {
                     toast({
@@ -600,7 +670,9 @@ export default function TransactionResep({
 
                 setData(data => ({
                     ...data,
-                    doctor_id:responseData.data.data.doctor.id
+                    doctor_id:responseData.data.data.doctor.id,
+                    doctor_code:responseData.data.data.doctor.code,
+                    doctor_name:responseData.data.data.doctor.name
                 }))
             } catch(error) {
                 if(axios.isAxiosError(error)) {
@@ -618,11 +690,12 @@ export default function TransactionResep({
     const calculateDiskon = (
         event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>
     ): void => {
-        event.preventDefault()
 
         const { value } = (event.target as HTMLInputElement)
 
-        if((event as KeyboardEvent).keyCode == 13)
+        setDiskon(value)
+
+        if((event as KeyboardEvent).keyCode == 13 && value != '')
         {
             const total_grand = data.total_grand
 
@@ -662,10 +735,12 @@ export default function TransactionResep({
                 total_grand:totalGrandData
             }))
         }
-    }
+    }                           
 
     const submitTransaction = (): void => {
-        console.log('test')
+        if(data.bayar != 0) {
+            post(route('administrator.transaction-resep.store'))
+        }
     }
 
     const batalAct = (): void => {
@@ -880,6 +955,26 @@ export default function TransactionResep({
                 </AlertDialogContent>
             </AlertDialog>
 
+            {/* Start Pasien Dialog */}
+            <>
+            <AlertDialog open={alertEmptyPatient} onOpenChange={setAlertEmptyPatient}>
+                <AlertDialogContent onOpenAutoFocus={(event) => {
+                    alertEmptyPatientRef.current.focus()
+                }} onCloseAutoFocus={(event) => {
+                    patientAddressRef.current.focus()
+                }}>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Data Pasien Tidak Ditemukan!</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Mohon isi data pasien!
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogAction ref={alertEmptyPatientRef}>Lanjutkan</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
             <Dialog open={openPasienDialog} onOpenChange={setOpenPasienDialog}>
                 
               <DialogContent onCloseAutoFocus={(event) => {
@@ -930,12 +1025,35 @@ export default function TransactionResep({
               </Table>
               </DialogContent>
             </Dialog>
+            </>
+            {/* End Pasien Dialog */}
+
+            {/* Start Doctor Dialog */}
+            <>
+
+            <AlertDialog open={alertEmptyDoctor} onOpenChange={setAlertEmptyDoctor}>
+                <AlertDialogContent onOpenAutoFocus={(event) => {
+                    alertEmptyDoctorRef.current.focus()
+                }} onCloseAutoFocus={(event) => {
+                    doctorNameRef.current.focus()
+                }}>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Data Dokter Tidak Ditemukan!</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Mohon isi data dokter!
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogAction ref={alertEmptyDoctorRef}>Lanjutkan</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
             <Dialog open={openDoctorDialog} onOpenChange={setOpenDoctorDialog}>
                 
               <DialogContent className="max-w-5xl overflow-y-scroll max-h-screen" onCloseAutoFocus={(event) => {
-                    if(doctorNameRef.current.value != "") {
-                        diskonGrandRef.current.focus()
+                    if(data.doctor_name != "") {
+                        jenisBayarRef.current.focus()
                     }
                 }}>
                 <DialogHeader>
@@ -977,6 +1095,8 @@ export default function TransactionResep({
               </Table>
               </DialogContent>
             </Dialog>
+            </>
+            {/* End Doctor Dialog */}
 
             <Dialog open={bayarDialog} onOpenChange={setBayarDialog}>
                 <DialogContent className="max-w-l overflow-y-scroll max-h-screen">
@@ -991,21 +1111,45 @@ export default function TransactionResep({
                                 <Label htmlFor="kode-transaksi">Pasien :</Label>
                             </div>
                             <div className="w-full mb-4">
-                                <Input ref={patientNameRef} value={data.patient_name} id="pasien" type="text" onKeyUp={pasienKeyUpAct}  onChange={(event) => setData('patient_name', event.target.value)}/>
+                                <Input 
+                                    ref={patientNameRef} 
+                                    value={data.patient_name} 
+                                    id="pasien" 
+                                    type="text" 
+                                    onKeyUp={pasienKeyUpAct} 
+                                    onChange={(event) => setData('patient_name', event.target.value)}
+                                />
                             </div>
 
                             <div className="w-3/6">
                                 <Label htmlFor="kode-transaksi">Telepon :</Label>
                             </div>
                             <div className="w-full mb-4">
-                                <Input ref={patientPhoneNumberRef} value={data.patient_phone_number} id="pasien" type="text"  onChange={(event) => setData('patient_phone_number', event.target.value)} />
+                                <Input 
+                                    ref={patientPhoneNumberRef} 
+                                    value={data.patient_phone_number} 
+                                    id="pasien" type="text" 
+                                    onChange={(event) => setData('patient_phone_number', event.target.value)} 
+                                    onKeyUp={(event) => {
+                                        if(event.keyCode == 13) {
+                                            patientCityPlaceRef.current.focus()
+                                        }
+                                    }}
+                                />
                             </div>
 
                             <div className="w-3/6">
                                 <Label htmlFor="kode-transaksi">Kode Dokter :</Label>
                             </div>
                             <div className="w-full mb-4">
-                                <Input ref={doctorCodeRef} value={data.doctor_code}  id="doctor" type="text" onKeyUp={doctorKeyUpAct} onChange={(event) => setData('doctor_code', event.target.value)} />
+                                <Input 
+                                    ref={doctorCodeRef} 
+                                    value={data.doctor_code} 
+                                    id="doctor" 
+                                    type="text" 
+                                    onKeyUp={doctorKeyUpAct} 
+                                    onChange={(event) => setData('doctor_code', event.target.value)} 
+                                />
                             </div>
                         </div>
                         <div>
@@ -1013,14 +1157,34 @@ export default function TransactionResep({
                                 <Label htmlFor="kode-transaksi">Alamat :</Label>
                             </div>
                             <div className="w-full mb-4">
-                                <Input ref={patientAddressRef} value={data.patient_address}  id="pasien" type="text"  onChange={(event) => setData('patient_address', event.target.value)} />
+                                <Input 
+                                    ref={patientAddressRef} 
+                                    value={data.patient_address} 
+                                    id="pasien" type="text" 
+                                    onChange={(event) => setData('patient_address', event.target.value)} 
+                                    onKeyUp={(event) => {
+                                        if(event.keyCode == 13) {
+                                            patientPhoneNumberRef.current.focus()
+                                        }
+                                    }}
+                                />
                             </div>
 
                             <div className="w-3/6">
                                 <Label htmlFor="kode-transaksi">Kota :</Label>
                             </div>
                             <div className="w-full mb-4">
-                                <Input ref={patientCityPlaceRef} value={data.patient_city_place}  id="pasien" type="text" onChange={(event) => setData('patient_city_place', event.target.value)} />
+                                <Input 
+                                    ref={patientCityPlaceRef} 
+                                    value={data.patient_city_place}  
+                                    id="pasien" type="text" 
+                                    onChange={(event) => setData('patient_city_place', event.target.value)}
+                                    onKeyUp={(event) => {
+                                        if(event.keyCode == 13) {
+                                            doctorCodeRef.current.focus()
+                                        }
+                                    }}
+                                />
                             </div>
 
                             <div className="w-3/6">
@@ -1037,11 +1201,21 @@ export default function TransactionResep({
                             <Label htmlFor="kode-transaksi">Jenis Bayar</Label>
                         </div>
                         <div className="w-full">
-                            <Select defaultValue={data.jenis_pembayaran} value={data.jenis_pembayaran} onValueChange={(value) => setData('jenis_pembayaran', value)}>
-                              <SelectTrigger className="w-full">
+                            <Select 
+                                defaultValue={data.jenis_pembayaran} 
+                                value={data.jenis_pembayaran} 
+                                onValueChange={(value) => setData('jenis_pembayaran', value)}>
+                              <SelectTrigger 
+                                ref={jenisBayarRef} 
+                                className="w-full"
+                              >
                                 <SelectValue placeholder="=== Pilih Jenis Pembayaran ===" />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent onCloseAutoFocus={(event) => 
+                              {
+                                event.preventDefault()
+                                diskonGrandRef.current.focus()
+                              }}>
                                 <SelectItem value={"tunai"}>Tunai</SelectItem>
                                 <SelectItem value={"bank"}>Bank</SelectItem>
                               </SelectContent>
@@ -1053,7 +1227,14 @@ export default function TransactionResep({
                             <Label htmlFor="kode-transaksi">Diskon</Label>
                         </div>
                         <div className="w-full">
-                            <Input type="text" value={data.diskon_grand} name="diskon" onChange={calculateDiskon} onKeyUp={calculateDiskon} />
+                            <Input 
+                                ref={diskonGrandRef} 
+                                type="text"
+                                value={diskon ?? ''}
+                                name="diskon" 
+                                onChange={calculateDiskon} 
+                                onKeyUp={calculateDiskon} 
+                            />
                         </div>
                     </div>
                     <div className="flex mt-4">

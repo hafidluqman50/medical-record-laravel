@@ -4,6 +4,7 @@ export interface Transaction {
     date_transaction:string;
     sub_total:number;
     discount_pay:number;
+    discount:number;
     total:number;
     pay_total:number;
     change_money:number;

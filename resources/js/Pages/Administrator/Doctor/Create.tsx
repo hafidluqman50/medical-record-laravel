@@ -56,7 +56,7 @@ export default function Create({auth, code}: PageProps<{code:string}>) {
                         </div>
                         <form onSubmit={submitForm}>
                             <div>
-                                <InputLabel htmlFor="code" value="Nama Dokter" />
+                                <InputLabel htmlFor="code" value="Kode Dokter" />
 
                                 <TextInput
                                     id="code"

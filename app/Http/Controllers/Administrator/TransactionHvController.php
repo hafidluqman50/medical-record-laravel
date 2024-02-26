@@ -149,4 +149,11 @@ class TransactionHvController extends Controller
 
         return Inertia::render('Administrator/TransactionHv/Print', compact('transaction'));
     }
+
+    public function printReceipt(int $id): Response
+    {
+       $transaction = Transaction::with(['user','transactionDetails.medicine'])->where('id',$id)->firstOrFail();
+
+        return Inertia::render('Administrator/TransactionHv/Receipt', compact('transaction'));
+    }
 }

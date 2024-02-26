@@ -61,7 +61,7 @@ export default function Edit({auth, doctor}: PageProps & DoctorProps) {
                         </div>
                         <form onSubmit={submitForm}>
                             <div>
-                                <InputLabel htmlFor="code" value="Nama Dokter" />
+                                <InputLabel htmlFor="code" value="Kode Dokter" />
 
                                 <TextInput
                                     id="code"

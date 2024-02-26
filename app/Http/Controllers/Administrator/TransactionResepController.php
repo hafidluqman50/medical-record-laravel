@@ -163,7 +163,7 @@ class TransactionResepController extends Controller
                             'medicine_id'          => $v['id'],
                             'sub_total'            => $v['sub_total'],
                             'qty'                  => $v['qty'],
-                            'prescription_packs'   => $v['prescription_packs'],
+                            'prescription_packs'   => $v['prescription_packs'] ?? 0,
                             'dose'                 => $v['dose'],
                             'service_fee'          => $v['jasa'],
                             'total'                => $v['total'],
@@ -230,8 +230,15 @@ class TransactionResepController extends Controller
 
     public function printInvoice(int $id): Response
     {
-        $transaction_prescription = TransactionPrescription::with(['user','prescription.prescriptionLists.prescriptionDetails.medicine'])->firstOrFail();
+        $transaction_prescription = TransactionPrescription::with(['user','prescription.patient','prescription.doctor','prescription.prescriptionLists.prescriptionDetails.medicine'])->firstOrFail();
 
         return Inertia::render('Administrator/TransactionResep/Print', compact('transaction_prescription'));
+    }
+
+    public function printReceipt(int $id): Response
+    {
+        $transaction_prescription = TransactionPrescription::with(['user','prescription.patient','prescription.prescriptionLists.prescriptionDetails.medicine'])->firstOrFail();
+
+        return Inertia::render('Administrator/TransactionResep/Receipt', compact('transaction_prescription'));
     }
 }
