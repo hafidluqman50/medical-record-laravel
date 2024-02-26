@@ -25,7 +25,7 @@ class MedicineController extends Controller
         $medicines = Medicine::with(['drugClassification', 'medicalSupplier', 'medicineFactory'])
                             ->when($search != '', function(Builder $query) use ($search) {
                                 $query->where('name','like',"%{$search}%");
-                            })->paginate(5)->onEachSide(3)->withQueryString()->through(function(Medicine $query) {
+                            })->orderBy('id','DESC')->paginate(5)->onEachSide(3)->withQueryString()->through(function(Medicine $query) {
 
                                 $harga_modal     = format_rupiah($query->capital_price);
                                 $harga_modal_ppn = format_rupiah($query->capital_price_vat);
@@ -66,7 +66,7 @@ class MedicineController extends Controller
         $request->validate([
             'code'                   => 'required|string|max:255',
             'batch_number'           => 'required|string|max:255',
-            'barcode'                => 'sometimes|nullable|strimg|max:255',
+            'barcode'                => 'sometimes|nullable|string|max:255',
             'date_expired'           => 'required|date_format:Y-m-d',
             'name'                   => 'required|string|max:255',
             'drug_classification_id' => 'required|integer|exists:'.DrugClassification::class.',id',
@@ -126,7 +126,7 @@ class MedicineController extends Controller
         $request->validate([
             'code'                   => 'required|string|max:255',
             'batch_number'           => 'required|string|max:255',
-            'barcode'                => 'sometimes|nullable|strimg|max:255',
+            'barcode'                => 'sometimes|nullable|string|max:255',
             'date_expired'           => 'required|date_format:Y-m-d',
             'drug_classification_id' => 'required|integer|exists:'.DrugClassification::class.',id',
             'medical_supplier_id'    => 'required|integer|exists:'.MedicalSupplier::class.',id',
