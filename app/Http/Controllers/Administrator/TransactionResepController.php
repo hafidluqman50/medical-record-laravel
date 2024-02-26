@@ -87,15 +87,21 @@ class TransactionResepController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'medicines'        => 'required|array',
-            'patient_id'       => 'required|integer|exists:'.Patient::class.',id',
-            'doctor_id'        => 'required|integer|exists:'.Doctor::class.',id',
-            'sub_total_grand'  => 'required|integer',
-            'diskon_grand'     => 'required|integer',
-            'total_grand'      => 'required|integer',
-            'bayar'            => 'required|integer',
-            'kembalian'        => 'required|integer',
-            'jenis_pembayaran' => 'required|string:in:tunai,kartu-debit-kredit'
+            'medicines'            => 'required|array',
+            'patient_id'           => 'required|integer|exists:'.Patient::class.',id',
+            'patient_name'         => 'sometimes|nullable|string',
+            'patient_address'      => 'sometimes|nullable|string',
+            'patient_phone_number' => 'sometimes|nullable|string',
+            'patient_city_place'   => 'sometimes|nullable|string',
+            'doctor_id'            => 'required|integer|exists:'.Doctor::class.',id',
+            'doctor_code'          => 'sometimes|nullable|string',
+            'doctor_name'          => 'sometimes|nullable|string',
+            'sub_total_grand'      => 'required|integer',
+            'diskon_grand'         => 'required|integer',
+            'total_grand'          => 'required|integer',
+            'bayar'                => 'required|integer',
+            'kembalian'            => 'required|integer',
+            'jenis_pembayaran'     => 'required|string:in:tunai,bank'
         ]);
 
         $medicines        = $request->medicines;
@@ -115,6 +121,24 @@ class TransactionResepController extends Controller
         DB::beginTransaction();
 
         try {
+
+            if ($patient_id == '') {
+                $patient_id = Patient::insertGetId([
+                    'code'                => Patient::generateCode(),
+                    'patient_category_id' => null,
+                    'name'                => $request->patient_name,
+                    'address'             => $request->patient_address,
+                    'phone_number'        => $request->phone_number,
+                    'city_place'          => $request->city_place
+                ]);
+            }
+
+            if($doctor_id == '') {
+                $doctor_id = Doctor::insertGetId([
+                    'code' => $request->doctor,
+                    'name' => $request->doctor_name
+                ]);
+            }
 
             $prescription_id = Prescription::insertGetId([
                 'patient_id' => $patient_id,
@@ -139,7 +163,7 @@ class TransactionResepController extends Controller
                             'medicine_id'          => $v['id'],
                             'sub_total'            => $v['sub_total'],
                             'qty'                  => $v['qty'],
-                            'prescription_packs'   => $v['prescription_packs'],
+                            'prescription_packs'   => $v['prescription_packs'] ?? 0,
                             'dose'                 => $v['dose'],
                             'service_fee'          => $v['jasa'],
                             'total'                => $v['total'],
@@ -206,8 +230,15 @@ class TransactionResepController extends Controller
 
     public function printInvoice(int $id): Response
     {
-        $transaction_prescription = TransactionPrescription::with(['user','prescription.prescriptionLists.prescriptionDetails.medicine'])->firstOrFail();
+        $transaction_prescription = TransactionPrescription::with(['user','prescription.patient','prescription.doctor','prescription.prescriptionLists.prescriptionDetails.medicine'])->firstOrFail();
 
         return Inertia::render('Administrator/TransactionResep/Print', compact('transaction_prescription'));
+    }
+
+    public function printReceipt(int $id): Response
+    {
+        $transaction_prescription = TransactionPrescription::with(['user','prescription.patient','prescription.prescriptionLists.prescriptionDetails.medicine'])->firstOrFail();
+
+        return Inertia::render('Administrator/TransactionResep/Receipt', compact('transaction_prescription'));
     }
 }

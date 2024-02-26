@@ -13,6 +13,7 @@ class Doctor extends Model
     protected $table = 'doctors';
 
     protected $fillable = [
+        'code',
         'name',
         'username',
         'password',
@@ -33,4 +34,17 @@ class Doctor extends Model
     protected $casts = [
         'password' => 'hashed'
     ];
+
+    public static function generateCode(): string
+    {
+        $db = self::count();
+        if ($db == 0) {
+            $db = 1;
+            $result = 'DTR-000001';
+        }
+        else {
+            $db += 1;
+        }
+        return $generate_code = 'DTR-'.str_pad($db,6,'000000',STR_PAD_LEFT);
+    }
 }

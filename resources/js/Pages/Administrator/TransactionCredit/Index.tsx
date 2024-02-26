@@ -77,6 +77,8 @@ import {
 
 import { useToast } from '@/Components/ui/use-toast'
 
+import { useStateWithCallback } from '@/lib/hooks'
+
 export default function TransactionCredit({
     kode_transaksi, price_parameter, medicine_price_parameters, patients, medicines, debitur, customers
 }: TransactionCreditPageProps) {
@@ -113,7 +115,7 @@ export default function TransactionCredit({
     const [subTotal, setSubTotal]                     = useState<number>(0)
     const [isHjaNet, setIsHjaNet]                     = useState<boolean>(false)
     const [priceMedicine, setPriceMedicine]           = useState<number>(0)
-    const [indexRowObat, setIndexRowObat]             = useState<number|null>(null)
+    const [indexRowObat, setIndexRowObat]             = useStateWithCallback<number|null>(null)
     /* END MECHANISM TRANSACTION USE STATE HOOKS */
 
     /* COUNTER USE STATE HOOKS */
@@ -194,6 +196,31 @@ export default function TransactionCredit({
     }
 
     const bungkusAct = (event: KeyboardEvent<HTMLInputElement>): void => {
+        
+        if(indexRowObat != null) {
+            const dosisObatVal  = parseInt(dosisObatRef.current.value)
+            const bungkusVal    = parseInt(bungkusRef.current.value)
+            const dosisRacikVal = parseInt(dosisRacikRef.current.value)
+            const hargaObatVal  = parseInt(hargaObat.current.value)
+
+            let calculateQty   = isRacikan ? Math.round((dosisRacikVal * bungkusVal) / dosisObatVal) : 0
+            let priceCalculate = 0
+            
+            if(isHjaNet) {
+                priceCalculate = Math.round((hargaObatVal * price_parameter.resep_tunai))
+            } else {
+                priceCalculate = hargaObatVal
+            }
+
+            let calculateJumlah = priceCalculate * calculateQty
+
+            setSubTotal(calculateJumlah)
+
+            jumlahHarga.current.value = Math.round((calculateJumlah / price_parameter.pembulatan)) * price_parameter.pembulatan
+            qtyObat.current.value = calculateQty
+
+        }
+
         if(event.keyCode == 13 && bungkusRef.current?.value != '')
         {
             kodeObat.current.focus()
@@ -290,8 +317,6 @@ export default function TransactionCredit({
                 getRowObat[indexRowObat].jasa               = jasa
                 getRowObat[indexRowObat].total              = parseInt(jumlahHarga.current.value)
 
-                console.log(getRowObat)
-
                 subTotalGrandData = getRowObat[indexRowObat].sub_total + data.sub_total_grand
                 totalGrandData    = getRowObat[indexRowObat].total + data.total_grand
                 
@@ -357,6 +382,7 @@ export default function TransactionCredit({
             qtyObat.current.value       = ""
             dosisRacikRef.current.value = ""
             jumlahHarga.current.value   = ""
+            jasaRef.current.value       = ""
 
             kodeObat.current.focus()
         }
@@ -368,8 +394,6 @@ export default function TransactionCredit({
             const getIndex    = rowObat.map(el => el.prefixNum).lastIndexOf(`R${racikNum}`)
             let jasaRowObat = rowObat[getIndex]
             jasaRowObat.jasa = parseInt(jasaVal)
-
-            console.log(jasaRowObat)
 
             const medicinesData = data.medicines
             medicinesData[getIndex].jasa = jasaVal
@@ -438,15 +462,17 @@ export default function TransactionCredit({
         dosisRacikRef.current.focus()
     }
 
-    const rowObatAct = (event: any): void => {
-        event.preventDefault()
+    const rowObatAct = (event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): void => {
+        
+        const keyEvent = event as KeyboardEvent
+        const targetValue = parseInt((event.target as HTMLInputElement).value)
 
-        if(event.keyCode == 118) {
-            setRowObat(row => row.filter((r, i) => (i != event.target.value)))
+        if(keyEvent.keyCode == 119) {
+            setRowObat(row => row.filter((r, i) => (i != targetValue)))
 
-            const medicinesData: Array<any> = data.medicines.filter((row: any, i: number) => (i != event.target.value))
-            const subTotalGrandData: number = data.sub_total_grand - data.medicines[event.target.value].sub_total
-            const totalGrandData: number    = data.total_grand - data.medicines[event.target.value].total
+            const medicinesData: Array<any> = data.medicines.filter((row: any, i: number) => (i != targetValue))
+            const subTotalGrandData: number = data.sub_total_grand - data.medicines[targetValue].sub_total
+            const totalGrandData: number    = data.total_grand - data.medicines[targetValue].total
 
             setData(data => ({...data,
                 medicines:medicinesData,
@@ -456,24 +482,25 @@ export default function TransactionCredit({
         }
     }
 
-    const calculateBayar = (event: any): void => {
-        event.preventDefault()
+    const calculateBayar = (event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): void => {
+        const keyEvent = event as KeyboardEvent
+        const targetValue = parseInt((event.target as HTMLInputElement).value)
 
-        setData(data => ({...data, bayar:event.target.value}))
+        setData(data => ({...data, bayar:targetValue}))
         const total_grand: number = data.total_grand
 
-        let calculate: number = total_grand - parseInt(event.target.value)
+        let calculate: number = targetValue - total_grand
 
         setData(data => ({...data, kembalian:calculate}))
 
-        if(event.keyCode == 13) {
-            post(route('administrator.transaction-resep.store'))
+        if(keyEvent.keyCode == 13) {
+            post(route('administrator.transaction-credit.store'))
             submitBayarRef.current.focus()
         }
 
     }
 
-    const pasienKeyUpAct = async(event: any): Promise<void> => {
+    const pasienKeyUpAct = async(event: KeyboardEvent<HTMLInputElement>): Promise<void> => {
         if(event.keyCode == 13) {
             setOpenPasienDialog(true)
             try {
@@ -499,8 +526,11 @@ export default function TransactionCredit({
         }
     }
 
-    const selectPatientAct = async(event: any): Promise<void> => {
-        if(event.keyCode == 13) {
+    const selectPatientAct = async(event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): Promise<void> => {
+        const keyEvent = event as KeyboardEvent
+        const targetValue = parseInt((event.target as HTMLInputElement).value)
+
+        if(keyEvent.keyCode == 13) {
             try {
                 const responseData = await axios.get<{
                         data:{
@@ -509,7 +539,7 @@ export default function TransactionCredit({
                                 name:string
                             }
                         }
-                    }>(route('api.patients.get-by-id', event.target.value))
+                    }>(route('api.patients.get-by-id', targetValue))
 
                 patientNameRef.current.value        = responseData.data.data.patient.name
 
@@ -533,7 +563,7 @@ export default function TransactionCredit({
         }
     }
 
-    const doctorKeyUpAct = async(event: any): Promise<void> => {
+    const doctorKeyUpAct = async(event: KeyboardEvent<HTMLInputElement>): Promise<void> => {
         if(event.keyCode == 13) {
             setOpenDoctorDialog(true)
             try {
@@ -560,8 +590,11 @@ export default function TransactionCredit({
         }
     }
 
-    const selectDoctorAct = async(event: any): Promise<void> => {
-        if(event.keyCode == 13) {
+    const selectDoctorAct = async(event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): Promise<void> => {
+        const keyEvent = event as KeyboardEvent
+        const targetValue = parseInt((event.target as HTMLInputElement).value)
+
+        if(keyEvent.keyCode == 13) {
             try {
                 const responseData = await axios.get<{
                         data:{
@@ -571,7 +604,7 @@ export default function TransactionCredit({
                                 name:string
                             }
                         }
-                    }>(route('api.doctors.get-by-id', event.target.value))
+                    }>(route('api.doctors.get-by-id', targetValue))
 
                 doctorCodeRef.current.value = responseData.data.data.doctor.code ?? ''
                 doctorNameRef.current.value = responseData.data.data.doctor.name
@@ -596,26 +629,19 @@ export default function TransactionCredit({
         }
     }
 
-    const calculateDiskon = (event: any): void => {
-        event.preventDefault()
+    const hapusAct = (): void => {
+        if(indexRowObat != null) {
+            setRowObat(row => row.filter((r, i) => (i != indexRowObat)))
 
-        if(event.keyCode == 13)
-        {
-            setData(data => ({...data, diskon_grand:event.target.value}))
-            
-            const total_grand: number = data.total_grand
+            const medicinesData: Array<any> = data.medicines.filter((row: any, i: number) => (i != indexRowObat))
+            const subTotalGrandData: number = data.sub_total_grand - data.medicines[indexRowObat].sub_total
+            const totalGrandData: number    = data.total_grand - data.medicines[indexRowObat].total
 
-            let calculate: number = 0
-
-            if(event.target.value.includes('%')) {
-                calculate = Math.round((total_grand - ((total_grand * parseInt(event.target.value)) / 100)) / price_parameter.pembulatan) * price_parameter.pembulatan
-            } else {
-                calculate = Math.round((total_grand - parseInt(event.target.value)) / price_parameter.pembulatan) * price_parameter.pembulatan
-            }
-
-            setData(data => ({...data, total_grand:calculate}))
-
-            bayarTransaksi.current.focus()
+            setData(data => ({...data,
+                medicines:medicinesData,
+                sub_total_grand:subTotalGrandData,
+                total_grand:totalGrandData
+            }))
         }
     }
 
@@ -627,7 +653,7 @@ export default function TransactionCredit({
         reset()
     }
 
-    const groupNameAct: any = (event: any): void => {
+    const groupNameAct = (event: KeyboardEvent<HTMLInputElement>): void => {
         if(event.keyCode == 13 && groupRef.current.value != '') {
             post(route('administrator.transaction-credit'))
         }
@@ -659,20 +685,9 @@ export default function TransactionCredit({
             setJualObat([])
             reset()
         }
-        // else if(event.ctrlKey && event.keyCode == 70) {
-
-        //     if(faktorRef.current.value == 'RESEP') {
-        //         setFaktor(faktor => 'UP')
-        //         faktorRef.current.value="UPDS"
-        //     } else if(faktorRef.current.value == 'UPDS') {
-        //         setFaktor(faktor => 'HV')
-        //         faktorRef.current.value="HV"
-        //     } else {
-        //         setFaktor(faktor => 'UM')
-        //         faktorRef.current.value="RESEP"
-        //     }
-
-        // }
+        else if(event.keyCode == 119) {
+            hapusAct()
+        }
         else if(event.ctrlKey && event.keyCode == 74) {
             jasaRef.current.focus()
         }
@@ -720,7 +735,7 @@ export default function TransactionCredit({
                     if(kodeObat.current.value != "") {
                         dosisRacikRef.current.focus()
                     }
-                }} className="max-w-5xl">
+                }} className="max-w-5xl overflow-y-scroll max-h-screen">
                 <DialogHeader>
                   <DialogTitle>List Obat</DialogTitle>
                 </DialogHeader>
@@ -769,7 +784,7 @@ export default function TransactionCredit({
             </Dialog>
 
             <Dialog open={cekHargaObatDialog} onOpenChange={setCekHargaObatDialog}>
-              <DialogContent className="max-w-7xl">
+              <DialogContent className="max-w-7xl overflow-y-scroll max-h-screen">
                 <DialogHeader>
                   <DialogTitle>Data Pelanggan</DialogTitle>
                 </DialogHeader>
@@ -778,7 +793,7 @@ export default function TransactionCredit({
             </Dialog>
 
             <Dialog open={openMasterObat} onOpenChange={setOpenMasterObat}>
-              <DialogContent className="max-w-7xl">
+              <DialogContent className="max-w-7xl overflow-y-scroll max-h-screen">
                 <DialogHeader>
                   <DialogTitle>Data Master Obat</DialogTitle>
                 </DialogHeader>
@@ -787,7 +802,7 @@ export default function TransactionCredit({
             </Dialog>
 
             <Dialog open={openTransaction} onOpenChange={setOpenTransaction}>
-              <DialogContent className="max-w-7xl">
+              <DialogContent className="max-w-7xl overflow-y-scroll max-h-screen">
                 <DialogHeader>
                   <DialogTitle>Data Transaksi</DialogTitle>
                 </DialogHeader>

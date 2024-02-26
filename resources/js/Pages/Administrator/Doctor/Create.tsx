@@ -16,16 +16,19 @@ import {
 import { Textarea } from "@/Components/ui/textarea"
 import { Button } from '@/Components/ui/button'
 
-export default function Create({auth}: PageProps) {
+import { DoctorForm } from './type'
 
-    const { data, setData, post, processing, errors, reset } = useForm({
+export default function Create({auth, code}: PageProps<{code:string}>) {
+
+    const { data, setData, post, processing, errors, reset } = useForm<DoctorForm>({
+        code,
         name: '',
         username: '',
         password: '',
         address:'',
         phone_number:'',
-        fee:'',
-        status_doctor:''
+        fee:null,
+        status_doctor:null
     });
 
     const submitForm: FormEventHandler = (e) => {
@@ -53,6 +56,23 @@ export default function Create({auth}: PageProps) {
                         </div>
                         <form onSubmit={submitForm}>
                             <div>
+                                <InputLabel htmlFor="code" value="Kode Dokter" />
+
+                                <TextInput
+                                    id="code"
+                                    type="text"
+                                    name="code"
+                                    value={data.code}
+                                    className="mt-1 block w-full"
+                                    autoComplete="code"
+                                    isFocused={true}
+                                    onChange={(e) => setData('code', e.target.value)}
+                                />
+
+                                <InputError message={errors.code} className="mt-2" />
+                            </div>
+
+                            <div className="mt-4">
                                 <InputLabel htmlFor="name" value="Nama Dokter" />
 
                                 <TextInput
@@ -139,10 +159,10 @@ export default function Create({auth}: PageProps) {
                                     id="fee"
                                     type="number"
                                     name="fee"
-                                    value={data.fee}
+                                    value={data.fee ?? 0}
                                     className="mt-1 block w-full"
                                     autoComplete="fee"
-                                    onChange={(e) => setData('fee', e.target.value)}
+                                    onChange={(e) => setData('fee', parseInt(e.target.value))}
                                 />
 
                                 <InputError message={errors.fee} className="mt-2" />
@@ -161,7 +181,7 @@ export default function Create({auth}: PageProps) {
                                     onChange={(e) => setData('s', e.target.value)}
                                 />*/}
 
-                                <Select onValueChange={(value) => setData('status_doctor', value)}>
+                                <Select onValueChange={(value) => setData('status_doctor', parseInt(value))}>
                                   <SelectTrigger className="w-full">
                                     <SelectValue placeholder="=== Pilih Status Dokter ===" />
                                   </SelectTrigger>

@@ -1,9 +1,11 @@
 import '../../../../css/credit-print.css'
-import React, { Fragment } from 'react'
+import React, { Fragment, useEffect } from 'react'
 import { Head, Link } from '@inertiajs/react'
 import { Button } from '@/Components/ui/button'
 
 import { formatRupiah } from '@/lib/helper'
+
+import { logoPng } from '@/lib/assets'
 
 interface Transaction {
     id:number
@@ -27,6 +29,11 @@ type PrintPageProps = {
 }
 
 export default function Print({purchase_medicine}: PrintPageProps) {
+
+    useEffect(() => {
+        setTimeout(() => window.print(), 600)
+    },[])
+
     return(
         <>
             <Head title="Pembelian Obat Print" />
@@ -54,9 +61,9 @@ export default function Print({purchase_medicine}: PrintPageProps) {
                     <div className="flex justify-between items-center pb-4 border-b border-gray-200 dark:border-gray-700 mb-3">
                       <div className="flex flex-col">
                         <div className="text-3xl font-bold mb-1">
-                          <img className="inline-block w-12 h-auto ltr:mr-2 rtl:ml-2" src="../src/img/favicon.png" />Jupiter IT Solutions
+                          <img className="inline-block w-12 h-auto ltr:mr-2 rtl:ml-2" src={logoPng} />APOTEK SAHABAT
                         </div>
-                        <p className="text-sm">Samarinda, Indonesia<br />San Francisco, CA 9321, US</p>
+                        <p className="text-sm">Jl. Palang Merah Indonesia No.16 - B Samarinda</p>
                       </div>
                       <div className="text-4xl uppercase font-bold">KWITANSI</div>
                     </div>

@@ -142,6 +142,7 @@ export default function Index({auth, app, doctors, page_num}: PageProps<DoctorPr
                           <TableHeader>
                             <TableRow>
                               <TableHead className="border border-slate-200">No</TableHead>
+                              <TableHead className="border border-slate-200">Kode Dokter</TableHead>
                               <TableHead className="border border-slate-200">Nama Dokter</TableHead>
                               <TableHead className="border border-slate-200">Username</TableHead>
                               <TableHead className="border border-slate-200">Alamat</TableHead>
@@ -163,6 +164,9 @@ export default function Index({auth, app, doctors, page_num}: PageProps<DoctorPr
                                     <TableRow key={row.id}>
                                         <TableCell className="border border-slate-200">
                                             {page_num+key}
+                                        </TableCell>
+                                        <TableCell className="border border-slate-200">
+                                            {row.code}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
                                             {row.name}

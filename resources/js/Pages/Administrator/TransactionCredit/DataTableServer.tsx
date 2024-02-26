@@ -296,9 +296,9 @@ export function DataTableTransactionCredit({onOpenTransaction}: { onOpenTransact
                             <TableCell className="space-y-2 flex flex-col">
                                 <Button
                                     className="bg-cyan-500"
-                                    onClick={() => router.get(route('administrator.transaction-credit.print-invoice', row.id))}
+                                    asChild
                                 >
-                                    Print
+                                    <a href={route('administrator.transaction-credit.print-invoice', row.id)}>Print</a>
                                 </Button>
                                 <Button 
                                     variant={row.status_transaction == 1 ? "success" : "destructive"}

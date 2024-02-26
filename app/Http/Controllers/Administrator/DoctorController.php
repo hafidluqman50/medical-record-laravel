@@ -46,12 +46,15 @@ class DoctorController extends Controller
 
     public function create(): Response
     {
-        return Inertia::render('Administrator/Doctor/Create');
+        $code = Doctor::generateCode();
+
+        return Inertia::render('Administrator/Doctor/Create', compact('code'));
     }
 
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
+            'code'          => 'required|string|max:255',
             'name'          => 'required|string|max:255',
             'username'      => 'required|string|max:255|unique:'.Doctor::class,
             'password'      => ['required', Rules\Password::defaults()],
@@ -87,6 +90,7 @@ class DoctorController extends Controller
     public function update(Request $request, int $id): RedirectResponse
     {
         $request->validate([
+            'code'          => 'required|string|max:255',
             'name'          => 'required|string|max:255',
             'username'      => 'required|string|max:255|unique:'.Doctor::class.',id,'.$id,
             'password'      => ['sometimes', 'nullable', Rules\Password::defaults()],

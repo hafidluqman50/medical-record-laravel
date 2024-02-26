@@ -43,6 +43,9 @@ class Patient extends Model
             $db = 1;
             $result = 'PSN-000001';
         }
+        else {
+            $db += 1;
+        }
         return $generate_code = 'PSN-'.str_pad($db,6,'000000',STR_PAD_LEFT);
     }
 }

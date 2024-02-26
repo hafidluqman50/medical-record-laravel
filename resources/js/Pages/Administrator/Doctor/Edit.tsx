@@ -16,15 +16,17 @@ import {
 import { Textarea } from "@/Components/ui/textarea"
 import { Button } from '@/Components/ui/button'
 
-import { Doctor } from './type'
+import { Doctor, DoctorForm } from './type'
 
 type DoctorProps = {
     doctor:Doctor
 }
 
+
 export default function Edit({auth, doctor}: PageProps & DoctorProps) {
 
-    const { data, setData, post, put, processing, errors, reset } = useForm({
+    const { data, setData, post, put, processing, errors, reset } = useForm<DoctorForm>({
+        code: doctor.code,
         name: doctor.name,
         username: doctor.username,
         password: '',
@@ -59,6 +61,23 @@ export default function Edit({auth, doctor}: PageProps & DoctorProps) {
                         </div>
                         <form onSubmit={submitForm}>
                             <div>
+                                <InputLabel htmlFor="code" value="Kode Dokter" />
+
+                                <TextInput
+                                    id="code"
+                                    type="text"
+                                    name="code"
+                                    value={data.code}
+                                    className="mt-1 block w-full"
+                                    autoComplete="code"
+                                    isFocused={true}
+                                    onChange={(e) => setData('code', e.target.value)}
+                                />
+
+                                <InputError message={errors.code} className="mt-2" />
+                            </div>
+
+                            <div className="mt-4">
                                 <InputLabel htmlFor="name" value="Nama Dokter" />
 
                                 <TextInput
@@ -154,7 +173,7 @@ export default function Edit({auth, doctor}: PageProps & DoctorProps) {
                                     id="fee"
                                     type="number"
                                     name="fee"
-                                    value={data.fee}
+                                    value={data.fee ?? 0}
                                     className="mt-1 block w-full"
                                     autoComplete="fee"
                                     onChange={(e) => setData('fee', parseInt(e.target.value))}

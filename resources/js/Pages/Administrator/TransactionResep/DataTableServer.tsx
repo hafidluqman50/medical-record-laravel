@@ -4,7 +4,7 @@ import { useQuery, QueryFunctionContext } from '@tanstack/react-query'
 
 import axios from 'axios'
 
-import { router } from '@inertiajs/react';
+import { router, Link } from '@inertiajs/react';
 
 import { 
     TransactionPrescription, 
@@ -737,14 +737,20 @@ export function DataTableTransaction({
                             <TableCell className="space-y-2 flex flex-col">
                                 <Button
                                     className="bg-cyan-500"
-                                    onClick={() => router.get(route('administrator.transaction-resep.print-invoice', row.id))}
+                                    asChild
                                 >
-                                    Print
+                                    <Link href={route('administrator.transaction-resep.print-invoice', row.id)}>Print</Link>
+                                </Button>
+                                <Button
+                                    variant="warning"
+                                    asChild
+                                >
+                                    <Link href={route('administrator.transaction-resep.print-receipt', row.id)}>Kwitansi</Link>
                                 </Button>
                                 <Button 
                                     variant={row.status_transaction == 1 ? "success" : "destructive"}
                                     onClick={() => getTransactionResep(row.id)}
-                                    disabled={disabledButton == row.id}
+                                    disabled={disabledButton == row.id || row.status_transaction == 1}
                                 >
                                     {row.status_transaction == 1 ? 'Terbayar' : 'Pending'}
                                 </Button>

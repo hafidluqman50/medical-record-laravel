@@ -61,6 +61,8 @@ import {
 
 import { useToast } from '@/Components/ui/use-toast'
 
+import { useStateWithCallback } from '@/lib/hooks'
+
 export default function TransactionUpds({
     kode_transaksi, price_parameter, medicine_price_parameters
 }: TransactionUpdsPageProps) {
@@ -98,7 +100,7 @@ export default function TransactionUpds({
     const [subTotal, setSubTotal]                     = useState<number>(0)
     const [isHjaNet, setIsHjaNet]                     = useState<boolean>(false)
     const [priceMedicine, setPriceMedicine]           = useState<number>(0)
-    const [indexRowObat, setIndexRowObat]             = useState<number | null>(null)
+    const [indexRowObat, setIndexRowObat]             = useStateWithCallback<number | null>(null)
 
     const [rowObat, setRowObat]   = useState<RowObat[]>([])
     const [jualObat, setJualObat] = useState<any>([])
@@ -346,13 +348,13 @@ export default function TransactionUpds({
     const rowObatAct = (
         event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>
     ): void => {
-        event.preventDefault()
-
         const keyEvent = (event as KeyboardEvent)
 
         const targetValue = parseInt((event.target as HTMLInputElement).value)
 
-        if(keyEvent.keyCode == 118) {
+        setIndexRowObat(targetValue)
+
+        if(keyEvent.keyCode == 119) {
             setRowObat(row => row.filter((r, i) => (i != targetValue)))
 
             const medicineIdData    = data.medicine_id.filter((row, i) => (i != targetValue))
@@ -376,6 +378,8 @@ export default function TransactionUpds({
                 total_grand:totalGrandData,
                 diskon_grand:diskonGrandData
             }))
+
+            setIndexRowObat(null)
         }
     }
 
@@ -439,7 +443,7 @@ export default function TransactionUpds({
         setData(data => ({...data, bayar:parseInt(targetValue)}))
         const total_grand = data.total_grand
 
-        let calculate = total_grand - parseInt(targetValue)
+        let calculate = parseInt(targetValue) - total_grand
 
         setData(data => ({...data, kembalian:calculate}))
 
@@ -481,6 +485,34 @@ export default function TransactionUpds({
             setData(data => ({...data, total_grand:calculate}))
 
             bayarTransaksi.current.focus()
+        }
+    }
+
+    const hapusAct = (): void => {
+        if(indexRowObat != null) {
+            setRowObat(row => row.filter((r, i) => (i != indexRowObat)))
+
+            const medicineIdData    = data.medicine_id.filter((row, i) => (i != indexRowObat))
+            const qtyData           = data.qty.filter((row, i) => (i != indexRowObat))
+            const priceData         = data.price.filter((row, i) => (i != indexRowObat))
+            const subTotalData      = data.sub_total.filter((row, i) => (i != indexRowObat))
+            const discData          = data.disc.filter((row, i) => (i != indexRowObat))
+            const totalData         = data.total.filter((row, i) => (i != indexRowObat))
+            const subTotalGrandData = data.sub_total_grand - data.sub_total[indexRowObat]
+            const totalGrandData    = data.total_grand - data.total[indexRowObat]
+            const diskonGrandData   = data.diskon_grand - data.disc[indexRowObat]
+
+            setData(data => ({...data,
+                medicine_id:medicineIdData,
+                qty:qtyData,
+                price:priceData,
+                sub_total:subTotalData,
+                disc:discData,
+                total:totalData,
+                sub_total_grand:subTotalGrandData,
+                total_grand:totalGrandData,
+                diskon_grand:diskonGrandData
+            }))
         }
     }
 
@@ -532,6 +564,8 @@ export default function TransactionUpds({
         }
     },[])
 
+    console.log(indexRowObat)
+
     return(
         <TransactionLayout
             title="Penjualan UPDS"
@@ -543,7 +577,7 @@ export default function TransactionUpds({
                     if(kodeObat.current.value != "") {
                         qtyObat.current.focus()
                     }
-                }} className="max-w-5xl">
+                }} className="max-w-5xl overflow-y-scroll max-h-screen">
                 <DialogHeader>
                   <DialogTitle>List Obat</DialogTitle>
                 </DialogHeader>
@@ -592,7 +626,7 @@ export default function TransactionUpds({
             </Dialog>
 
             <Dialog open={cekHargaObatDialog} onOpenChange={setCekHargaObatDialog}>
-              <DialogContent className="max-w-7xl">
+              <DialogContent className="max-w-7xl overflow-y-scroll max-h-screen">
                 <DialogHeader>
                   <DialogTitle>Data Harga Obat</DialogTitle>
                 </DialogHeader>
@@ -601,7 +635,7 @@ export default function TransactionUpds({
             </Dialog>
 
             <Dialog open={bayarDialog} onOpenChange={setBayarDialog}>
-                <DialogContent className="max-w-l">
+                <DialogContent className="max-w-l overflow-y-scroll max-h-screen">
                     <DialogHeader>
                         <DialogTitle>Pembayaran</DialogTitle>
                     </DialogHeader>
@@ -636,7 +670,7 @@ export default function TransactionUpds({
                             <Label htmlFor="kode-transaksi">Diskon</Label>
                         </div>
                         <div className="w-full">
-                            <Input type="text" name="diskon" onChange={calculateDiskon} onKeyUp={calculateDiskon} />
+                            <Input type="text" name="diskon" className="bg-slate-200" value={data.diskon_grand == 0 ? 0 : `-${data.diskon_grand}`} readOnly />
                         </div>
                     </div>
                     <div className="flex mt-4">
@@ -705,7 +739,7 @@ export default function TransactionUpds({
                     </Button>
                 </a>
                 <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40" onClick={batalAct}>BATAL [F7]</Button>
-                <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">HAPUS [F8]</Button>
+                <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40" onClick={hapusAct}>HAPUS [F8]</Button>
                 <Button 
                     size="lg" 
                     variant="secondary" 
@@ -824,7 +858,7 @@ export default function TransactionUpds({
                         rowObat.map((row, key) => (
                             <TableRow key={key} onDoubleClick={(event) => dblClickAct(event, key)}>
                                 <TableCell className="border border-slate-100">
-                                    <input type="radio" name="medicine_id" onKeyDown={rowObatAct} value={key} />
+                                    <input type="radio" name="medicine_id" onKeyUp={rowObatAct} value={key} />
                                 </TableCell>
                                 <TableCell className="border border-slate-100">
                                     {key+1}
