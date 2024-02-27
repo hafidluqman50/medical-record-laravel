@@ -160,23 +160,6 @@ export default function Index({auth, app, medical_records, page_num}: PageProps 
                                                     <Button className="bg-cyan-500 text-white hover:bg-cyan-500" asChild>
                                                         <Link href={route('doctor.medical-records.list-records', row.id)}>Riwayat</Link>
                                                     </Button>
-                                                    <AlertDialog>
-                                                      <AlertDialogTrigger asChild>
-                                                        <Button variant="destructive">Delete</Button>
-                                                      </AlertDialogTrigger>
-                                                      <AlertDialogContent>
-                                                        <AlertDialogHeader>
-                                                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                                          <AlertDialogDescription>
-                                                            This action cannot be undone. This will delete your patient medical record data from our servers.
-                                                          </AlertDialogDescription>
-                                                        </AlertDialogHeader>
-                                                        <AlertDialogFooter>
-                                                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                          <AlertDialogAction onClick={() => submitDelete(row.id)}>Continue</AlertDialogAction>
-                                                        </AlertDialogFooter>
-                                                      </AlertDialogContent>
-                                                    </AlertDialog>
                                                 </div>
                                             </TableCell>
                                         </TableRow>
