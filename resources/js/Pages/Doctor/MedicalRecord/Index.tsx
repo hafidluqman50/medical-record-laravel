@@ -88,7 +88,7 @@ export default function Index({auth, app, medical_records, page_num}: PageProps 
 
     return (
         <DoctorLayout
-            user={auth.user}
+            user={auth.doctor}
             routeParent="rekam-medis"
             header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Rekam Medis</h2>}
         >

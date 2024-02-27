@@ -88,7 +88,7 @@ export default function ListRecord({auth, app, medical_record_lists, page_num}: 
 
     return (
         <DoctorLayout
-            user={auth.user}
+            user={auth.doctor}
             routeParent="rekam-medis"
             header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Data Riwayat Rekam Medis</h2>}
         >

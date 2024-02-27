@@ -34,14 +34,16 @@ import { columnLabActions } from './columnDatatable'
 
 import { DataTable } from '@/Components/DataTable'
 
+import { useQuery, QueryFunctionContext } from '@tanstack/react-query'
+
 export default function Create({
-    auth, patients, doctors, registrations, kode_transaksi, medicines, price_parameter, lab_actions
-}: PageProps<FormCreateProps>) {
+    auth, patients, doctors, registrations, kode_transaksi, medicines, price_parameter, lab_actions, registration_id
+}: PageProps<FormCreateProps> & {registration_id:number|null}) {
 
     const { toast } = useToast();
 
     const { data, setData, post, processing, errors, reset } = useForm<MedicalRecordForm>({
-        registration_id:null,
+        registration_id:registration_id,
         body_height:null,
         body_weight:null,
         body_temp:null,
@@ -66,39 +68,41 @@ export default function Create({
         jenis_pembayaran: 'tunai'
     });
 
-    const selectRegistrationAct = async(value: number): Promise<void> => {
+    const { registration_id:registrationId } = data
+
+    const fetchRegistration = async ({queryKey}: QueryFunctionContext<[
+        string, 
+        number|null
+    ]>): Promise<any> => {
+        const [_, registrationId] = queryKey
+        const response = await axios.get<any>(route('api.medical-records.get-registration-by-id', registrationId ?? ''));
+        const { 
+            body_height, body_weight, body_temp, blood_pressure, complains_of_pain, supporting_examinations 
+        } = response.data.data.registration
+
+        setData(data => ({
+            ...data,
+            body_height,
+            body_weight,
+            body_temp,
+            blood_pressure,
+            complains_of_pain,
+            supporting_examinations
+        }))
         
+        return response.data.data.registration;
+    };
+
+    const { isLoading, isError, data:result, error, refetch } = useQuery({
+        queryKey:['registrationData', registrationId],
+        queryFn:fetchRegistration
+    })
+
+    const selectRegistrationAct = async(value: number): Promise<void> => {
         setData(data => ({
             ...data,
             registration_id:value
         }))
-
-        try {
-            const responseData = await axios.get<AxiosGetRegistration>(route('api.medical-records.get-registration-by-id', value))
-
-            const { 
-                body_height, body_weight, body_temp, blood_pressure, complains_of_pain, supporting_examinations 
-            } = responseData.data.data.registration
-
-            setData(data => ({
-                ...data,
-                body_height,
-                body_weight,
-                body_temp,
-                blood_pressure,
-                complains_of_pain,
-                supporting_examinations
-            }))
-
-        } catch(error) {
-            if(axios.isAxiosError(error)) {
-                toast({
-                  variant: "destructive",
-                  title: "Error!",
-                  description: error.response?.data.message,
-                })
-            }
-        }
     }
 
     const submitForm: FormEventHandler = (e) => {
@@ -107,11 +111,9 @@ export default function Create({
         post(route('doctor.medical-records.store'));
     }
 
-    console.log(data)
-
     return(
         <DoctorLayout
-            user={auth.user}
+            user={auth.doctor}
             routeParent="rekam-medis"
             header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Form Rekam Medis</h2>}
         >
