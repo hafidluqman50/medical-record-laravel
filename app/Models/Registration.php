@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Registration extends Model
 {
@@ -41,6 +42,11 @@ class Registration extends Model
     public function doctor(): BelongsTo
     {
         return $this->belongsTo(Doctor::class, 'doctor_id', 'id');
+    }
+
+    public function medicalRecordList(): HasOne
+    {
+        return $this->hasOne(MedicalRecordList::class, 'registration_id', 'id');
     }
 
     public static function generateCode(): string

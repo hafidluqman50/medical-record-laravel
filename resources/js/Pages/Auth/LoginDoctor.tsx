@@ -26,7 +26,7 @@ export default function Login({ status }: { status?: string }) {
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
 
-        post(route('login'));
+        post(route('login.doctor'));
     };
 
     return (
@@ -37,7 +37,7 @@ export default function Login({ status }: { status?: string }) {
 
             {session.error && <div className="mb-4 font-medium text-sm text-red-600 text-center">{session.error}</div>}
 
-            <p className="font-bold text-md text-center">LOGIN PETUGAS</p>
+            <p className="font-bold text-md text-center">LOGIN DOKTER</p>
             <form onSubmit={submit}>
                 <div>
                     <InputLabel htmlFor="username" value="Username" />
@@ -73,13 +73,13 @@ export default function Login({ status }: { status?: string }) {
                 </div>
 
                 <div className="flex items-center justify-between mt-4">
-                    <Button variant="success" type="button" asChild>
-                        <Link href={route('login.doctor')}>
-                            Login Dokter
+                    <Button variant="warning" type="button" asChild>
+                        <Link href={route('login')}>
+                            Login Petugas
                         </Link>
                     </Button>
                     <PrimaryButton className="ms-4" disabled={processing}>
-                        Log in
+                        Log in as Doctor
                     </PrimaryButton>
                 </div>
             </form>

@@ -1372,6 +1372,14 @@ body {
   width: 100vw;
 }
 
+.w-3\/12 {
+  width: 25%;
+}
+
+.w-9\/12 {
+  width: 75%;
+}
+
 .min-w-\[12rem\] {
   min-width: 12rem;
 }
@@ -1970,6 +1978,11 @@ body {
 .bg-white {
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+}
+
+.bg-orange-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(249 115 22 / var(--tw-bg-opacity));
 }
 
 .from-gray-700 {
@@ -2918,6 +2931,11 @@ body {
 
 .hover\:bg-sky-500\/90:hover {
   background-color: rgb(14 165 233 / 0.9);
+}
+
+.hover\:bg-orange-500:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(249 115 22 / var(--tw-bg-opacity));
 }
 
 .hover\:text-accent-foreground:hover {

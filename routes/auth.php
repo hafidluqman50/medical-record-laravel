@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
+use App\Http\Controllers\Auth\DoctorAuthController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\NewPasswordController;
@@ -37,6 +38,14 @@ Route::middleware('guest:web')->group(function () {
                 ->name('password.store');
 });
 
+Route::group(['middleware' => 'guest:doctor'], function() {
+    Route::get('login-doctor', [DoctorAuthController::class, 'create'])
+                ->name('login.doctor');
+
+    Route::post('login-doctor', [DoctorAuthController::class, 'store'])
+            ->name('login.doctor');
+});
+
 // Route::group(['middleware' => 'guest:doctor'], function() {
 //     Route::get('/doctor/login', [AuthDoctorController::class, 'loginForm']);
 // });
@@ -62,4 +71,11 @@ Route::middleware('auth')->group(function () {
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
                 ->name('logout');
+                
 });
+
+Route::group(['middleware' => 'auth:doctor'], function() {    
+    Route::post('logout-doctor', [DoctorAuthController::class, 'destroy'])
+            ->name('logout.doctor');
+});
+

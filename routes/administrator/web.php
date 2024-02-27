@@ -31,7 +31,7 @@ use App\Http\Controllers\Administrator\CustomerController;
 use App\Http\Controllers\Administrator\UserController;
 use Illuminate\Support\Facades\Route;
 
-Route::group(['middleware' => 'auth'], function() {
+Route::group(['middleware' => ['guard.check:web']], function() {
     Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['verified'])->name('administrator.dashboard');
 
