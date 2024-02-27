@@ -22,6 +22,8 @@ import {
 } from "@/Components/ui/dropdown-menu"
 import { Toaster } from "@/Components/ui/toaster"
 
+import { logoPng } from '@/lib/assets'
+
 export default function Authenticated({ user, header, routeParent = null, routeChild = null, children }: PropsWithChildren<{ 
     user: User, 
     header?: ReactNode, 
@@ -38,7 +40,7 @@ export default function Authenticated({ user, header, routeParent = null, routeC
                         <div className="flex">
                             <div className="shrink-0 flex items-center">
                                 <Link href="/">
-                                    <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
+                                    <img src={logoPng} width={65} height={65} />
                                 </Link>
                             </div>
 

@@ -1,4 +1,11 @@
-import { useState, useEffect, FormEventHandler, SetStateAction } from 'react'
+import { 
+    useState, 
+    useEffect, 
+    ChangeEvent,
+    FormEventHandler, 
+    SetStateAction,
+    useRef
+} from 'react'
 import axios from 'axios'
 import AdministratorLayout from '@/Layouts/AdministratorLayout';
 import InputError from '@/Components/InputError';
@@ -12,6 +19,7 @@ import { Input } from '@/Components/ui/input'
 import { DrugClassification } from '@/Pages/Administrator/DrugClassification/type'
 import { MedicalSupplier } from '@/Pages/Administrator/MedicalSupplier/type'
 import { MedicineFactory } from '@/Pages/Administrator/MedicineFactory/type'
+import { Ppn } from '@/Pages/Administrator/Ppn/type'
 
 import { MedicineEditForm, Medicine } from './type'
 
@@ -31,6 +39,7 @@ type MedicineCreateProps = {
     drug_classifications:DrugClassification[]
     medical_suppliers:MedicalSupplier[]
     medicine_factories:MedicineFactory[]
+    ppn: Ppn
 }
 
 interface Result {
@@ -42,11 +51,11 @@ interface Result {
 }
 
 export default function Edit({
-    auth, drug_classifications, medical_suppliers, medicine_factories, medicine
+    auth, drug_classifications, medical_suppliers, medicine_factories, medicine, ppn
 }: PageProps & MedicineCreateProps) {
 
-    const [isPrekursor, setIsPrekursor] = useState<number>(medicine.drug_classification.is_prekursor)
-    const [isNarcotic, setIsNarcotic] = useState<number>(medicine.drug_classification.is_narcotic)
+    const [isPrekursor, setIsPrekursor]       = useState<number>(medicine.drug_classification.is_prekursor)
+    const [isNarcotic, setIsNarcotic]         = useState<number>(medicine.drug_classification.is_narcotic)
     const [isPsychotropic, setIsPsychotropic] = useState<number>(medicine.drug_classification.is_psychotropic)
 
     const { data, setData, put, processing, errors, reset } = useForm({
@@ -76,6 +85,32 @@ export default function Edit({
         sell_price:medicine.sell_price
     });
 
+    const batchNumberRef           = useRef<any>()
+    const medicineFactoryRef       = useRef<any>()
+    const drugClassificationRef    = useRef<any>()
+    const compositionRef           = useRef<any>()
+    const locationRackRef          = useRef<any>()
+    const genericRef               = useRef<any>({})
+    const nameRef                  = useRef<any>()
+    const dateExpiredRef           = useRef<any>()
+    const packMedicineRef          = useRef<any>()
+    const stockRef                 = useRef<any>()
+    const unitMedicineRef          = useRef<any>()
+    const doseRef                  = useRef<any>()
+    const pieceWeightRef           = useRef<any>()
+    const bobotSatuanRef           = useRef<any>()
+    const medicinalPreparationsRef = useRef<any>()
+    const barcodeRef               = useRef<any>()
+    const isFullpackRef            = useRef<any>()
+    const capitalPriceRef          = useRef<any>()
+    const capitalPriceVatRef       = useRef<any>()
+    const sellPriceRef             = useRef<any>()
+    const medicalSupplierRef       = useRef<any>()
+    const minStockSupplierRef      = useRef<any>()
+    const activeRef                = useRef<any>()
+    const prescriptionRef          = useRef<any>()
+    const submitBtnRef             = useRef<any>()
+
     const submitForm: FormEventHandler = (e) => {
         e.preventDefault()
 
@@ -97,7 +132,19 @@ export default function Edit({
 
     }
 
-    console.log(data)
+    const calculatePpn = (event: ChangeEvent<HTMLInputElement>): void => {
+        let value: number        = parseInt(event.target.value)
+        const { nilai_ppn }: Ppn = ppn
+        let result: number       = 0
+
+        result = value + ((value * nilai_ppn) / 100)
+
+        setData(data => ({
+            ...data,
+            capital_price: value,
+            capital_price_vat: result
+        }))
+    }
 
     return(
         <AdministratorLayout
@@ -116,7 +163,7 @@ export default function Edit({
                                 <Link href={route('administrator.medicines')}>Kembali</Link>
                             </Button>
                         </div>
-                        <form onSubmit={submitForm}>
+                        {/*<form onSubmit={submitForm}>*/}
                         <div className="grid grid-cols-2 gap-5">
                             <div id="section-1">
                                 <fieldset className="border border-black p-[1.4rem] m-[1rem] rounded-md">
@@ -152,6 +199,11 @@ export default function Edit({
                                                 value={data.batch_number}
                                                 className="mt-1 block w-full"
                                                 onChange={(e) => setData('batch_number',e.target.value)}
+                                                onKeyDown={(event) => {
+                                                    if(event.keyCode == 13) {
+                                                        medicineFactoryRef.current.focus()
+                                                    }
+                                                }}
                                                 autoFocus
                                             />
                                             
@@ -168,10 +220,13 @@ export default function Edit({
                                             <Select 
                                                 defaultValue={medicine.medicine_factory_id.toString()}
                                                 onValueChange={(value) => setData('medicine_factory_id', parseInt(value))}>
-                                              <SelectTrigger id="medicine_factory_id" className="w-full">
+                                              <SelectTrigger ref={medicineFactoryRef} id="medicine_factory_id" className="w-full">
                                                 <SelectValue placeholder="=== Pilih Pabrik Obat ===" />
                                               </SelectTrigger>
-                                              <SelectContent>
+                                              <SelectContent onCloseAutoFocus={(event) => {
+                                                event.preventDefault()
+                                                drugClassificationRef.current.focus()
+                                              }}>
                                                 {
                                                     medicine_factories.map((row, key) => (
                                                         <SelectItem value={row.id.toString()} key={key}>{row.name}</SelectItem>
@@ -193,10 +248,13 @@ export default function Edit({
                                             <Select 
                                                 defaultValue={medicine.drug_classification_id.toString()}
                                                 onValueChange={(value) => onChangeAct(value)}>
-                                              <SelectTrigger id="drug_classification_id" className="w-full">
+                                              <SelectTrigger ref={drugClassificationRef} id="drug_classification_id" className="w-full">
                                                 <SelectValue placeholder="=== Pilih Golongan Obat ===" />
                                               </SelectTrigger>
-                                              <SelectContent>
+                                              <SelectContent onCloseAutoFocus={(event) => {
+                                                event.preventDefault()
+                                                compositionRef.current.focus()
+                                              }}>
                                                 {
                                                     drug_classifications.map((row, key) => (
                                                         <SelectItem value={row.id.toString()} key={key}>{row.name}</SelectItem>
@@ -215,12 +273,18 @@ export default function Edit({
                                         </div>
                                         <div className="w-full">
                                             <Input
+                                                ref={compositionRef}
                                                 id="composition"
                                                 type="text"
                                                 name="composition"
                                                 value={data.composition}
                                                 className="mt-1 block w-full"
                                                 onChange={(e) => setData('composition',e.target.value)}
+                                                onKeyDown={(event) => {
+                                                    if(event.keyCode == 13) {
+                                                        locationRackRef.current.focus()
+                                                    }
+                                                }}
                                             />
                                             
                                             <InputError message={errors.composition} className="mt-2" />
@@ -233,12 +297,18 @@ export default function Edit({
                                         </div>
                                         <div className="w-full">
                                             <Input
+                                                ref={locationRackRef}
                                                 id="location_rack"
                                                 type="text"
                                                 name="location_rack"
                                                 value={data.location_rack}
                                                 className="mt-1 block w-full"
                                                 onChange={(e) => setData('location_rack',e.target.value)}
+                                                onKeyDown={(event) => {
+                                                    if(event.keyCode == 13) {
+                                                        genericRef.current['is_true'].focus()
+                                                    }
+                                                }}
                                             />
 
                                             <InputError message={errors.location_rack} className="mt-2" />
@@ -251,10 +321,36 @@ export default function Edit({
                                         </div>
                                         <div className="w-full gap-5 flex">
                                             <div>
-                                                <input type="radio" id="is_generic" name="is_generic" value={1} checked={ medicine.is_generic == 1 ? true : false } onClick={() => setData('is_generic',1)} /> YA
+                                                <input 
+                                                    ref={ref => genericRef.current['is_true'] = ref} 
+                                                    type="radio" 
+                                                    id="is_generic" 
+                                                    name="is_generic" 
+                                                    value={1} 
+                                                    defaultChecked={ medicine.is_generic == 1 ? true : false } 
+                                                    onClick={() => setData('is_generic',1)}
+                                                    onKeyDown={(event) => {
+                                                        if(event.keyCode == 13) {
+                                                            nameRef.current.focus()
+                                                        }
+                                                    }}
+                                                /> YA
                                             </div>
                                             <div>
-                                                <input type="radio" id="is_generic" name="is_generic" value={0} checked={ medicine.is_generic == 0 ? true : false } onClick={() => setData('is_generic',0)} /> TIDAK
+                                                <input 
+                                                    ref={ref => genericRef.current['is_false'] = ref} 
+                                                    type="radio" 
+                                                    id="is_generic" 
+                                                    name="is_generic" 
+                                                    value={0} 
+                                                    defaultChecked={ medicine.is_generic == 0 ? true : false } 
+                                                    onClick={() => setData('is_generic',0)} 
+                                                    onKeyDown={(event) => {
+                                                        if(event.keyCode == 13) {
+                                                            nameRef.current.focus()
+                                                        }
+                                                    }}
+                                                /> TIDAK
                                             </div>
                                             <InputError message={errors.is_generic} className="mt-2" />
                                         </div>
@@ -268,12 +364,18 @@ export default function Edit({
                                         </div>
                                         <div className="w-full">
                                             <Input
+                                                ref={nameRef}
                                                 id="name"
                                                 type="text"
                                                 name="name"
                                                 value={data.name}
                                                 className="mt-1 block w-full"
                                                 onChange={(e) => setData('name', e.target.value)}
+                                                onKeyDown={(event) => {
+                                                    if(event.keyCode == 13) {
+                                                        dateExpiredRef.current.focus()
+                                                    }
+                                                }}
                                             />
                                             
                                             <InputError message={errors.name} className="mt-2" />
@@ -287,12 +389,18 @@ export default function Edit({
                                         </div>
                                         <div className="w-full">
                                             <Input
+                                                ref={dateExpiredRef}
                                                 id="date_expired"
                                                 type="date"
                                                 name="date_expired"
                                                 value={data.date_expired}
                                                 className="mt-1 block w-full"
                                                 onChange={(e) => setData('date_expired',e.target.value)}
+                                                onKeyDown={(event) => {
+                                                    if(event.keyCode == 13) {
+                                                        packMedicineRef.current.focus()
+                                                    }
+                                                }}
                                             />
                                             
                                             <InputError message={errors.date_expired} className="mt-2" />
@@ -307,12 +415,18 @@ export default function Edit({
                                             
                                             <div className="w-full">
                                                 <Input
+                                                    ref={packMedicineRef}
                                                     id="pack_medicine"
                                                     type="text"
                                                     name="pack_medicine"
                                                     value={data.pack_medicine}
                                                     className="mt-1 block w-full"
                                                     onChange={(e) => setData('pack_medicine', e.target.value)}
+                                                    onKeyDown={(event) => {
+                                                        if(event.keyCode == 13) {
+                                                            stockRef.current.focus()
+                                                        }
+                                                    }}
                                                 />
                                                 
                                                 <InputError message={errors.pack_medicine} className="mt-2" />
@@ -327,12 +441,18 @@ export default function Edit({
                                             
                                             <div className="w-full">
                                                 <Input
+                                                    ref={unitMedicineRef}
                                                     id="unit_medicine"
                                                     type="text"
                                                     name="unit_medicine"
                                                     value={data.unit_medicine}
                                                     className="mt-1 block w-full"
                                                     onChange={(e) => setData('unit_medicine', e.target.value)}
+                                                    onKeyDown={(event) => {
+                                                        if(event.keyCode == 13) {
+                                                            doseRef.current.focus()
+                                                        }
+                                                    }}
                                                 />
 
                                                 <InputError message={errors.unit_medicine} className="mt-2" />
@@ -347,12 +467,18 @@ export default function Edit({
                                             
                                             <div className="w-full">
                                                 <Input
+                                                    ref={stockRef}
                                                     id="stock"
                                                     type="number"
                                                     name="stock"
                                                     value={data.stock?.toString()}
                                                     className="mt-1 block w-full"
                                                     onChange={(e) => setData('stock', parseInt(e.target.value))}
+                                                    onKeyDown={(event) => {
+                                                        if(event.keyCode == 13) {
+                                                            unitMedicineRef.current.focus()
+                                                        }
+                                                    }}
                                                 />
                                                 
                                                 <InputError message={errors.stock} className="mt-2" />
@@ -367,12 +493,18 @@ export default function Edit({
                                             
                                             <div className="w-full">
                                                 <Input
+                                                    ref={doseRef}
                                                     id="dose"
                                                     type="number"
                                                     name="dose"
                                                     value={data.dose?.toString()}
                                                     className="mt-1 block w-full"
                                                     onChange={(e) => setData('dose', parseInt(e.target.value))}
+                                                    onKeyDown={(event) => {
+                                                        if(event.keyCode == 13) {
+                                                            pieceWeightRef.current.focus()
+                                                        }
+                                                    }}
                                                 />
                                                 
                                                 <InputError message={errors.dose} className="mt-2" />
@@ -390,12 +522,18 @@ export default function Edit({
                                         <div className="w-full">
                                             <div className="w-full">
                                                 <Input
+                                                    ref={pieceWeightRef}
                                                     id="piece_weight"
                                                     type="number"
                                                     name="piece_weight"
                                                     value={data.piece_weight?.toString()}
                                                     className="mt-1 block w-full"
                                                     onChange={(e) => setData('piece_weight', parseInt(e.target.value))}
+                                                    onKeyDown={(event) => {
+                                                        if(event.keyCode == 13) {
+                                                            medicinalPreparationsRef.current.focus()
+                                                        }
+                                                    }}
                                                 />
                                             </div>
                                             
@@ -411,12 +549,18 @@ export default function Edit({
                                         <div className="w-full">
                                             <div className="w-full">
                                                 <Input
+                                                    ref={medicinalPreparationsRef}
                                                     id="medicinal_preparations"
                                                     type="text"
                                                     name="medicinal_preparations"
                                                     value={data.medicinal_preparations}
                                                     className="mt-1 block w-full"
                                                     onChange={(e) => setData('medicinal_preparations', e.target.value)}
+                                                    onKeyDown={(event) => {
+                                                        if(event.keyCode == 13) {
+                                                            barcodeRef.current.focus()
+                                                        }
+                                                    }}
                                                 />
                                             </div>
                                             
@@ -431,12 +575,18 @@ export default function Edit({
                                         </div>
                                         <div className="w-full">
                                             <Input
+                                                ref={barcodeRef}
                                                 id="barcode"
                                                 type="text"
                                                 name="barcode"
                                                 value={data.barcode == null ? '' : data.barcode}
                                                 className="mt-1 block w-full"
                                                 onChange={(e) => setData('barcode',e.target.value)}
+                                                onKeyDown={(event) => {
+                                                    if(event.keyCode == 13) {
+                                                        isFullpackRef.current.focus()
+                                                    }
+                                                }}
                                             />
                                         </div>
                                         <InputError message={errors.barcode} className="mt-2" />
@@ -453,11 +603,17 @@ export default function Edit({
                                         </div>
                                         <div className="w-full">
                                             <Checkbox 
+                                                ref={isFullpackRef}
                                                 id="is_fullpack" 
                                                 name="is_fullpack" 
                                                 value={data.is_fullpack}
                                                 checked={ medicine.is_fullpack == 1 ? true : false } 
                                                 onClick={() => setData('is_fullpack', data.is_fullpack == 0 ? 1 : 0)}
+                                                onKeyDown={(event) => {
+                                                    if(event.keyCode == 13) {
+                                                        capitalPriceRef.current.focus()
+                                                    }
+                                                }}
                                             />
                                             <InputError message={errors.is_fullpack} className="mt-2" />
                                         </div>
@@ -470,11 +626,17 @@ export default function Edit({
                                         </div>
                                         <div className="w-full">
                                             <Input 
+                                                ref={capitalPriceRef}
                                                 type="number" 
                                                 id="capital_price"
                                                 name="capital_price"
                                                 value={data.capital_price?.toString()}
-                                                onChange={(e) => setData('capital_price',parseInt(e.target.value))}
+                                                onChange={calculatePpn}
+                                                onKeyDown={(event) => {
+                                                    if(event.keyCode == 13) {
+                                                        capitalPriceVatRef.current.focus()
+                                                    }
+                                                }}
                                             />
 
                                             <InputError message={errors.capital_price} className="mt-2" />
@@ -487,11 +649,17 @@ export default function Edit({
                                         </div>
                                         <div className="w-full">
                                             <Input 
+                                                ref={capitalPriceVatRef}
                                                 type="number" 
                                                 id="capital_price_vat"
                                                 name="capital_price_vat"
                                                 value={data.capital_price_vat?.toString()}
                                                 onChange={(e) => setData('capital_price_vat',parseInt(e.target.value))}
+                                                onKeyDown={(event) => {
+                                                    if(event.keyCode == 13) {
+                                                        sellPriceRef.current.focus()
+                                                    }
+                                                }}
                                             />
 
                                             <InputError message={errors.capital_price_vat} className="mt-2" />
@@ -504,11 +672,17 @@ export default function Edit({
                                         </div>
                                         <div className="w-full">
                                             <Input 
+                                                ref={sellPriceRef}
                                                 type="number" 
                                                 id="sell_price"
                                                 name="sell_price"
                                                 value={data.sell_price?.toString()}
                                                 onChange={(e) => setData('sell_price',parseInt(e.target.value))}
+                                                onKeyDown={(event) => {
+                                                    if(event.keyCode == 13) {
+                                                        medicalSupplierRef.current.focus()
+                                                    }
+                                                }}
                                             />
 
                                             <InputError message={errors.sell_price} className="mt-2" />
@@ -524,10 +698,13 @@ export default function Edit({
                                         </div>
                                         <div className="w-full">
                                             <Select defaultValue={medicine.medical_supplier_id.toString()} onValueChange={(value) => setData('medical_supplier_id', parseInt(value))}>
-                                              <SelectTrigger id="medical_supplier_id" className="w-full">
+                                              <SelectTrigger ref={medicalSupplierRef} id="medical_supplier_id" className="w-full">
                                                 <SelectValue placeholder="=== Pilih Kreditur ===" />
                                               </SelectTrigger>
-                                              <SelectContent>
+                                              <SelectContent onCloseAutoFocus={(event) => {
+                                                event.preventDefault()
+                                                minStockSupplierRef.current.focus()
+                                              }}>
                                                 {
                                                     medical_suppliers.map((row, key) => (
                                                         <SelectItem value={row.id.toString()} key={key}>{row.name}</SelectItem>
@@ -547,11 +724,17 @@ export default function Edit({
                                         </div>
                                         <div className="w-full">
                                             <Input 
+                                                ref={minStockSupplierRef}
                                                 type="number" 
                                                 id="min_stock_supplier"
                                                 name="min_stock_supplier"
                                                 value={data.min_stock_supplier?.toString()}
                                                 onChange={(e) => setData('min_stock_supplier',parseInt(e.target.value))}
+                                                onKeyDown={(event) => {
+                                                    if(event.keyCode == 13) {
+                                                        activeRef.current.focus()
+                                                    }
+                                                }}
                                             />
 
                                             <InputError message={errors.min_stock_supplier} className="mt-2" />
@@ -564,11 +747,17 @@ export default function Edit({
                                         </div>
                                         <div className="w-full">
                                             <Checkbox 
+                                                ref={activeRef}
                                                 id="is_active" 
                                                 name="is_active" 
                                                 value={data.is_active} 
                                                 defaultChecked={ medicine.is_active == 1}
                                                 onChange={() => setData('is_active', data.is_active == 0 ? 1 : 0)}
+                                                onKeyDown={(event) => {
+                                                    if (event.keyCode == 13) {
+                                                        prescriptionRef.current.focus()
+                                                    }
+                                                }}
                                             />
                                             <InputError message={errors.is_active} className="mt-2" />
                                         </div>
@@ -580,11 +769,17 @@ export default function Edit({
                                         </div>
                                         <div className="w-full">
                                             <Checkbox 
+                                                ref={prescriptionRef}
                                                 id="is_prescription" 
                                                 name="is_prescription" 
                                                 value={data.is_prescription} 
                                                 defaultChecked={medicine.is_prescription == 1}
                                                 onChange={() => setData('is_prescription', data.is_prescription == 0 ? 1 : 0)}
+                                                onKeyDown={(event) => {
+                                                    if(event.keyCode == 13) {
+                                                        submitBtnRef.current.focus()
+                                                    }
+                                                }}
                                             />
                                             <InputError message={errors.is_prescription} className="mt-2" />
                                         </div>
@@ -598,7 +793,7 @@ export default function Edit({
                                             <Checkbox
                                                 id="is_prekursor" 
                                                 name="is_prekursor" 
-                                                checked={isPrekursor == 1}
+                                                defaultChecked={isPrekursor == 1}
                                             />
                                         </div>
                                     </div>
@@ -611,7 +806,7 @@ export default function Edit({
                                             <Checkbox 
                                                 id="is_narcotic" 
                                                 name="is_narcotic"
-                                                checked={isNarcotic == 1}
+                                                defaultChecked={isNarcotic == 1}
                                             />
                                         </div>
                                     </div>
@@ -624,7 +819,7 @@ export default function Edit({
                                             <Checkbox 
                                                 id="is_psychotropic" 
                                                 name="is_psychotropic"
-                                                checked={isPsychotropic == 1}
+                                                defaultChecked={isPsychotropic == 1}
                                             />
                                         </div>
                                     </div>
@@ -632,10 +827,10 @@ export default function Edit({
                             </div>
                         </div>
                             <div className="mt-4 w-full border-t-2 border-slate-200 py-4">
-                                <Button variant="warning" disabled={processing}>Edit</Button>
+                                <Button ref={submitBtnRef} variant="warning" onClick={submitForm} disabled={processing}>Edit</Button>
                             </div>
 
-                        </form>
+                        {/*</form>*/}
                     </div>
                 </div>
             </div>

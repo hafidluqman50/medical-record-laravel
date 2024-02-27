@@ -10,9 +10,10 @@ import {
     useEffect, 
     useState, 
     KeyboardEvent, 
+    MouseEvent,
     useRef, 
     Ref,
-    ChangeEventHandler,
+    ChangeEvent,
     FormEventHandler
 } from 'react'
 
@@ -58,7 +59,13 @@ import {
     columnLists
 } from './columnDatatable'
 
+import { useToast } from '@/Components/ui/use-toast'
+
+import { useStateWithCallback } from '@/lib/hooks'
+
 export default function TransactionHv({kode_transaksi, price_parameter, medicine_price_parameters}: TransactionUpdsPageProps) {
+
+    const { toast } = useToast();
 
     const medicine_id: string[] = []
     const price: number[]       = []
@@ -91,6 +98,7 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
     const [subTotal, setSubTotal]                     = useState<number>(0)
     const [isHjaNet, setIsHjaNet]                     = useState<boolean>(false)
     const [priceMedicine, setPriceMedicine]           = useState<number>(0)
+    const [indexRowObat, setIndexRowObat]             = useStateWithCallback<number | null>(null)
 
     const [rowObat, setRowObat]   = useState<RowObat[]>([])
     const [jualObat, setJualObat] = useState<any>([])
@@ -106,15 +114,17 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
     const bayarTransaksi = useRef<any>()
     const submitBayarRef = useRef<any>()
 
-    const openEnterDialog = async(event: any): Promise<void> => {
-        if(event.keyCode === 13) {
+    const openEnterDialog = async(
+        event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>
+    ): Promise<void> => {
+        if((event as KeyboardEvent).keyCode === 13) {
             setOpen(true)
             try {
                 const { data } = await axios.get(
                     route('api.medicines.get-all'),
                     {
                         params:{
-                            medicine:event.target.value,
+                            medicine:(event.target as HTMLInputElement).value,
                             data_location:'kasir'
                         }
                     }
@@ -124,19 +134,26 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
 
                 setJualObat(medicines)
             } catch(error) {
-                console.error(error)
+                if(axios.isAxiosError(error)) {
+                    toast({
+                      variant: "destructive",
+                      title: "Error!",
+                      description: error.response?.data.message,
+                    })
+                }
             }
         }
     }
 
-    const selectObatAct = async(event: any): Promise<void> => {
-        if(event.keyCode == 13) {
+    const selectObatAct = async(
+        event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>
+    ): Promise<void> => {
+        if((event as KeyboardEvent).keyCode == 13) {
             try {
-                const { data } = await axios.get(route('api.medicines.get-by-id', event.target.value))
+                const { data } = await axios.get(route('api.medicines.get-by-id', (event.target as HTMLInputElement).value))
                 setOpen(false)
                 setIsHjaNet(data.medicine.is_hja_net)
                 setPriceMedicine(data.medicine.price)
-                console.log(data.medicine)
 
                 obatId.current.value     = data.medicine.id
                 kodeObat.current.value   = data.medicine.code
@@ -144,20 +161,363 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
                 hargaObat.current.value  = data.medicine.price
                 satuanObat.current.value = data.medicine.unit_medicine
                 qtyObat.current.value    = ""
-               
+
                 setJualObat([])
             } catch(error) {
-                console.error(error)
+                if(axios.isAxiosError(error)) {
+                    toast({
+                      variant: "destructive",
+                      title: "Error!",
+                      description: error.response?.data.message,
+                    })
+                }
             }
         }
     }
-
+    
     const batalAct = (): void => {
         setRowObat([])
         setIsHjaNet(false)
         setPriceMedicine(0)
         setJualObat([])
         reset()
+    }
+
+    const qtyJualAct = (
+        event: KeyboardEvent<HTMLInputElement>
+    ): void => {
+        
+        const keyEvent = (event as KeyboardEvent)
+
+        let jumlah: number = 0
+        if(qtyObat.current.value == "") {
+            jumlah = 0
+        }
+        else {
+            if(isHjaNet) {
+                jumlah = parseInt(qtyObat.current.value) * parseInt(hargaObat.current.value)
+            } else {
+                jumlah = Math.round(
+                        (parseInt(qtyObat.current.value) * parseInt(hargaObat.current.value) * price_parameter.upds) / price_parameter.pembulatan
+                    ) * price_parameter.pembulatan
+            }
+        }
+
+        jumlahHarga.current.value = jumlah
+
+        if(keyEvent.keyCode == 13) {
+            diskonObat.current.focus()
+            if(diskon == 0) {
+                diskonObat.current.value = 0
+            }
+        }
+    }
+
+    const diskonObatAct = (
+        event: KeyboardEvent<HTMLInputElement>
+    ): void => {
+
+        const keyEvent = (event as KeyboardEvent)
+
+        let jumlah: number    = 0
+        let diskon: number    = 0
+        let calculate: number = 0
+
+        if(isHjaNet) {
+            calculate = parseInt(qtyObat.current.value) * parseInt(hargaObat.current.value)
+        } else {
+            calculate = Math.round(
+                    (parseInt(qtyObat.current.value) * parseInt(hargaObat.current.value) * price_parameter.upds) / price_parameter.pembulatan
+                ) * price_parameter.pembulatan
+        }
+
+        if(diskonObat.current.value == 0) {
+            jumlah = calculate
+        }
+        else {
+            if(diskonObat.current.value.includes('%')) {
+                diskon = Math.round(((calculate * parseInt(diskonObat.current.value)) / 100) / price_parameter.pembulatan) * price_parameter.pembulatan
+                jumlah = Math.round((calculate - diskon) / price_parameter.pembulatan) * price_parameter.pembulatan
+            }
+            else {
+                diskon = parseInt(diskonObat.current.value)
+                jumlah = Math.round((calculate - diskon) / price_parameter.pembulatan) * price_parameter.pembulatan
+            }
+        }
+
+        setSubTotal(calculate)
+
+        setDiskon(diskon)
+
+        jumlahHarga.current.value = jumlah 
+
+        if(keyEvent.keyCode == 13) {
+
+            let medicineIdData    = data.medicine_id
+            let qtyData           = data.qty
+            let priceData         = data.price
+            let subTotalData      = data.sub_total
+            let discData          = data.disc
+            let totalData         = data.total
+            let subTotalGrandData = data.sub_total_grand + subTotal
+            let totalGrandData    = data.total_grand + parseInt(jumlahHarga.current.value)
+            let diskonGrandData   = data.diskon_grand + diskon
+
+            if(indexRowObat != null) {
+                qtyData[indexRowObat] = qtyObat.current.value
+                
+                priceData[indexRowObat] = hargaObat.current.value
+                
+                subTotalData[indexRowObat] = subTotal
+                
+                discData[indexRowObat] =  diskon
+
+                totalData[indexRowObat] = jumlahHarga.current.value
+
+                const result = rowObat
+
+                result[indexRowObat].qty = qtyData[indexRowObat]
+                result[indexRowObat].sell_price = priceData[indexRowObat]
+                result[indexRowObat].sub_total = subTotalData[indexRowObat]
+                result[indexRowObat].disc = discData[indexRowObat]
+                result[indexRowObat].total = totalData[indexRowObat]
+
+                setRowObat(result)
+                setIndexRowObat(null)
+
+            } else {
+
+                const result = [{
+                    code: kodeObat.current.value,
+                    name: namaObat.current.value,
+                    unit_medicine: satuanObat.current.value,
+                    sell_price: hargaObat.current.value,
+                    qty: qtyObat.current.value,
+                    sub_total: subTotal,
+                    disc: diskon,
+                    total: jumlahHarga.current.value
+                }]
+                setRowObat([
+                    ...rowObat,
+                    ...result
+                ])
+
+                medicineIdData = [...data.medicine_id, obatId.current.value]
+                
+                qtyData = [...data.qty, qtyObat.current.value]
+                
+                priceData = [...data.price, hargaObat.current.value]
+                
+                subTotalData = [...data.sub_total, subTotal]
+                
+                discData = [...data.disc, diskon]
+
+                totalData = [...data.total, jumlahHarga.current.value]
+            }
+
+
+            setData(data => ({
+                ...data,
+                medicine_id:medicineIdData,
+                qty:qtyData,
+                price:priceData,
+                sub_total:subTotalData,
+                disc:discData,
+                total:totalData,
+                sub_total_grand:subTotalGrandData,
+                total_grand:totalGrandData,
+                diskon_grand:diskonGrandData
+            }))
+
+            kodeObat.current.value = ""
+            namaObat.current.value = ""
+            satuanObat.current.value = ""
+            hargaObat.current.value = ""
+            diskonObat.current.value = ""
+            qtyObat.current.value = ""
+            jumlahHarga.current.value = ""
+            setSubTotal(0)
+            setDiskon(0)
+
+            kodeObat.current.focus()
+        }
+    }
+
+    const rowObatAct = (
+        event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>
+    ): void => {
+        event.preventDefault()
+
+        const keyEvent = (event as KeyboardEvent)
+
+        const targetValue = parseInt((event.target as HTMLInputElement).value)
+
+        setIndexRowObat(targetValue)
+
+        if(keyEvent.keyCode == 118) {
+            setRowObat(row => row.filter((r, i) => (i != targetValue)))
+
+            const medicineIdData    = data.medicine_id.filter((row, i) => (i != targetValue))
+            const qtyData           = data.qty.filter((row, i) => (i != targetValue))
+            const priceData         = data.price.filter((row, i) => (i != targetValue))
+            const subTotalData      = data.sub_total.filter((row, i) => (i != targetValue))
+            const discData          = data.disc.filter((row, i) => (i != targetValue))
+            const totalData         = data.total.filter((row, i) => (i != targetValue))
+            const subTotalGrandData = data.sub_total_grand - data.sub_total[targetValue]
+            const totalGrandData    = data.total_grand - data.total[targetValue]
+            const diskonGrandData   = data.diskon_grand - data.disc[targetValue]
+
+            setData(data => ({...data,
+                medicine_id:medicineIdData,
+                qty:qtyData,
+                price:priceData,
+                sub_total:subTotalData,
+                disc:discData,
+                total:totalData,
+                sub_total_grand:subTotalGrandData,
+                total_grand:totalGrandData,
+                diskon_grand:diskonGrandData
+            }))
+
+            setIndexRowObat(null)
+        }
+    }
+
+    const dblClickAct = (
+        event: MouseEvent<HTMLTableRowElement>,
+        index: number
+    ): void => {
+        
+        const keyEvent = (event as MouseEvent)
+        
+        let getRowObat        = rowObat
+        let qtyData           = data.qty
+        let priceData         = data.price
+        let subTotalData      = data.sub_total
+        let discData          = data.disc
+        let totalData         = data.total
+
+        if(keyEvent.detail == 2) {
+            setIndexRowObat(index)
+            kodeObat.current.value    = getRowObat[index].code
+            namaObat.current.value    = getRowObat[index].name
+            satuanObat.current.value  = getRowObat[index].unit_medicine
+            hargaObat.current.value   = getRowObat[index].sell_price
+            diskonObat.current.value  = getRowObat[index].disc
+            qtyObat.current.value     = getRowObat[index].qty
+            jumlahHarga.current.value = getRowObat[index].total
+
+            setSubTotal(getRowObat[index].sub_total)
+
+            setDiskon(getRowObat[index].disc)
+
+            const subTotalGrandData = data.sub_total_grand - getRowObat[index].sub_total
+            const diskonGrandData   = data.diskon_grand - getRowObat[index].disc
+            const totalGrandData    = data.total_grand - getRowObat[index].total
+
+            setData(data => ({
+                ...data,
+                sub_total_grand:subTotalGrandData,
+                diskon_grand:diskonGrandData,
+                total_grand:totalGrandData
+            }))
+
+            getRowObat[index].qty = 0
+            getRowObat[index].sub_total = 0
+            getRowObat[index].disc = 0
+            getRowObat[index].total = 0
+
+            setRowObat(getRowObat)
+        }
+    }
+
+    const calculateBayar = (
+        event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>
+    ): void => {
+        event.preventDefault()
+
+        const keyEvent = (event as KeyboardEvent)
+
+        const targetValue = (event.target as HTMLInputElement).value
+
+        setData(data => ({...data, bayar:parseInt(targetValue)}))
+        const total_grand = data.total_grand
+
+        let calculate = total_grand - parseInt(targetValue)
+
+        setData(data => ({...data, kembalian:calculate}))
+
+        if(keyEvent.keyCode == 13) {
+
+            post(route('administrator.transaction-upds.store'))
+            submitBayarRef.current.focus()
+
+        }
+    }
+
+    const calculateDiskon = (
+        event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>
+    ): void => {
+        event.preventDefault()
+
+        const keyEvent = (event as KeyboardEvent)
+
+        const targetValue = (event.target as HTMLInputElement).value
+
+        if(keyEvent.keyCode == 13)
+        {
+            const total_grand = data.total_grand
+
+            let calculate = 0
+
+            let discount = 0
+
+            if(targetValue.includes('%')) {
+                discount = ((total_grand * parseInt(targetValue)) / 100)
+                calculate = Math.round(total_grand - discount / price_parameter.pembulatan) * price_parameter.pembulatan
+            } else {
+                discount = parseInt(targetValue)
+                calculate = Math.round((total_grand - discount) / price_parameter.pembulatan) * price_parameter.pembulatan
+            }
+
+            setData(data => ({...data, diskon_bayar:discount}))
+
+            setData(data => ({...data, total_grand:calculate}))
+
+            bayarTransaksi.current.focus()
+        }
+    }
+
+    const hapusAct = (): void => {
+        if(indexRowObat != null) {
+            setRowObat(row => row.filter((r, i) => (i != indexRowObat)))
+
+            const medicineIdData    = data.medicine_id.filter((row, i) => (i != indexRowObat))
+            const qtyData           = data.qty.filter((row, i) => (i != indexRowObat))
+            const priceData         = data.price.filter((row, i) => (i != indexRowObat))
+            const subTotalData      = data.sub_total.filter((row, i) => (i != indexRowObat))
+            const discData          = data.disc.filter((row, i) => (i != indexRowObat))
+            const totalData         = data.total.filter((row, i) => (i != indexRowObat))
+            const subTotalGrandData = data.sub_total_grand - data.sub_total[indexRowObat]
+            const totalGrandData    = data.total_grand - data.total[indexRowObat]
+            const diskonGrandData   = data.diskon_grand - data.disc[indexRowObat]
+
+            setData(data => ({...data,
+                medicine_id:medicineIdData,
+                qty:qtyData,
+                price:priceData,
+                sub_total:subTotalData,
+                disc:discData,
+                total:totalData,
+                sub_total_grand:subTotalGrandData,
+                total_grand:totalGrandData,
+                diskon_grand:diskonGrandData
+            }))
+        }
+    }
+
+    const submitTransaction = (): void => {
+        console.log('test')
     }
 
     const onKeyDownAct = (event: any): void => {
@@ -195,201 +555,12 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
         }
     }
 
-    const qtyJualAct = (event: any): void => {
-        let jumlah: number = 0
-        if(qtyObat.current.value == "") {
-            jumlah = 0
-        }
-        else {
-            if(isHjaNet) {
-                jumlah = parseInt(qtyObat.current.value) * parseInt(hargaObat.current.value)
-            } else {
-                jumlah = Math.round(
-                        (parseInt(qtyObat.current.value) * parseInt(hargaObat.current.value) * price_parameter.upds) / price_parameter.pembulatan
-                    ) * price_parameter.pembulatan
-            }
-        }
-
-        jumlahHarga.current.value = jumlah
-
-        if(event.keyCode == 13) {
-            diskonObat.current.focus()
-            diskonObat.current.value = ""
-        }
-    }
-
-    const diskonObatAct = (event: any): void => {
-        let jumlah: number    = 0
-        let diskon: number    = 0
-        let calculate: number = Math.round(
-                        (parseInt(qtyObat.current.value) * parseInt(hargaObat.current.value) * price_parameter.upds) / price_parameter.pembulatan
-                    ) * price_parameter.pembulatan
-
-        if(diskonObat.current.value == "") {
-            jumlah = 0
-        }
-        else {
-            if(diskonObat.current.value.includes('%')) {
-                diskon = Math.round(((calculate * parseInt(diskonObat.current.value)) / 100) / price_parameter.pembulatan) * price_parameter.pembulatan
-                jumlah = Math.round((calculate - diskon) / price_parameter.pembulatan) * price_parameter.pembulatan
-            }
-            else {
-                diskon = parseInt(diskonObat.current.value)
-                jumlah = Math.round((calculate - diskon) / price_parameter.pembulatan) * price_parameter.pembulatan
-            }
-        }
-
-        setSubTotal(calculate)
-
-        setDiskon(diskon)
-
-        jumlahHarga.current.value = jumlah 
-
-        if(event.keyCode == 13) {
-            const result = [{
-                name: namaObat.current.value,
-                unit_medicine: satuanObat.current.value,
-                sell_price: hargaObat.current.value,
-                qty: qtyObat.current.value,
-                sub_total: subTotal,
-                disc: diskon,
-                total: jumlahHarga.current.value
-            }]
-            setRowObat([
-                ...rowObat,
-                ...result
-            ])
-
-            let medicineIdData    = data.medicine_id
-            let qtyData           = data.qty
-            let priceData         = data.price
-            let subTotalData      = data.sub_total
-            let discData          = data.disc
-            let totalData         = data.total
-            let subTotalGrandData = data.sub_total_grand + subTotal
-            let totalGrandData    = data.total_grand + parseInt(jumlahHarga.current.value)
-            let diskonGrandData   = data.diskon_grand + diskon
-
-            medicineIdData = [...data.medicine_id, obatId.current.value]
-            
-            qtyData = [...data.qty, qtyObat.current.value]
-            
-            priceData = [...data.price, hargaObat.current.value]
-            
-            subTotalData = [...data.sub_total, subTotal]
-            
-            discData = [...data.disc, diskon]
-
-            totalData = [...data.total, jumlahHarga.current.value]
-
-            setData(data => ({...data,
-                medicine_id:medicineIdData,
-                qty:qtyData,
-                price:priceData,
-                sub_total:subTotalData,
-                disc:discData,
-                total:totalData,
-                sub_total_grand:subTotalGrandData,
-                total_grand:totalGrandData,
-                diskon_grand:diskonGrandData
-            }))
-
-            kodeObat.current.value = ""
-            namaObat.current.value = ""
-            satuanObat.current.value = ""
-            hargaObat.current.value = ""
-            diskonObat.current.value = ""
-            qtyObat.current.value = ""
-            jumlahHarga.current.value = ""
-            setSubTotal(0)
-            setDiskon(0)
-
-            kodeObat.current.focus()
-        }
-    }
-
-    const rowObatAct = (event: any): void => {
-        event.preventDefault()
-
-        if(event.keyCode == 118) {
-            setRowObat(row => row.filter((r, i) => (i != event.target.value)))
-
-            const medicineIdData    = data.medicine_id.filter((row, i) => (i != event.target.value))
-            const qtyData           = data.qty.filter((row, i) => (i != event.target.value))
-            const priceData         = data.price.filter((row, i) => (i != event.target.value))
-            const subTotalData      = data.sub_total.filter((row, i) => (i != event.target.value))
-            const discData          = data.disc.filter((row, i) => (i != event.target.value))
-            const totalData         = data.total.filter((row, i) => (i != event.target.value))
-            const subTotalGrandData = data.sub_total_grand - data.sub_total[event.target.value]
-            const totalGrandData    = data.total_grand - data.total[event.target.value]
-            const diskonGrandData   = data.diskon_grand - data.disc[event.target.value]
-
-            setData(data => ({...data,
-                medicine_id:medicineIdData,
-                qty:qtyData,
-                price:priceData,
-                sub_total:subTotalData,
-                disc:discData,
-                total:totalData,
-                sub_total_grand:subTotalGrandData,
-                total_grand:totalGrandData,
-                diskon_grand:diskonGrandData
-            }))
-        }
-    }
-
-    const calculateBayar = (event: any): void => {
-        event.preventDefault()
-
-        setData(data => ({...data, bayar:event.target.value}))
-        const total_grand = data.total_grand
-
-        let calculate = total_grand - parseInt(event.target.value)
-
-        setData(data => ({...data, kembalian:calculate}))
-
-        if(event.keyCode == 13) {
-
-            post(route('administrator.transaction-upds.store'))
-            submitBayarRef.current.focus()
-
-        }
-
-    }
-
-    const calculateDiskon = (event: any): void => {
-        event.preventDefault()
-
-        if(event.keyCode == 13)
-        {
-            setData(data => ({...data, diskon_bayar:event.target.value}))
-            
-            const total_grand = data.total_grand
-
-            let calculate = 0
-
-            if(event.target.value.includes('%')) {
-                calculate = Math.round((total_grand - ((total_grand * parseInt(event.target.value)) / 100)) / price_parameter.pembulatan) * price_parameter.pembulatan
-            } else {
-                calculate = Math.round((total_grand - parseInt(event.target.value)) / price_parameter.pembulatan) * price_parameter.pembulatan
-            }
-
-            setData(data => ({...data, total_grand:calculate}))
-
-            bayarTransaksi.current.focus()
-        }
-    }
-
-    const submitTransaction = (): void => {
-        console.log('test')
-    }
-
     useEffect(() => {
         
-        document.addEventListener('keydown',onKeyDownAct)
+        document.addEventListener('keydown', onKeyDownAct)
 
         return () => {
-            document.removeEventListener('keydown',onKeyDownAct)
+            document.removeEventListener('keydown', onKeyDownAct)
         }
     },[])
 
@@ -404,7 +575,7 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
                     if(kodeObat.current.value != "") {
                         qtyObat.current.focus()
                     }
-                }}  className="max-w-5xl">
+                }}  className="max-w-5xl overflow-y-scroll max-h-screen">
                 <DialogHeader>
                   <DialogTitle>List Obat</DialogTitle>
                 </DialogHeader>
@@ -429,7 +600,7 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
                     </TableRow>
                     :
                     jualObat.map((row: any, key: number) => (
-                        <TableRow key={key}>
+                        <TableRow key={key} onDoubleClick={(event) => dblClickAct(event, key)}>
                             <TableCell className="border border-slate-100">
                             {
                                 key == 0 ?
@@ -453,7 +624,7 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
             </Dialog>
 
             <Dialog open={cekHargaObatDialog} onOpenChange={setCekHargaObatDialog}>
-              <DialogContent className="max-w-7xl">
+              <DialogContent className="max-w-7xl overflow-y-scroll max-h-screen">
                 <DialogHeader>
                   <DialogTitle>Data Harga Obat</DialogTitle>
                 </DialogHeader>
@@ -462,7 +633,7 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
             </Dialog>
 
             <Dialog open={bayarDialog} onOpenChange={setBayarDialog}>
-                <DialogContent className="max-w-l">
+                <DialogContent className="max-w-l overflow-y-scroll max-h-screen">
                     <DialogHeader>
                         <DialogTitle>Pembayaran</DialogTitle>
                     </DialogHeader>
@@ -497,7 +668,7 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
                             <Label htmlFor="kode-transaksi">Diskon</Label>
                         </div>
                         <div className="w-full">
-                            <Input type="text" name="diskon" onChange={calculateDiskon} onKeyUp={calculateDiskon} />
+                            <Input type="text" name="diskon" className="bg-slate-200" value={data.diskon_grand == 0 ? 0 : `-${data.diskon_grand}`} readOnly />
                         </div>
                     </div>
                     <div className="flex mt-4">
@@ -566,7 +737,7 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
                     </Button>
                 </a>
                 <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40" onClick={batalAct}>BATAL [F7]</Button>
-                <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40">HAPUS [F8]</Button>
+                <Button size="lg" variant="secondary" className="shadow-sm shadow-slate-500/40" onClick={hapusAct}>HAPUS [F8]</Button>
                 <Button 
                     size="lg" 
                     variant="secondary" 

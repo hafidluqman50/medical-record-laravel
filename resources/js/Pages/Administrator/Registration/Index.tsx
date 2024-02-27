@@ -1,4 +1,4 @@
-import { useState, useEffect, FormEventHandler } from 'react'
+import { useState, useEffect, FormEventHandler, useRef } from 'react'
 import axios from 'axios'
 import AdministratorLayout from '@/Layouts/AdministratorLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
@@ -56,6 +56,8 @@ import { Registration } from './type'
 
 import { Doctor } from '@/Pages/Administrator/Doctor/type'
 
+import { useStateWithCallback } from '@/lib/hooks'
+
 interface Registrations {
     data:Array<Registration>;
     links:Array<PaginationData>;
@@ -82,6 +84,7 @@ export default function Index({
 }: PageProps & RegistrationProps) {
 
     const [search, setSearch] = useState<string>('')
+    const doctorIdRef         = useRef<any>(doctor_id)
 
     const { session } = usePage<PageProps>().props
 
@@ -94,16 +97,13 @@ export default function Index({
     }
 
     const searchAct = (doctor: string|null): void => {
-        let searchQuery: Searching = {}
-        if(search != '') {
-            searchQuery.search = search
-        }
-        if(doctor != null) {
-            searchQuery.doctor_id = doctor
-        }
+        doctorIdRef.current = doctor ?? doctor_id
         router.get(
             route('administrator.registrations'),
-            searchQuery,
+            {
+                search,   
+                doctor_id:doctorIdRef.current
+            },
             {
                 preserveState: true,
                 replace: true,
@@ -120,8 +120,7 @@ export default function Index({
 
             <div className="py-12">
                 <div className="max-w-8xl mx-auto sm:px-6 lg:px-8">
-                    <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg py-4 px-4">
-                        {/*<DataTable columns={columns} data={doctor}/>*/}
+                    <div className="bg-white dark:bg-gray-800 overflow-auto shadow-sm sm:rounded-lg py-4 px-4">
                     {
                         session.success && (
                         <Alert id="alert-success" className="mb-5 flex" variant="success">
@@ -165,7 +164,7 @@ export default function Index({
                                 </h5>
                             :
                             <Tabs 
-                                defaultValue={doctor_id == null ? doctors[0]?.id.toString() : doctor_id} 
+                                defaultValue={doctorIdRef.current.toString()} 
                                 className="w-full"
                             >
                                 <TabsList>

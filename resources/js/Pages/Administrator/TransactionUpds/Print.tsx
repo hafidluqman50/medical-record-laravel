@@ -1,4 +1,6 @@
-import React from 'react'
+import '../../../../css/print.css'
+
+import React, { useEffect } from 'react'
 import { Head, Link } from '@inertiajs/react'
 import { Button } from '@/Components/ui/button'
 
@@ -44,6 +46,11 @@ type PrintPageProps = {
 }
 
 export default function Print({transaction}: PrintPageProps) {
+    
+    useEffect(() => {
+        setTimeout(() => window.print(), 600)
+    },[]) 
+
     return(
         <>
             <Head title="UPDS Print" />
@@ -56,9 +63,9 @@ export default function Print({transaction}: PrintPageProps) {
                     </a>
                 </p>
                 <section className="sheet padding-5">
-                    <h3 className="title">Jupiter IT Solutions</h3>
-                    <h4 className="subtitle">Samarinda</h4>
-                    <h4 className="subtitle">Telp : -</h4>
+                    <h3 className="title">APOTEK SAHABAT</h3>
+                    <h4 className="subtitle">Jl. Palang Merah Indonesia No.16 - B Samarinda</h4>
+                    <h4 className="subtitle">Telp: 0541-7803959</h4>
                     <hr />
                     <h4 className="subtitle text-center">BUKTI TRANSAKSI</h4>
                     <hr />

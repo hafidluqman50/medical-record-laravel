@@ -1,4 +1,6 @@
-import React, { Fragment } from 'react'
+import '../../../../css/print.css'
+
+import React, { Fragment, useEffect } from 'react'
 import { Head, Link } from '@inertiajs/react'
 import { Button } from '@/Components/ui/button'
 
@@ -28,6 +30,11 @@ type PrintPageProps = {
 }
 
 export default function Print({transaction_prescription}: PrintPageProps) {
+    
+    useEffect(() => {
+        setTimeout(() => window.print(), 600)
+    },[]) 
+
     return(
         <>
             <Head title="Resep Print" />
@@ -41,9 +48,9 @@ export default function Print({transaction_prescription}: PrintPageProps) {
                 </p>
 
                 <section className="sheet padding-5">
-                    <h3 className="title">Jupiter IT Solutions</h3>
-                    <h4 className="subtitle">Samarinda</h4>
-                    <h4 className="subtitle">Telp : -</h4>
+                    <h3 className="title">APOTEK SAHABAT</h3>
+                    <h4 className="subtitle">Jl. Palang Merah Indonesia No.16 - B Samarinda</h4>
+                    <h4 className="subtitle">Telp: 0541-7803959</h4>
                     <hr />
                     <h4 className="subtitle text-center">BUKTI TRANSAKSI</h4>
                     <hr />
@@ -135,9 +142,9 @@ export default function Print({transaction_prescription}: PrintPageProps) {
                 </section>
                 <div style={{pageBreakAfter:'always'}}></div>
                 <section className="sheet padding-5">
-                    <h3 className="title">Jupiter IT Solutions</h3>
-                    <h4 className="subtitle">Samarinda</h4>
-                    <h4 className="subtitle">Telp : -</h4>
+                    <h3 className="title">APOTEK SAHABAT</h3>
+                    <h4 className="subtitle">Jl. Palang Merah Indonesia No.16 - B Samarinda</h4>
+                    <h4 className="subtitle">Telp: 0541-7803959</h4>
                     <hr />
                     <h4 className="subtitle text-center">BUKTI TRANSAKSI</h4>
                     <hr />
@@ -156,15 +163,28 @@ export default function Print({transaction_prescription}: PrintPageProps) {
                         <tbody>
                         {
                             transaction_prescription.prescription.prescription_lists.map((row: any, key: number) => (
-                                row.prescription_details.map((r: any , k: number) => (
-                                    <Fragment key={k}>
-                                        <tr>
-                                            <td width="40%" className="item-name">{r.medicine.name}</td>
-                                            <td>{r.qty} {r.medicine.unit_medicine}</td>
-                                            <td>{formatRupiah(r.total)}</td>
-                                        </tr>
-                                    </Fragment>
-                                ))
+                                <Fragment key={key}>
+                                    <tr>
+                                        <td colSpan={3} align="center">
+                                           {
+                                                row.name.includes('R') && row.name.length == 2 ? 
+                                                row.name.replace('R', 'Racik ') :
+                                                row.name
+                                            } 
+                                        </td>
+                                    </tr>
+                                {
+                                    row.prescription_details.map((r: any , k: number) => (
+                                        <Fragment key={k}>
+                                            <tr>
+                                                <td width="40%" className="item-name">{r.medicine.name}</td>
+                                                <td>{r.qty} {r.medicine.unit_medicine}</td>
+                                                <td>{formatRupiah(r.total)}</td>
+                                            </tr>
+                                        </Fragment>
+                                    ))
+                                }
+                                </Fragment>
                             ))
                         }
                         <tr>

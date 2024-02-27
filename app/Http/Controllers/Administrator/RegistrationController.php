@@ -18,7 +18,7 @@ class RegistrationController extends Controller
 {
     public function index(Request $request): Response
     {
-        $doctor_id = $request->doctor_id;
+        $doctor_id = $request->doctor_id ?? Doctor::orderBy('id','ASC')->firstOrFail()->id;
         $search    = $request->search;
 
         $registrations = Registration::with(['patient','doctor'])

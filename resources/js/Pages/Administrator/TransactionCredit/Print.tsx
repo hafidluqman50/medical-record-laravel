@@ -1,9 +1,12 @@
 import '../../../../css/credit-print.css'
-import React, { Fragment } from 'react'
+
+import React, { Fragment, useEffect } from 'react'
 import { Head, Link } from '@inertiajs/react'
 import { Button } from '@/Components/ui/button'
 
 import { formatRupiah } from '@/lib/helper'
+
+import { logoPng } from '@/lib/assets'
 
 interface Transaction {
     id:number
@@ -27,6 +30,11 @@ type PrintPageProps = {
 }
 
 export default function Print({transaction_credit}: PrintPageProps) {
+
+    useEffect(() => {
+        setTimeout(() => window.print(), 600)
+    },[]) 
+
     return(
         <>
             <Head title="Resep Kredit Print" />
@@ -38,9 +46,9 @@ export default function Print({transaction_credit}: PrintPageProps) {
                 className="py-2 px-4 inline-block text-center mb-3 rounded leading-5 text-gray-100 bg-indigo-500 
                 border border-indigo-500 hover:text-white hover:bg-indigo-600 hover:ring-0 
                 hover:border-indigo-600 focus:bg-indigo-600 focus:border-indigo-600 focus:outline-none focus:ring-0" asChild>
-                <Link href={route('administrator.transaction-credit')}>
+                <a href={route('administrator.transaction-credit')}>
                     Kembali
-                </Link>
+                </a>
               </Button>
                 <div id="title-invoice" className="flex justify-between max-w-full px-4 py-4 w-full">   
                   <p className="text-xl font-bold mt-3 mb-5">Kwitansi #{transaction_credit.invoice_number}</p>
@@ -54,9 +62,9 @@ export default function Print({transaction_credit}: PrintPageProps) {
                     <div className="flex justify-between items-center pb-4 border-b border-gray-200 dark:border-gray-700 mb-3">
                       <div className="flex flex-col">
                         <div className="text-3xl font-bold mb-1">
-                          <img className="inline-block w-12 h-auto ltr:mr-2 rtl:ml-2" src="../src/img/favicon.png" />Jupiter IT Solutions
+                          <img className="inline-block w-12 h-auto ltr:mr-2 rtl:ml-2" src={logoPng} />APOTEK SAHABAT
                         </div>
-                        <p className="text-sm">Samarinda, Indonesia<br />San Francisco, CA 9321, US</p>
+                        <p className="text-sm">Jl. Palang Merah Indonesia No.16 - B Samarinda</p>
                       </div>
                       <div className="text-4xl uppercase font-bold">KWITANSI</div>
                     </div>

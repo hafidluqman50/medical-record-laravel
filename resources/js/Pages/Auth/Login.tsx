@@ -5,13 +5,16 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { Button } from '@/Components/ui/button';
 
-export default function Login({ status, canResetPassword }: { status?: string, canResetPassword: boolean }) {
+export default function Login({ status }: { status?: string }) {
+
+    const { session } = usePage<{session:{error:string}}>().props
+
     const { data, setData, post, processing, errors, reset } = useForm({
         username: '',
         password: '',
-        remember: false,
     });
 
     useEffect(() => {
@@ -32,6 +35,9 @@ export default function Login({ status, canResetPassword }: { status?: string, c
 
             {status && <div className="mb-4 font-medium text-sm text-green-600">{status}</div>}
 
+            {session.error && <div className="mb-4 font-medium text-sm text-red-600 text-center">{session.error}</div>}
+
+            <p className="font-bold text-md text-center">LOGIN PETUGAS</p>
             <form onSubmit={submit}>
                 <div>
                     <InputLabel htmlFor="username" value="Username" />
@@ -66,18 +72,12 @@ export default function Login({ status, canResetPassword }: { status?: string, c
                     <InputError message={errors.password} className="mt-2" />
                 </div>
 
-                <div className="block mt-4">
-                    <label className="flex items-center">
-                        <Checkbox
-                            name="remember"
-                            checked={data.remember}
-                            onChange={(e) => setData('remember', e.target.checked)}
-                        />
-                        <span className="ms-2 text-sm text-gray-600 dark:text-gray-400">Remember me</span>
-                    </label>
-                </div>
-
-                <div className="flex items-center justify-end mt-4">
+                <div className="flex items-center justify-between mt-4">
+                    <Button variant="success" type="button" asChild>
+                        <Link href={route('login.doctor')}>
+                            Login Dokter
+                        </Link>
+                    </Button>
                     <PrimaryButton className="ms-4" disabled={processing}>
                         Log in
                     </PrimaryButton>

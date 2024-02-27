@@ -4,12 +4,14 @@ import { useQuery, QueryFunctionContext } from '@tanstack/react-query'
 
 import axios from 'axios'
 
-import { router } from '@inertiajs/react';
+import { router, Link } from '@inertiajs/react';
 
 import { 
     TransactionPrescription, 
     PrescriptionList,
-    PrescriptionDetail
+    PrescriptionDetail,
+    ResepTunaiForm, 
+    RowObat
 } from './typeProps'
 
 import { Medicine } from '@/Pages/Administrator/Medicine/type'
@@ -615,7 +617,9 @@ export function DataTableRekamMedisDetail({
     )
 }
 
-export function DataTableTransaction({onOpenTransaction}: { onOpenTransaction:CallableFunction }) {
+export function DataTableTransaction({
+    onOpenTransaction, setData, setRowObat
+}: { onOpenTransaction: CallableFunction, setData: CallableFunction, setRowObat: CallableFunction }) {
     const { toast } = useToast();
 
     const [pageNum, setPageNum]                       = useState<number>(0)
@@ -651,12 +655,21 @@ export function DataTableTransaction({onOpenTransaction}: { onOpenTransaction:Ca
         queryFn:fetchTransaksi
     })
 
-    const setStatusMedicine = async(id: number): Promise<void> => {
+    const getTransactionResep = async(id: number): Promise<void> => {
         setDisabledButton(id)
+
         try {
-            await axios.get<void>(route('api.transaction-resep.set-status', id))
+            const responseData = await axios.get<{
+                data:{
+                    result_transaction:ResepTunaiForm
+                }
+            }>(route('api.transactions.get-transaction-resep-by-id', id))
+
             setDisabledButton(0)
-            refetch()
+
+            setData(responseData.data.data.result_transaction)
+            setRowObat(responseData.data.data.result_transaction.medicines)
+            onOpenTransaction(false)
         } catch(error) {
             if(axios.isAxiosError(error)) {
                 toast({
@@ -724,14 +737,20 @@ export function DataTableTransaction({onOpenTransaction}: { onOpenTransaction:Ca
                             <TableCell className="space-y-2 flex flex-col">
                                 <Button
                                     className="bg-cyan-500"
-                                    onClick={() => router.get(route('administrator.transaction-resep.print-invoice', row.id))}
+                                    asChild
                                 >
-                                    Print
+                                    <Link href={route('administrator.transaction-resep.print-invoice', row.id)}>Print</Link>
+                                </Button>
+                                <Button
+                                    variant="warning"
+                                    asChild
+                                >
+                                    <Link href={route('administrator.transaction-resep.print-receipt', row.id)}>Kwitansi</Link>
                                 </Button>
                                 <Button 
                                     variant={row.status_transaction == 1 ? "success" : "destructive"}
-                                    onClick={() => setStatusMedicine(row.id)}
-                                    disabled={disabledButton == row.id}
+                                    onClick={() => getTransactionResep(row.id)}
+                                    disabled={disabledButton == row.id || row.status_transaction == 1}
                                 >
                                     {row.status_transaction == 1 ? 'Terbayar' : 'Pending'}
                                 </Button>
