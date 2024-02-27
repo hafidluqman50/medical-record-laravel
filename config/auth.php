@@ -69,6 +69,11 @@ return [
             'model' => App\Models\User::class,
         ],
 
+        'doctors' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Doctor::class,
+        ],
+
         // 'users' => [
         //     'driver' => 'database',
         //     'table' => 'users',
