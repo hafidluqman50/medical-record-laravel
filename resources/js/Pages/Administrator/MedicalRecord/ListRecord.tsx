@@ -159,7 +159,7 @@ export default function ListRecord({auth, app, medical_record_lists, page_num}: 
                             {
                                 medical_record_lists.data.length == 0 ? 
                                 <TableRow>
-                                    <TableCell colSpan={18} align="center">
+                                    <TableCell colSpan={19} align="center">
                                         Empty Data!
                                     </TableCell>
                                 </TableRow>
@@ -235,7 +235,7 @@ export default function ListRecord({auth, app, medical_record_lists, page_num}: 
                           </TableBody>
                           <TableFooter>
                             <TableRow>
-                                <TableCell colSpan={18}>
+                                <TableCell colSpan={19}>
                                     <Pagination>
                                         <PaginationContent>    
                                     {

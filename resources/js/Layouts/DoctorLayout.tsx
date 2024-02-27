@@ -48,7 +48,7 @@ export default function Authenticated({ user, header, routeParent = null, routeC
                                 <NavLink href={route('doctor.dashboard')} active={route().current('doctor.dashboard')}>
                                     Dashboard
                                 </NavLink>
-                                <NavLink href={'#'} active={routeParent == 'rekam-medis'}>
+                                <NavLink href={route('doctor.medical-records')} active={routeParent == 'rekam-medis'}>
                                     Rekam Medis
                                 </NavLink>
                             </div>

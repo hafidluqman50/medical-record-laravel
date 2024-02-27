@@ -156,7 +156,7 @@ export default function Index({auth, app, doctors, page_num}: PageProps<DoctorPr
                             {
                                 doctors.data.length == 0 ? 
                                 <TableRow>
-                                    <TableCell colSpan={7} align="center">
+                                    <TableCell colSpan={9} align="center">
                                         Empty Data!
                                     </TableCell>
                                 </TableRow>
@@ -223,7 +223,7 @@ export default function Index({auth, app, doctors, page_num}: PageProps<DoctorPr
                           </TableBody>
                           <TableFooter>
                             <TableRow>
-                                <TableCell colSpan={8}>
+                                <TableCell colSpan={9}>
                                     <Pagination>
                                         <PaginationContent>    
                                     {
