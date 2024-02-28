@@ -84,6 +84,7 @@ export interface MedicineResep {
 }
 
 export interface ResepTunaiForm {
+    indexObat:number|null
     medicines: Array<MedicineResep>
     patient_id: number|null
     patient_name: string

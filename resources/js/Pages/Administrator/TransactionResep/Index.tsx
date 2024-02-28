@@ -94,6 +94,7 @@ export default function TransactionResep({
     const { toast } = useToast();
 
     const { data, setData, post, processing, errors, reset } = useForm<ResepTunaiForm>({
+        indexObat:null,
         medicines: [],
         patient_id: null,
         patient_name: '',
@@ -289,36 +290,41 @@ export default function TransactionResep({
     const dosisRacikAct = (
         event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>
     ): void => {
-        const dosisObatVal  = parseInt(dosisObatRef.current.value)
-        const bungkusVal    = parseInt(bungkusRef.current.value)
-        const dosisRacikVal = parseInt(dosisRacikRef.current.value)
-        const hargaObatVal  = parseInt(hargaObat.current.value)
+        if((event as KeyboardEvent).keyCode != 27) {
+            const dosisObatVal  = parseInt(dosisObatRef.current.value)
+            const bungkusVal    = parseInt(bungkusRef.current.value)
+            const dosisRacikVal = parseInt(dosisRacikRef.current.value)
+            const hargaObatVal  = parseInt(hargaObat.current.value)
 
-        let calculateQty   = isRacikan ? Math.round((dosisRacikVal * bungkusVal) / dosisObatVal) : 0
-        let priceCalculate = 0
-        
-        if(isHjaNet) {
-            priceCalculate = Math.round((hargaObatVal * price_parameter.resep_tunai))
-        } else {
-            priceCalculate = hargaObatVal
+            let calculateQty   = isRacikan ? Math.round((dosisRacikVal * bungkusVal) / dosisObatVal) : 0
+            let priceCalculate = 0
+            
+            if(isHjaNet) {
+                priceCalculate = Math.round((hargaObatVal * price_parameter.resep_tunai))
+            } else {
+                priceCalculate = hargaObatVal
+            }
+
+            let calculateJumlah = priceCalculate * calculateQty
+
+            setSubTotal(calculateJumlah)
+
+            jumlahHarga.current.value = Math.round((calculateJumlah / price_parameter.pembulatan)) * price_parameter.pembulatan
+            qtyObat.current.value = calculateQty
+
+            if((event as KeyboardEvent).keyCode == 13 && dosisRacikRef.current.value != '')
+            {
+                qtyObat.current.focus()
+            }
         }
-
-        let calculateJumlah = priceCalculate * calculateQty
-
-        setSubTotal(calculateJumlah)
-
-        jumlahHarga.current.value = Math.round((calculateJumlah / price_parameter.pembulatan)) * price_parameter.pembulatan
-        qtyObat.current.value = calculateQty
-
-        if((event as KeyboardEvent).keyCode == 13 && dosisRacikRef.current.value != '')
-        {
-            qtyObat.current.focus()
+        else {
+            escapeKeyAct()
         }
     }
 
     const qtyJualAct = (event: KeyboardEvent<HTMLInputElement>): void => {
 
-        setSubTotal(jumlahHarga.current.value)
+        // setSubTotal(jumlahHarga.current.value)
 
         if(!isRacikan) {
             const hargaObatVal = parseInt(hargaObat.current.value)
@@ -338,24 +344,24 @@ export default function TransactionResep({
         let medicinesData: Array<any> = []
 
         if(event.keyCode == 13) {
-            if(indexRowObat != null) {
+            if(data.indexObat != null) {
                 const getRowObat = rowObat
                 
-                getRowObat[indexRowObat].qty                = parseInt(qtyObat.current.value)
-                getRowObat[indexRowObat].prescription_packs = bungkusRef.current.value
-                getRowObat[indexRowObat].sub_total          = subTotal
-                getRowObat[indexRowObat].dose               = dosisRacikRef.current.value
-                getRowObat[indexRowObat].jasa               = jasa
-                getRowObat[indexRowObat].total              = parseInt(jumlahHarga.current.value)
+                getRowObat[data.indexObat].qty                = parseInt(qtyObat.current.value)
+                getRowObat[data.indexObat].prescription_packs = bungkusRef.current.value
+                getRowObat[data.indexObat].sub_total          = parseInt(jumlahHarga.current.value)
+                getRowObat[data.indexObat].dose               = dosisRacikRef.current.value
+                getRowObat[data.indexObat].jasa               = jasa
+                getRowObat[data.indexObat].total              = parseInt(jumlahHarga.current.value)
 
-                console.log(getRowObat)
-
-                subTotalGrandData = getRowObat[indexRowObat].sub_total + data.sub_total_grand
-                totalGrandData    = getRowObat[indexRowObat].total + data.total_grand
+                subTotalGrandData = getRowObat[data.indexObat].sub_total + data.sub_total_grand
+                totalGrandData    = getRowObat[data.indexObat].total + data.total_grand
                 
                 medicinesData   = data.medicines
 
-                medicinesData[indexRowObat] = getRowObat[indexRowObat]
+                medicinesData[data.indexObat] = getRowObat[data.indexObat]
+
+                bungkusRef.current.value = ""
 
             } else {
                 if(isRacikan) {
@@ -379,7 +385,7 @@ export default function TransactionResep({
                     sell_price: parseInt(hargaObat.current.value),
                     qty: parseInt(qtyObat.current.value),
                     prescription_packs: bungkusRef.current.value,
-                    sub_total: subTotal,
+                    sub_total: parseInt(jumlahHarga.current.value),
                     dose:dosisRacikRef.current.value,
                     jasa,
                     total: parseInt(jumlahHarga.current.value),
@@ -402,6 +408,7 @@ export default function TransactionResep({
 
             setData(data => ({
                 ...data,
+                indexObat:null,
                 medicines:medicinesData,
                 sub_total_grand:subTotalGrandData,
                 total_grand:totalGrandData,
@@ -475,6 +482,13 @@ export default function TransactionResep({
 
         setIndexRowObat(index)
 
+        setData(data => ({
+            ...data,
+            indexObat:index
+        }))
+
+        console.log(data)
+
         const subTotalGrandData = data.sub_total_grand - getRowObat[index].sub_total
         const totalGrandData    = data.total_grand - getRowObat[index].total
 
@@ -496,9 +510,17 @@ export default function TransactionResep({
         dosisRacikRef.current.focus()
     }
 
-    const rowObatAct = (event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): void => {
+    const rowObatAct = (
+        event: MouseEvent<HTMLInputElement> | KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>,
+        index: number
+    ): void => {
         const keyEvent = event as KeyboardEvent
         const targetValue = parseInt((event.target as HTMLInputElement).value)
+
+        setData(data => ({
+            ...data,
+            indexObat:targetValue
+        }))
 
         if(keyEvent.keyCode == 119) {
             setRowObat(row => row.filter((r, i) => (i != targetValue)))
@@ -722,20 +744,66 @@ export default function TransactionResep({
     }
 
     const hapusAct = (): void => {
-        if(indexRowObat != null) {
-            setRowObat(row => row.filter((r, i) => (i != indexRowObat)))
+        if(data.indexObat != null) {
+            setRowObat(row => row.filter((r, i) => (i != data.indexObat)))
 
-            const medicinesData     = data.medicines.filter((row: any, i: number) => (i != indexRowObat))
-            const subTotalGrandData = data.sub_total_grand - data.medicines[indexRowObat].sub_total
-            const totalGrandData    = data.total_grand - data.medicines[indexRowObat].total
+            const subTotalGrandData = data.sub_total_grand - data.medicines[data.indexObat].sub_total
+            const totalGrandData    = data.total_grand - data.medicines[data.indexObat].total
+            const medicinesData     = data.medicines.filter((row: any, i: number) => (i != data.indexObat))
+
+            console.log(data.medicines[data.indexObat].sub_total)
 
             setData(data => ({...data,
+                indexObat:null,
                 medicines:medicinesData,
                 sub_total_grand:subTotalGrandData,
                 total_grand:totalGrandData
             }))
         }
-    }                           
+    }        
+
+    const escapeKeyAct = (): void => {
+        if(data.indexObat != null) {
+
+            let subTotalGrandData: number = 0
+            let totalGrandData: number    = 0
+
+            let medicinesData: Array<any> = []
+            const getRowObat = rowObat
+            
+            getRowObat[data.indexObat].qty                = parseInt(qtyObat.current.value)
+            getRowObat[data.indexObat].prescription_packs = bungkusRef.current.value
+            getRowObat[data.indexObat].sub_total          = parseInt(jumlahHarga.current.value)
+            getRowObat[data.indexObat].dose               = dosisRacikRef.current.value
+            getRowObat[data.indexObat].jasa               = jasa
+            getRowObat[data.indexObat].total              = parseInt(jumlahHarga.current.value)
+
+            subTotalGrandData = getRowObat[data.indexObat].sub_total + data.sub_total_grand
+            totalGrandData    = getRowObat[data.indexObat].total + data.total_grand
+            
+            medicinesData   = data.medicines
+
+            medicinesData[data.indexObat] = getRowObat[data.indexObat]
+
+            setData(data => ({
+                ...data,
+                indexObat:null,
+                medicines:medicinesData,
+                sub_total_grand:subTotalGrandData,
+                total_grand:totalGrandData,
+            }))
+
+            kodeObat.current.value      = ""
+            dosisObatRef.current.value  = ""
+            namaObat.current.value      = ""
+            hargaObat.current.value     = ""
+            satuanObat.current.value    = ""
+            qtyObat.current.value       = ""
+            dosisRacikRef.current.value = ""
+            jumlahHarga.current.value   = ""
+            jasaRef.current.value       = ""
+        }
+    }                   
 
     const submitTransaction = (): void => {
         if(data.bayar != 0) {
@@ -758,11 +826,20 @@ export default function TransactionResep({
                 '_blank'
             )
         }
+        else if(event.keyCode == 113) {
+            window.open(
+                route('administrator.transaction-upds'),
+                '_blank'
+            )
+        }
         else if(event.keyCode == 114) {
             window.open(
                 route('administrator.transaction-hv'),
                 '_blank'
             )
+        }
+        else if(event.keyCode == 119) {
+            hapusAct()
         }
         else if(event.keyCode == 118) {
             event.preventDefault()
@@ -812,7 +889,12 @@ export default function TransactionResep({
 
             setBayarDialog(true)
         }
+        else if(event.keyCode == 27) {
+            escapeKeyAct()
+        }
     }
+
+    console.log(data)
 
     useEffect(() => {
         
@@ -821,7 +903,7 @@ export default function TransactionResep({
         return () => {
             document.removeEventListener('keydown',onKeyDownAct)
         }
-    },[])
+    })
 
     return(
         <TransactionLayout
@@ -1487,7 +1569,7 @@ export default function TransactionResep({
                         rowObat.map((row, key) => (
                             <TableRow key={key} onDoubleClick={(event) => dblClickAct(event, key)}>
                                 <TableCell className="border border-slate-100">
-                                    <input type="radio" name="medicine_id" onKeyDown={rowObatAct} value={key} />
+                                    <input type="radio" name="medicine_id" onClick={(event) => rowObatAct(event, key)} value={key} />
                                 </TableCell>
                                 <TableCell className="border border-slate-100">
                                     {key+1}

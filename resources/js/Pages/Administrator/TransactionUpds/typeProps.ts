@@ -7,6 +7,24 @@ export type TransactionUpdsPageProps = {
     medicine_price_parameters: MedicinePriceParameters[]
 }
 
+export interface UpdsForm {
+    indexObat:number|null
+    medicine_id:string[]
+    price:number[]
+    qty:number[]
+    sub_total:number[]
+    disc:number[]
+    total:number[]
+    sub_total_grand:number
+    total_grand:number
+    diskon_grand:number
+    diskon_bayar:number
+    bayar:number
+    kembalian:number
+    kode_transaksi:string
+    jenis_pembayaran:string   
+}
+
 export interface MedicinePriceParameters {
   id: string
   name: number
@@ -24,6 +42,7 @@ export interface MedicinePriceParameters {
 }
 
 export interface RowObat {
+    is_hja_net:boolean
     code:string
     name:string
     unit_medicine:string
