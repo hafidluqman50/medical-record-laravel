@@ -88,10 +88,13 @@ export default function TransactionCredit({
     const { data, setData, post, processing, errors, reset } = useForm<ResepCreditForm>({
         indexObat:null,
         medicines: [],
+        patient_name:'',
         patient_id: null,
+        doctor_code:'',
         doctor_id: null,
         date_prescription:(new Date()).toJSON().slice(0,10),
         group_name: '',
+        debitur_number:debitur.debitur_number,
         customer_id:debitur.id,
         sub_total_grand: 0,
         total_grand: 0,
@@ -126,15 +129,24 @@ export default function TransactionCredit({
 
     /* LIST MEDICINES USE STATE HOOKS */
     const [rowObat, setRowObat]   = useState<RowObat[]>([])
-    const [jualObat, setJualObat] = useState<any>([])
+    const [jualObat, setJualObat] = useState<any>({
+        isLoading:false,
+        data:[]
+    })
     /* END LIST MEDICINES USE STATE HOOKS */
 
     /* LIST PATIENTS USE STATE HOOKS */
-    const [rowPatients, setRowPatients] = useState<any>([])
+    const [rowPatients, setRowPatients] = useState<any>({
+        isLoading:false,
+        data:[]
+    })
     /* END LIST PATIENTS USE STATE HOOKS */
 
     /* LIST DOCTORS USE STATE HOOKS */
-    const [rowDoctors, setRowDoctors] = useState<any>([])
+    const [rowDoctors, setRowDoctors] = useState<any>({
+        isLoading:false,
+        data:[]
+    })
     /* END LIST DOCTORS USE STATE HOOKS */
 
     const obatId        = useRef<any>()
@@ -162,14 +174,23 @@ export default function TransactionCredit({
     const doctorCodeRef = useRef<any>()
     /* END DOCTOR USE REF */
 
-    const groupRef = useRef<any>()
+    const debiturSelectRef    = useRef<any>()
+    const datePrescriptionRef = useRef<any>()
+    const groupRef            = useRef<any>()
 
-    const bayarTransaksi = useRef<any>()
-    const submitBayarRef = useRef<any>()
+    const bayarTransaksi      = useRef<any>()
+    const submitBayarRef      = useRef<any>()
 
     const openEnterDialog = async(event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): Promise<void> => {
         if((event as KeyboardEvent).keyCode === 13) {
             setOpen(true)
+
+            setJualObat((jualObat:any) => ({
+                ...jualObat,
+                isLoading:true,
+                data:[]
+            }))
+
             try {
                 const { data } = await axios.get(
                     route('api.medicines.get-all'),
@@ -183,7 +204,11 @@ export default function TransactionCredit({
 
                 const medicines = data.medicines
 
-                setJualObat(medicines)
+                setJualObat((jualObat:any) => ({
+                    ...jualObat,
+                    isLoading:false,
+                    data:medicines
+                }))
             } catch(error) {
                 if(axios.isAxiosError(error)) {
                     toast({
@@ -245,7 +270,11 @@ export default function TransactionCredit({
                 qtyObat.current.value       = ""
                 dosisRacikRef.current.value = isRacikan ? '' : 0
 
-                setJualObat([])
+                setJualObat((jualObat:any) => ({
+                    ...jualObat,
+                    isLoading:false,
+                    data:[]
+                }))
             } catch(error) {
                 if(axios.isAxiosError(error)) {
                     toast({
@@ -519,19 +548,33 @@ export default function TransactionCredit({
     }
 
     const pasienKeyUpAct = async(event: KeyboardEvent<HTMLInputElement>): Promise<void> => {
-        if(event.keyCode == 13) {
+        if(event.key == 'Enter') {
             setOpenPasienDialog(true)
+
+            setRowPatients((rowPatients:any) => ({
+                ...rowPatients,
+                isLoading:true
+            }))
+
             try {
-                const { data } = await axios.get<{
+                const { data:responseData } = await axios.get<{
                         data:{
                             patients:Array<{
                                 id:number,
                                 name:string
                             }>
                         }
-                    }>(route('api.patients.get-all'))
-
-                setRowPatients(data.data.patients)
+                    }>(route('api.patients.get-all'), {
+                        params:{
+                            search:data.patient_name
+                        }
+                    })
+                    
+                setRowPatients((rowPatients:any) => ({
+                    ...rowPatients,
+                    isLoading:false,
+                    data:responseData.data.patients
+                }))
             } catch(error) {
                 if(axios.isAxiosError(error)) {
                     toast({
@@ -563,7 +606,11 @@ export default function TransactionCredit({
 
                 setOpenPasienDialog(false)
 
-                setRowPatients([])
+                setRowPatients((rowPatients:any) => ({
+                    ...rowPatients,
+                    isLoading:false,
+                    data:[]
+                }))
 
                 setData(data => ({
                     ...data,
@@ -584,8 +631,13 @@ export default function TransactionCredit({
     const doctorKeyUpAct = async(event: KeyboardEvent<HTMLInputElement>): Promise<void> => {
         if(event.keyCode == 13) {
             setOpenDoctorDialog(true)
+
+            setRowDoctors((rowDoctors:any) => ({
+                ...rowDoctors,
+                isLoading:true
+            }))
             try {
-                const { data } = await axios.get<{
+                const { data:responseData } = await axios.get<{
                         data:{
                             doctors:Array<{
                                 id:number, 
@@ -593,9 +645,17 @@ export default function TransactionCredit({
                                 name:string
                             }>
                         }
-                    }>(route('api.doctors.get-all'))
+                    }>(route('api.doctors.get-all'), {
+                        params:{
+                            search:data.doctor_code
+                        }
+                    })
 
-                setRowDoctors(data.data.doctors)
+                setRowDoctors((rowDoctors:any) => ({
+                    ...rowDoctors,
+                    isLoading:false,
+                    data:responseData.data.doctors
+                }))
             } catch(error) {
                 if(axios.isAxiosError(error)) {
                     toast({
@@ -629,7 +689,11 @@ export default function TransactionCredit({
 
                 setOpenDoctorDialog(false)
 
-                setRowDoctors([])
+                setRowDoctors((rowDoctors:any) => ({
+                    ...rowDoctors,
+                    isLoading:false,
+                    data:[]
+                }))
 
                 setData(data => ({
                     ...data,
@@ -711,18 +775,22 @@ export default function TransactionCredit({
         setRowObat([])
         setIsHjaNet(false)
         setPriceMedicine(0)
-        setJualObat([])
+        setJualObat((jualObat:any) => ({
+            ...jualObat,
+            isLoading:false,
+            data:[]
+        }))
         reset()
     }
 
     const groupNameAct = (event: KeyboardEvent<HTMLInputElement>): void => {
-        if(event.keyCode == 13 && groupRef.current.value != '') {
-            post(route('administrator.transaction-credit'))
+        if(event.key == 'Enter' && data.group_name != '') {
+            submitBayarRef.current.focus()
         }
     }
 
     const submitTransaction = (): void => {
-        console.log('test')
+        post(route('administrator.transaction-credit.store'))
     }
 
     const onKeyDownAct = (event: any): void => {
@@ -744,7 +812,11 @@ export default function TransactionCredit({
             setRowObat([])
             setIsHjaNet(false)
             setPriceMedicine(0)
-            setJualObat([])
+            setJualObat((jualObat:any) => ({
+                ...jualObat,
+                isLoading:false,
+                data:[]
+            }))
             reset()
         }
         else if(event.keyCode == 119) {
@@ -824,12 +896,17 @@ export default function TransactionCredit({
                 </TableHeader>
                 <TableBody>
                 {
-                    jualObat.length == 0 ? 
+                    jualObat.isLoading ? 
+                    <TableRow>
+                        <TableCell colSpan={8} align="center">Loading...</TableCell>
+                    </TableRow>
+                    :
+                    jualObat.data.length == 0 ? 
                     <TableRow>
                         <TableCell colSpan={8} align="center">Obat Tidak Ada!</TableCell>
                     </TableRow>
                     :
-                    jualObat.map((row: any, key: number) => (
+                    jualObat.data.map((row: any, key: number) => (
                         <TableRow key={key}>
                             <TableCell className="border border-slate-100">
                             {
@@ -919,12 +996,17 @@ export default function TransactionCredit({
                 </TableHeader>
                 <TableBody>
                 {
-                    rowPatients.length == 0 ? 
+                    rowPatients.isLoading ? 
+                    <TableRow>
+                        <TableCell colSpan={8} align="center">Loading...</TableCell>
+                    </TableRow>
+                    :
+                    rowPatients.data.length == 0 ? 
                     <TableRow>
                         <TableCell colSpan={8} align="center">Pasien Tidak Ada!</TableCell>
                     </TableRow>
                     :
-                    rowPatients.map((row: any, key: number) => (
+                    rowPatients.data.map((row: any, key: number) => (
                         <TableRow key={key}>
                             <TableCell className="border border-slate-100">
                             {
@@ -948,7 +1030,9 @@ export default function TransactionCredit({
 
             <Dialog open={openDoctorDialog} onOpenChange={setOpenDoctorDialog}>
                 
-              <DialogContent className="max-w-5xl">
+              <DialogContent className="max-w-5xl" onCloseAutoFocus={(event) => {
+                groupRef.current.focus()
+              }}>
                 <DialogHeader>
                   <DialogTitle>Data Dokter</DialogTitle>
                 </DialogHeader>
@@ -964,12 +1048,17 @@ export default function TransactionCredit({
                 </TableHeader>
                 <TableBody>
                 {
-                    rowDoctors.length == 0 ? 
+                    rowDoctors.isLoading ? 
                     <TableRow>
-                        <TableCell colSpan={8} align="center">Pasien Tidak Ada!</TableCell>
+                        <TableCell colSpan={8} align="center">Loading...</TableCell>
                     </TableRow>
                     :
-                    rowDoctors.map((row: any, key: number) => (
+                    rowDoctors.data.length == 0 ? 
+                    <TableRow>
+                        <TableCell colSpan={8} align="center">Doktor Tidak Ada!</TableCell>
+                    </TableRow>
+                    :
+                    rowDoctors.data.map((row: any, key: number) => (
                         <TableRow key={key}>
                             <TableCell className="border border-slate-100">
                             {
@@ -1004,20 +1093,35 @@ export default function TransactionCredit({
                             id="nomor-debitur" 
                             type="text" 
                             className="bg-slate-200"
-                            value={debitur.debitur_number} 
+                            value={data.debitur_number} 
+                            onKeyUp={(event) => {
+                                if(event.keyCode == 13) {
+                                    debiturSelectRef.current.focus()
+                                }
+                            }}
                             readOnly
                         />
                     </div>
                     <div className="w-full">
                         <Label htmlFor="tanggal-resep">Debitur :</Label>
-                        <Select defaultValue={debitur.id.toString()} onValueChange={(value) => setData('customer_id', parseInt(value))}>
-                          <SelectTrigger className="w-full">
+                        <Select defaultValue={`${debitur.id.toString()}|${debitur.debitur_number}`} onValueChange={(value) => {
+                            const strSplit = value.split('|')
+                            setData(data => ({
+                                ...data,
+                                customer_id:parseInt(strSplit[0]),
+                                debitur_number:strSplit[1]
+                            }))
+                        }}>
+                          <SelectTrigger ref={debiturSelectRef} className="w-full">
                             <SelectValue placeholder="=== Pilih Debitur ===" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent onCloseAutoFocus={(event) => {
+                            event.preventDefault()
+                            datePrescriptionRef.current.focus()
+                          }}>
                           {
                             customers.map((row, key) => (
-                                <SelectItem value={row.id.toString()} key={key}>{row.name}</SelectItem>
+                                <SelectItem value={`${row.id.toString()}|${row.debitur_number}`} key={key}>{row.name}</SelectItem>
                             ))
                           }
                           </SelectContent>
@@ -1028,10 +1132,16 @@ export default function TransactionCredit({
                 <div className="mb-4 mt-4">
                     <Label htmlFor="tanggal-resep">Tanggal Resep :</Label>
                     <Input 
+                        ref={datePrescriptionRef}
                         id="tanggal-resep" 
                         type="date" 
                         value={data.date_prescription} 
                         onChange={(event) => setData('date_prescription', event.target.value)} 
+                        onKeyPress={(event) => {
+                            if(event.key == 'Enter') {
+                                patientNameRef.current.focus()
+                            }
+                        }}
                     />
                 </div>
                 <Separator />
@@ -1039,7 +1149,13 @@ export default function TransactionCredit({
                         <div>
                             <div className="w-full">
                                 <Label htmlFor="kode-transaksi">Pasien :</Label>
-                                <Input ref={patientNameRef} id="pasien" type="text" onKeyUp={pasienKeyUpAct} />
+                                <Input 
+                                    ref={patientNameRef} 
+                                    id="pasien" 
+                                    type="text" 
+                                    onChange={(event) => setData('patient_name', event.target.value)} 
+                                    onKeyPress={pasienKeyUpAct} 
+                                />
                             </div>
                         </div>
                         <div>
@@ -1048,7 +1164,13 @@ export default function TransactionCredit({
                             </div>
                             <div className="w-full flex">
                                 <div className="w-3/6">
-                                    <Input ref={doctorCodeRef} id="pasien" type="text" onKeyUp={doctorKeyUpAct} />
+                                    <Input 
+                                        ref={doctorCodeRef} 
+                                        id="pasien" 
+                                        type="text" 
+                                        onChange={(event) => setData('doctor_code', event.target.value)} 
+                                        onKeyUp={doctorKeyUpAct} 
+                                    />
                                 </div>
                                 <div className="w-full">
                                     <Input ref={doctorNameRef} id="pasien" type="text" />
@@ -1063,7 +1185,7 @@ export default function TransactionCredit({
                                     id="group-name" 
                                     type="text" 
                                     onChange={(event) => setData('group_name', event.target.value)} 
-                                    onKeyUp={groupNameAct}
+                                    onKeyPress={groupNameAct}
                                 />
                             </div>
                         </div>
@@ -1073,6 +1195,7 @@ export default function TransactionCredit({
                         ref={submitBayarRef}
                         variant="success" 
                         className="mt-4" 
+                        type="button"
                         disabled={processing}
                         onClick={submitTransaction}
                     >Bayar</Button>

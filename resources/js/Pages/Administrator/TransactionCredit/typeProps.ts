@@ -42,9 +42,12 @@ export interface MedicineResep {
 }
 
 export interface ResepCreditForm {
+    debitur_number:string
     indexObat:number|null
     medicines: Array<MedicineResep>
+    patient_name:string
     patient_id: number|null
+    doctor_code:string
     doctor_id: number|null
     date_prescription: string
     group_name: string

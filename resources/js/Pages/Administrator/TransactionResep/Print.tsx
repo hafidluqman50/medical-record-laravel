@@ -29,7 +29,7 @@ type PrintPageProps = {
     transaction_prescription:any
 }
 
-export default function Print({transaction_prescription}: PrintPageProps) {
+export default function Print({transaction_prescription, url}: PrintPageProps & {url:string}) {
     
     useEffect(() => {
         setTimeout(() => window.print(), 600)
@@ -40,7 +40,7 @@ export default function Print({transaction_prescription}: PrintPageProps) {
             <Head title="Resep Print" />
             <section className="receipt">
                 <p>
-                    <a href={route('administrator.transaction-resep')} className="btn-hide">
+                    <a href={route(url)} className="btn-hide">
                         <Button variant="secondary">
                             Kembali
                         </Button>
@@ -51,6 +51,31 @@ export default function Print({transaction_prescription}: PrintPageProps) {
                     <h3 className="title">APOTEK SAHABAT</h3>
                     <h4 className="subtitle">Jl. Palang Merah Indonesia No.16 - B Samarinda</h4>
                     <h4 className="subtitle">Telp: 0541-7803959</h4>
+                    <hr />
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td>Pasien</td>
+                                <td>:</td>
+                                <td>{transaction_prescription.prescription.patient.name}</td>
+                            </tr>
+                            <tr>
+                                <td>Alamat</td>
+                                <td>:</td>
+                                <td>{transaction_prescription.prescription.patient.address}</td>
+                            </tr>
+                            <tr>
+                                <td>Telepon</td>
+                                <td>:</td>
+                                <td>{transaction_prescription.prescription.patient.phone_number}</td>
+                            </tr>
+                            <tr>
+                                <td>Dokter</td>
+                                <td>:</td>
+                                <td>{transaction_prescription.prescription.doctor.name}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                     <hr />
                     <h4 className="subtitle text-center">BUKTI TRANSAKSI</h4>
                     <hr />
@@ -145,6 +170,31 @@ export default function Print({transaction_prescription}: PrintPageProps) {
                     <h3 className="title">APOTEK SAHABAT</h3>
                     <h4 className="subtitle">Jl. Palang Merah Indonesia No.16 - B Samarinda</h4>
                     <h4 className="subtitle">Telp: 0541-7803959</h4>
+                    <hr />
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td>Pasien</td>
+                                <td>:</td>
+                                <td>{transaction_prescription.prescription.patient.name}</td>
+                            </tr>
+                            <tr>
+                                <td>Alamat</td>
+                                <td>:</td>
+                                <td>{transaction_prescription.prescription.patient.address}</td>
+                            </tr>
+                            <tr>
+                                <td>Telepon</td>
+                                <td>:</td>
+                                <td>{transaction_prescription.prescription.patient.phone_number}</td>
+                            </tr>
+                            <tr>
+                                <td>Dokter</td>
+                                <td>:</td>
+                                <td>{transaction_prescription.prescription.doctor.name}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                     <hr />
                     <h4 className="subtitle text-center">BUKTI TRANSAKSI</h4>
                     <hr />

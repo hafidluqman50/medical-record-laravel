@@ -96,7 +96,11 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
     const [indexRowObat, setIndexRowObat]             = useStateWithCallback<number | null>(null)
 
     const [rowObat, setRowObat]   = useState<RowObat[]>([])
-    const [jualObat, setJualObat] = useState<any>([])
+    
+    const [jualObat, setJualObat] = useState<any>({
+        isLoading:false,
+        data:[]
+    })
 
     let indexRowObatRef  = useRef<any>(null)
     const obatId         = useRef<any>()
@@ -115,6 +119,11 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
     ): Promise<void> => {
         if((event as KeyboardEvent).keyCode === 13) {
             setOpen(true)
+
+            setJualObat((jualObat:any) => ({
+                ...jualObat,
+                isLoading:true
+            }))
             try {
                 const { data } = await axios.get(
                     route('api.medicines.get-all'),
@@ -128,7 +137,11 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
 
                 const medicines = data.medicines
 
-                setJualObat(medicines)
+                setJualObat((jualObat:any) => ({
+                    ...jualObat,
+                    isLoading:false,
+                    data:medicines
+                }))
             } catch(error) {
                 if(axios.isAxiosError(error)) {
                     toast({
@@ -158,7 +171,10 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
                 satuanObat.current.value = data.medicine.unit_medicine
                 qtyObat.current.value    = ""
 
-                setJualObat([])
+                setJualObat((jualObat:any) => ({
+                    ...jualObat,
+                    data:[]
+                }))
             } catch(error) {
                 if(axios.isAxiosError(error)) {
                     toast({
@@ -175,7 +191,11 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
         setRowObat([])
         setIsHjaNet(false)
         setPriceMedicine(0)
-        setJualObat([])
+        setJualObat((jualObat:any) => ({
+            ...jualObat,
+            isLoading:false,
+            data:[]
+        }))
         reset()
     }
 
@@ -466,7 +486,7 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
             
             subTotalData[data.indexObat] = calculate
             
-            discData[data.indexObat] =  diskonObat.current.value
+            discData[data.indexObat] =  parseInt(diskonObat.current.value)
 
             totalData[data.indexObat] = jumlahHarga.current.value
 
@@ -500,11 +520,9 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
     }
 
     const calculateBayar = (
-        event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>
+        event: ChangeEvent<HTMLInputElement>
     ): void => {
         event.preventDefault()
-
-        const keyEvent = (event as KeyboardEvent)
 
         const targetValue = (event.target as HTMLInputElement).value
 
@@ -514,13 +532,6 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
         let calculate = parseInt(targetValue) - total_grand
 
         setData(data => ({...data, kembalian:calculate}))
-
-        if(keyEvent.keyCode == 13) {
-
-            post(route('administrator.transaction-upds.store'))
-            submitBayarRef.current.focus()
-
-        }
     }
 
     const calculateDiskon = (
@@ -589,7 +600,7 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
     }
 
     const submitTransaction = (): void => {
-        console.log('test')
+        post(route('administrator.transaction-hv.store'))
     }
 
     const onKeyDownAct = (event: any): void => {
@@ -654,6 +665,8 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
         }
     })
 
+    console.log(errors)
+
     return(
         <TransactionLayout
             title="Penjualan HV"
@@ -684,12 +697,17 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
                 </TableHeader>
                 <TableBody>
                 {
-                    jualObat.length == 0 ? 
+                    jualObat.isLoading ?
+                    <TableRow>
+                        <TableCell colSpan={8} align="center">Loading ...!</TableCell>
+                    </TableRow>
+                    :
+                    jualObat.data.length == 0 ? 
                     <TableRow>
                         <TableCell colSpan={8} align="center">Obat Tidak Ada!</TableCell>
                     </TableRow>
                     :
-                    jualObat.map((row: any, key: number) => (
+                    jualObat.data.map((row: any, key: number) => (
                         <TableRow key={key}>
                             <TableCell className="border border-slate-100">
                             {
@@ -738,9 +756,13 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
                               <SelectTrigger className="w-full">
                                 <SelectValue placeholder="=== Pilih Jenis Pembayaran ===" />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent onCloseAutoFocus={(event) => 
+                              {
+                                event.preventDefault()
+                                bayarTransaksi.current.focus()
+                              }}>
                                 <SelectItem value={"tunai"}>Tunai</SelectItem>
-                                <SelectItem value={"kartu-debit-kredit"}>Kartu Debit/Kredit</SelectItem>
+                                <SelectItem value={"bank"}>Bank</SelectItem>
                               </SelectContent>
                             </Select>
                         </div>
@@ -780,7 +802,11 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
                                 name="bayar" 
                                 value={data.bayar} 
                                 onChange={calculateBayar} 
-                                onKeyUp={calculateBayar} 
+                                onKeyUp={(event) => {
+                                    if(event.keyCode == 13 && data.bayar != 0) {
+                                        submitBayarRef.current.focus()
+                                    }
+                                }} 
                             />
                         </div>
                     </div>

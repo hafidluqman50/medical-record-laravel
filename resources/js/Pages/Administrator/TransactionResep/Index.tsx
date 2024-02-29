@@ -145,15 +145,24 @@ export default function TransactionResep({
 
     /* LIST MEDICINES USE STATE HOOKS */
     const [rowObat, setRowObat]   = useState<RowObat[]>([])
-    const [jualObat, setJualObat] = useState<any>([])
+    const [jualObat, setJualObat] = useState<any>({
+        isLoading:false,
+        data:[]
+    })
     /* END LIST MEDICINES USE STATE HOOKS */
 
     /* LIST PATIENTS USE STATE HOOKS */
-    const [rowPatients, setRowPatients] = useState<any>([])
+    const [rowPatients, setRowPatients] = useState<any>({
+        isLoading:false,
+        data:[]
+    })
     /* END LIST PATIENTS USE STATE HOOKS */
 
     /* LIST DOCTORS USE STATE HOOKS */
-    const [rowDoctors, setRowDoctors] = useState<any>([])
+    const [rowDoctors, setRowDoctors] = useState<any>({
+        isLoading:false,
+        data:[]
+    })
     /* END LIST DOCTORS USE STATE HOOKS */
 
     const [diskon, setDiskon] = useState<string|null>(null)
@@ -198,6 +207,12 @@ export default function TransactionResep({
     ): Promise<void> => {
         if((event as KeyboardEvent).keyCode === 13) {
             setOpen(true)
+
+            setJualObat((jualObat:any) => ({
+                ...jualObat,
+                isLoading:true
+            }))
+
             try {
                 const { data } = await axios.get(
                     route('api.medicines.get-all'),
@@ -211,7 +226,12 @@ export default function TransactionResep({
 
                 const medicines = data.medicines
 
-                setJualObat(medicines)
+                setJualObat((jualObat:any) => ({
+                    ...jualObat,
+                    isLoading:false,
+                    data:medicines
+                }))
+
             } catch(error) {
                 if(axios.isAxiosError(error)) {
                     toast({
@@ -274,7 +294,10 @@ export default function TransactionResep({
                 qtyObat.current.value       = ""
                 dosisRacikRef.current.value = isRacikan ? '' : 0
 
-                setJualObat([])
+                setJualObat((jualObat:any) => ({
+                    ...jualObat,
+                    data:[]
+                }))
             } catch(error) {
                 if(axios.isAxiosError(error)) {
                     toast({
@@ -557,6 +580,11 @@ export default function TransactionResep({
 
     const pasienKeyUpAct = async(event: KeyboardEvent<HTMLInputElement>): Promise<void> => {
         if((event as KeyboardEvent).keyCode == 13) {
+            setRowPatients((rowPatients:any) => ({
+                ...rowPatients,
+                isLoading:true
+            }))
+
             try {
                 const responseData = await axios.get<{
                     data:{
@@ -584,7 +612,11 @@ export default function TransactionResep({
                 }
                 else {
                     setOpenPasienDialog(true)
-                    setRowPatients(responseData.data.data.patients)
+                    setRowPatients((rowPatients:any) => ({
+                        ...rowPatients,
+                        isLoading:false,
+                        data:responseData.data.data.patients
+                    }))
                 }
             } catch(error) {
                 if(axios.isAxiosError(error)) {
@@ -613,7 +645,11 @@ export default function TransactionResep({
 
                 setOpenPasienDialog(false)
 
-                setRowPatients([])
+                setRowPatients((rowPatients:any) => ({
+                    ...rowPatients,
+                    isLoading:false,
+                    data:[]
+                }))
 
                 setData(data => ({
                     ...data,
@@ -661,7 +697,12 @@ export default function TransactionResep({
                     setAlertEmptyDoctor(true)
                 } else {
                     setOpenDoctorDialog(true)
-                    setRowDoctors(responseData.data.data.doctors)
+
+                    setRowDoctors((rowDoctors:any) => ({
+                        ...rowDoctors,
+                        isLoading:false,
+                        data:responseData.data.data.doctors
+                    }))
                 }
             } catch(error) {
                 if(axios.isAxiosError(error)) {
@@ -688,7 +729,11 @@ export default function TransactionResep({
 
                 setOpenDoctorDialog(false)
 
-                setRowDoctors([])
+                setRowDoctors((rowDoctors:any) => ({
+                    ...rowDoctors,
+                    isLoading:false,
+                    data:[]
+                }))
 
                 setData(data => ({
                     ...data,
@@ -815,7 +860,11 @@ export default function TransactionResep({
         setRowObat([])
         setIsHjaNet(false)
         setPriceMedicine(0)
-        setJualObat([])
+        setJualObat((jualObat:any) => ({
+            ...jualObat,
+            isLoading:false,
+            data:[]
+        }))
         reset()
     }
 
@@ -847,7 +896,11 @@ export default function TransactionResep({
             setRowObat([])
             setIsHjaNet(false)
             setPriceMedicine(0)
-            setJualObat([])
+            setJualObat((jualObat:any) => ({
+                ...jualObat,
+                isLoading:false,
+                data:[]
+            }))
             reset()
         }
         else if(event.ctrlKey && event.keyCode == 70) {
@@ -940,12 +993,17 @@ export default function TransactionResep({
                 </TableHeader>
                 <TableBody>
                 {
-                    jualObat.length == 0 ? 
+                    jualObat.isLoading ? 
+                    <TableRow>
+                        <TableCell colSpan={8} align="center">Loading...</TableCell>
+                    </TableRow>
+                    :
+                    jualObat.data.length == 0 ? 
                     <TableRow>
                         <TableCell colSpan={8} align="center">Obat Tidak Ada!</TableCell>
                     </TableRow>
                     :
-                    jualObat.map((row: any, key: number) => (
+                    jualObat.data.map((row: any, key: number) => (
                         <TableRow key={key}>
                             <TableCell className="border border-slate-100">
                             {
@@ -1080,13 +1138,18 @@ export default function TransactionResep({
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                {
-                    rowPatients.length == 0 ? 
+                {   
+                    rowPatients.isLoading ? 
+                    <TableRow>
+                        <TableCell colSpan={8} align="center">Loading...</TableCell>
+                    </TableRow>
+                    :
+                    rowPatients.data.length == 0 ? 
                     <TableRow>
                         <TableCell colSpan={8} align="center">Pasien Tidak Ada!</TableCell>
                     </TableRow>
                     :
-                    rowPatients.map((row: any, key: number) => (
+                    rowPatients.data.map((row: any, key: number) => (
                         <TableRow key={key}>
                             <TableCell className="border border-slate-100">
                             {
@@ -1153,12 +1216,17 @@ export default function TransactionResep({
                 </TableHeader>
                 <TableBody>
                 {
-                    rowDoctors.length == 0 ? 
+                    rowDoctors.isLoading ?  
                     <TableRow>
-                        <TableCell colSpan={8} align="center">Pasien Tidak Ada!</TableCell>
+                        <TableCell colSpan={8} align="center">Loading...</TableCell>
                     </TableRow>
                     :
-                    rowDoctors.map((row: any, key: number) => (
+                    rowDoctors.data.length == 0 ? 
+                    <TableRow>
+                        <TableCell colSpan={8} align="center">Dokter Tidak Ada!</TableCell>
+                    </TableRow>
+                    :
+                    rowDoctors.data.map((row: any, key: number) => (
                         <TableRow key={key}>
                             <TableCell className="border border-slate-100">
                             {
