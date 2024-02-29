@@ -87,6 +87,8 @@ import {
 
 import { useStateWithCallback } from '@/lib/hooks'
 
+import { formatRupiah } from '@/lib/helper'
+
 export default function TransactionResep({
     kode_transaksi, price_parameter, medicine_price_parameters, patients, medicines
 }: TransactionResepPageProps) {
@@ -197,6 +199,7 @@ export default function TransactionResep({
     const doctorCodeRef       = useRef<any>()
     /* END DOCTOR USE REF */
 
+    const jasaClickRef   = useRef<any>()
     const jenisBayarRef  = useRef<any>()
     const diskonGrandRef = useRef<any>()
     const bayarTransaksi = useRef<any>()
@@ -371,20 +374,18 @@ export default function TransactionResep({
                 const getRowObat = rowObat
                 
                 getRowObat[data.indexObat].qty                = parseInt(qtyObat.current.value)
-                getRowObat[data.indexObat].prescription_packs = bungkusRef.current.value
+                getRowObat[data.indexObat].prescription_packs = parseInt(bungkusRef.current.value)
                 getRowObat[data.indexObat].sub_total          = parseInt(jumlahHarga.current.value)
-                getRowObat[data.indexObat].dose               = dosisRacikRef.current.value
-                getRowObat[data.indexObat].jasa               = jasa
+                getRowObat[data.indexObat].dose               = parseInt(dosisRacikRef.current.value)
+                getRowObat[data.indexObat].jasa               = parseInt(jasaRef.current.value)
                 getRowObat[data.indexObat].total              = parseInt(jumlahHarga.current.value)
 
-                subTotalGrandData = getRowObat[data.indexObat].sub_total + data.sub_total_grand
-                totalGrandData    = getRowObat[data.indexObat].total + data.total_grand
+                subTotalGrandData = getRowObat[data.indexObat].sub_total + data.sub_total_grand + getRowObat[data.indexObat].jasa
+                totalGrandData    = subTotalGrandData
                 
                 medicinesData   = data.medicines
 
                 medicinesData[data.indexObat] = getRowObat[data.indexObat]
-
-                bungkusRef.current.value = ""
 
             } else {
                 if(isRacikan) {
@@ -512,8 +513,8 @@ export default function TransactionResep({
 
         console.log(data)
 
-        const subTotalGrandData = data.sub_total_grand - getRowObat[index].sub_total
-        const totalGrandData    = data.total_grand - getRowObat[index].total
+        const subTotalGrandData = data.sub_total_grand - getRowObat[index].sub_total - getRowObat[index].jasa
+        const totalGrandData    = subTotalGrandData
 
         setData(data => ({
             ...data,
@@ -792,8 +793,8 @@ export default function TransactionResep({
         if(data.indexObat != null) {
             setRowObat(row => row.filter((r, i) => (i != data.indexObat)))
 
-            const subTotalGrandData = data.sub_total_grand - data.medicines[data.indexObat].sub_total
-            const totalGrandData    = data.total_grand - data.medicines[data.indexObat].total
+            const subTotalGrandData = data.sub_total_grand - data.medicines[data.indexObat].sub_total - data.medicines[data.indexObat].jasa
+            const totalGrandData    = subTotalGrandData
             const medicinesData     = data.medicines.filter((row: any, i: number) => (i != data.indexObat))
 
             console.log(data.medicines[data.indexObat].sub_total)
@@ -817,14 +818,14 @@ export default function TransactionResep({
             const getRowObat = rowObat
             
             getRowObat[data.indexObat].qty                = parseInt(qtyObat.current.value)
-            getRowObat[data.indexObat].prescription_packs = bungkusRef.current.value
+            getRowObat[data.indexObat].prescription_packs = parseInt(bungkusRef.current.value)
             getRowObat[data.indexObat].sub_total          = parseInt(jumlahHarga.current.value)
-            getRowObat[data.indexObat].dose               = dosisRacikRef.current.value
-            getRowObat[data.indexObat].jasa               = jasa
+            getRowObat[data.indexObat].dose               = parseInt(dosisRacikRef.current.value)
+            getRowObat[data.indexObat].jasa               = parseInt(jasaRef.current.value)
             getRowObat[data.indexObat].total              = parseInt(jumlahHarga.current.value)
 
-            subTotalGrandData = getRowObat[data.indexObat].sub_total + data.sub_total_grand
-            totalGrandData    = getRowObat[data.indexObat].total + data.total_grand
+            subTotalGrandData = getRowObat[data.indexObat].sub_total + data.sub_total_grand + getRowObat[data.indexObat].jasa
+            totalGrandData    = subTotalGrandData
             
             medicinesData   = data.medicines
 
@@ -1078,10 +1079,13 @@ export default function TransactionResep({
 
             <AlertDialog open={openWarningJasa} onOpenChange={setOpenWarningJasa}>
                 <AlertDialogContent onCloseAutoFocus={(event) => {
-                    if(jasaRef.current.value == '') {
-                        kodeObat.current.focus()
-                    }
-                }}>
+                        if(jasaRef.current.value == '') {
+                            kodeObat.current.focus()
+                        }
+                    }} onOpenAutoFocus={(event) => {
+                        event.preventDefault()
+                        jasaClickRef.current.focus()
+                    }}>
                     <AlertDialogHeader>
                         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                         <AlertDialogDescription>
@@ -1090,7 +1094,7 @@ export default function TransactionResep({
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={jasaAct}>Continue</AlertDialogAction>
+                        <AlertDialogAction ref={jasaClickRef} onClick={jasaAct}>Continue</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
@@ -1644,11 +1648,11 @@ export default function TransactionResep({
                                 </TableCell>
                                 <TableCell className="border border-slate-100">{row.name}</TableCell>
                                 <TableCell className="border border-slate-100">{row.unit_medicine}</TableCell>
-                                <TableCell className="border border-slate-100">{row.sell_price}</TableCell>
+                                <TableCell className="border border-slate-100">Rp. {formatRupiah(row.sell_price)},00</TableCell>
                                 <TableCell className="border border-slate-100">{row.qty}</TableCell>
-                                <TableCell className="border border-slate-100">{row.sub_total}</TableCell>
-                                <TableCell className="border border-slate-100">{row.jasa}</TableCell>
-                                <TableCell className="border border-slate-100">{row.total}</TableCell>
+                                <TableCell className="border border-slate-100">Rp. {formatRupiah(row.sub_total)},00</TableCell>
+                                <TableCell className="border border-slate-100">Rp. {formatRupiah(row.jasa)},00</TableCell>
+                                <TableCell className="border border-slate-100">Rp. {formatRupiah(row.total)},00</TableCell>
                                 <TableCell className="border border-slate-100">{row.faktor}</TableCell>
                                 <TableCell className="border border-slate-100">{row.prefixNumDisplay}</TableCell>
                             </TableRow>
@@ -1667,7 +1671,7 @@ export default function TransactionResep({
                         <Label htmlFor="kode-transaksi">Total : </Label>
                     </div>
                     <div className="grow w-full">
-                        <Input className="bg-slate-200" type="text" value={data.total_grand} readOnly />
+                        <Input className="bg-slate-200" type="text" value={`Rp. ${formatRupiah(data.total_grand)},00`} readOnly />
                     </div>
                 </div>
                 <div className="flex space-x-4">
