@@ -64,6 +64,8 @@ import { useToast } from '@/Components/ui/use-toast'
 
 import { useStateWithCallback } from '@/lib/hooks'
 
+import { formatRupiah } from '@/lib/helper'
+
 export default function TransactionHv({kode_transaksi, price_parameter, medicine_price_parameters}: TransactionUpdsPageProps) {
 
     const { toast } = useToast();
@@ -979,11 +981,11 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
                                 </TableCell>
                                 <TableCell className="border border-slate-100">{row.name}</TableCell>
                                 <TableCell className="border border-slate-100">{row.unit_medicine}</TableCell>
-                                <TableCell className="border border-slate-100">{row.sell_price}</TableCell>
+                                <TableCell className="border border-slate-100">Rp. {formatRupiah(row.sell_price)},00</TableCell>
                                 <TableCell className="border border-slate-100">{row.qty}</TableCell>
-                                <TableCell className="border border-slate-100">{row.sub_total}</TableCell>
-                                <TableCell className="border border-slate-100">{row.disc}</TableCell>
-                                <TableCell className="border border-slate-100">{row.total}</TableCell>
+                                <TableCell className="border border-slate-100">Rp. {formatRupiah(row.sub_total)},00</TableCell>
+                                <TableCell className="border border-slate-100">Rp. {formatRupiah(row.disc)},00</TableCell>
+                                <TableCell className="border border-slate-100">Rp. {formatRupiah(row.total)},00</TableCell>
                                 <TableCell className="border border-slate-100">UP</TableCell>
                             </TableRow>
                         ))
@@ -997,7 +999,7 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
                         <Label htmlFor="kode-transaksi">Sub Total : </Label>
                     </div>
                     <div>
-                        <Input className="bg-slate-200" type="text" value={data.sub_total_grand} readOnly />
+                        <Input className="bg-slate-200" type="text" value={`Rp. ${formatRupiah(data.sub_total_grand)},00`} readOnly />
                     </div>
                 </div>
                 <div className="col-start-2 flex space-x-4">
@@ -1005,7 +1007,7 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
                         <Label htmlFor="kode-transaksi">Diskon : </Label>
                     </div>
                     <div>
-                        <Input className="bg-slate-200" type="text" value={data.diskon_grand} readOnly />
+                        <Input className="bg-slate-200" type="text" value={`Rp. ${formatRupiah(data.diskon_grand)},00`} readOnly />
                     </div>
                 </div>
                 <div className="col-start-2 flex space-x-4">
@@ -1013,7 +1015,7 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
                         <Label htmlFor="kode-transaksi">Total : </Label>
                     </div>
                     <div>
-                        <Input className="bg-slate-200" type="text" value={data.total_grand} readOnly />
+                        <Input className="bg-slate-200" type="text" value={`Rp. ${formatRupiah(data.total_grand)},00`} readOnly />
                     </div>
                 </div>
             </div>
