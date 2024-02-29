@@ -214,10 +214,16 @@ export default function Index({auth, app, transactions, page_num, tab_value}: Pa
                                             <TableCell className="border border-slate-200">
                                                 <div className="flex space-x-4">
                                                     <Button className="bg-cyan-500 text-white hover:bg-cyan-500" asChild>
-                                                        <Link href={route('administrator.transaction-upds.print-invoice', row.id)}>Cetak</Link>
+                                                        <Link href={route('administrator.transaction-upds.print-invoice', {
+                                                            id:row.id,
+                                                            url:'administrator.transactions'
+                                                        })}>Cetak</Link>
                                                     </Button>
                                                     <Button variant="warning" asChild>
-                                                        <Link href={route('administrator.transaction-upds.print-receipt', row.id)}>Kwitansi</Link>
+                                                        <Link href={route('administrator.transaction-upds.print-receipt', {
+                                                            id:row.id,
+                                                            url:'administrator.transactions'
+                                                        })}>Kwitansi</Link>
                                                     </Button>
                                                     <AlertDialog>
                                                       <AlertDialogTrigger asChild>
@@ -359,10 +365,16 @@ export default function Index({auth, app, transactions, page_num, tab_value}: Pa
                                             <TableCell className="border border-slate-200">
                                                 <div className="flex space-x-4">
                                                     <Button className="bg-cyan-500 text-white hover:bg-cyan-500" asChild>
-                                                        <Link href={route('administrator.transaction-hv.print-invoice', row.id)}>Cetak</Link>
+                                                        <Link href={route('administrator.transaction-hv.print-invoice', {
+                                                            id:row.id,
+                                                            url:'administrator.transactions'
+                                                        })}>Cetak</Link>
                                                     </Button>
                                                     <Button variant="warning" asChild>
-                                                        <Link href={route('administrator.transaction-hv.print-receipt', row.id)}>Kwitansi</Link>
+                                                        <Link href={route('administrator.transaction-hv.print-receipt', {
+                                                            id:row.id,
+                                                            url:'administrator.transactions'
+                                                        })}>Kwitansi</Link>
                                                     </Button>
                                                     <AlertDialog>
                                                       <AlertDialogTrigger asChild>
@@ -504,10 +516,16 @@ export default function Index({auth, app, transactions, page_num, tab_value}: Pa
                                             <TableCell className="border border-slate-200">
                                                 <div className="flex space-x-4">
                                                     <Button className="bg-cyan-500 text-white hover:bg-cyan-500" asChild>
-                                                        <Link href={route('administrator.transaction-resep.print-invoice', row.id)}>Cetak</Link>
+                                                        <Link href={route('administrator.transaction-resep.print-invoice', {
+                                                            id:row.id,
+                                                            url:'administrator.transactions'
+                                                        })}>Cetak</Link>
                                                     </Button>
                                                     <Button variant="warning" asChild>
-                                                        <Link href={route('administrator.transaction-resep.print-receipt', row.id)}>Kwitansi</Link>
+                                                        <Link href={route('administrator.transaction-resep.print-receipt', {
+                                                            id:row.id,
+                                                            url:'administrator.transactions'
+                                                        })}>Kwitansi</Link>
                                                     </Button>
                                                     <AlertDialog>
                                                       <AlertDialogTrigger asChild>

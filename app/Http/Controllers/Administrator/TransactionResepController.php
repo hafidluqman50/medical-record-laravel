@@ -228,17 +228,26 @@ class TransactionResepController extends Controller
         }
     }
 
-    public function printInvoice(int $id): Response
+    public function printInvoice(int $id, ?string $url = null): Response
     {
+
+        if($url == null) {
+            $url = 'administrator.transaction-resep';
+        }
+
         $transaction_prescription = TransactionPrescription::with(['user','prescription.patient','prescription.doctor','prescription.prescriptionLists.prescriptionDetails.medicine'])->firstOrFail();
 
-        return Inertia::render('Administrator/TransactionResep/Print', compact('transaction_prescription'));
+        return Inertia::render('Administrator/TransactionResep/Print', compact('transaction_prescription', 'url'));
     }
 
     public function printReceipt(int $id): Response
     {
+        if($url == null) {
+            $url = 'administrator.transaction-resep';
+        }
+
         $transaction_prescription = TransactionPrescription::with(['user','prescription.patient','prescription.prescriptionLists.prescriptionDetails.medicine'])->firstOrFail();
 
-        return Inertia::render('Administrator/TransactionResep/Receipt', compact('transaction_prescription'));
+        return Inertia::render('Administrator/TransactionResep/Receipt', compact('transaction_prescription', 'url'));
     }
 }

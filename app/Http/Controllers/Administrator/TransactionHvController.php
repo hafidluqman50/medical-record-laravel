@@ -79,7 +79,7 @@ class TransactionHvController extends Controller
             'bayar'            => 'required|integer',
             'kembalian'        => 'required|integer',
             'kode_transaksi'   => 'required|string',
-            'jenis_pembayaran' => 'required|string|in:tunai,kartu-debit-kredit',
+            'jenis_pembayaran' => 'required|string|in:tunai,bank',
         ]);
 
         DB::beginTransaction();
@@ -90,6 +90,7 @@ class TransactionHvController extends Controller
             $discount_grand       = $request->diskon_grand;
             $discount_pay         = $request->diskon_bayar;
             $transaction_pay_type = $request->jenis_pembayaran;
+            // dd($request->jenis_pembayaran);
             $invoice_number       = $request->kode_transaksi;
             $pay_total            = $request->bayar;
             $change_money         = $request->kembalian;
@@ -143,17 +144,25 @@ class TransactionHvController extends Controller
         }
     }
 
-    public function printInvoice(int $id): Response
+    public function printInvoice(int $id, ?string $url = null): Response
     {
+        if($url == null) {
+            $url = 'administrator.transaction-hv';
+        }
+
         $transaction = Transaction::with(['user','transactionDetails.medicine'])->where('id',$id)->firstOrFail();
 
-        return Inertia::render('Administrator/TransactionHv/Print', compact('transaction'));
+        return Inertia::render('Administrator/TransactionHv/Print', compact('transaction', 'url'));
     }
 
-    public function printReceipt(int $id): Response
+    public function printReceipt(int $id, ?string $url = null): Response
     {
+        if($url == null) {
+            $url = 'administrator.transaction-hv';
+        }
+
        $transaction = Transaction::with(['user','transactionDetails.medicine'])->where('id',$id)->firstOrFail();
 
-        return Inertia::render('Administrator/TransactionHv/Receipt', compact('transaction'));
+        return Inertia::render('Administrator/TransactionHv/Receipt', compact('transaction', 'url'));
     }
 }

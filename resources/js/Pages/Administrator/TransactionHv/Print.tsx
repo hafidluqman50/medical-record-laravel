@@ -45,7 +45,7 @@ type PrintPageProps = {
     transaction:Transaction
 }
 
-export default function Print({transaction}: PrintPageProps) {
+export default function Print({transaction, url}: PrintPageProps & {url: string}) {
 
     useEffect(() => {
         setTimeout(() => window.print(), 600)
@@ -56,7 +56,7 @@ export default function Print({transaction}: PrintPageProps) {
             <Head title="UPDS Print" />
             <section className="receipt">
                 <p>
-                    <a href={route('administrator.transaction-hv')} className="btn-hide">
+                    <a href={route(url)} className="btn-hide">
                         <Button variant="secondary">
                             Kembali
                         </Button>

@@ -61,7 +61,7 @@ export default function Print({stock_opname}: PrintPageProps) {
                   <TableBody>
                     {
                         stock_opname.stock_opname_details.map((row, key) => (
-                            <TableRow key={row.id}>
+                            <TableRow key={key}>
                                 <TableCell className="border border-slate-200">
                                     {key+1}
                                 </TableCell>
@@ -81,7 +81,7 @@ export default function Print({stock_opname}: PrintPageProps) {
                                     {row.stock_display}
                                 </TableCell>
                                 <TableCell className="border border-slate-200">
-                                    {row.stock_deviation}
+                                    {row.stock_computer - row.stock_display}
                                 </TableCell>
                                 <TableCell className="border border-slate-200">
                                     {row.sub_value}
