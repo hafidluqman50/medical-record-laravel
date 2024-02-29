@@ -89,7 +89,7 @@ class MedicalRecordController extends Controller
             'referral'                => 'required|string',
             'next_control_date'       => 'required|string',
             'notes'                   => 'required|string',
-            'medicines'               => 'required|array',
+            'medicines'               => 'sometimes|nullable|array',
             'sub_total_grand'         => 'required|integer',
             'diskon_grand'            => 'required|integer',
             'total_grand'             => 'required|integer',
@@ -157,59 +157,63 @@ class MedicalRecordController extends Controller
                 ]);
             }
 
-            $prescription_id = Prescription::insertGetId([
-                'patient_id' => $get_registration_by_id->patient_id,
-                'doctor_id'  => $get_registration_by_id->doctor_id,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ]);
+            if(!empty($medicines)) {
 
-            foreach ($prescription_name as $key => $value) {
-                $prescription_list_id = PrescriptionList::insertGetId([
-                    'prescription_id'          => $prescription_id,
-                    'name'                     => $value['prefixNum'],
-                    'service_fee'              => 0,
-                    'total_costs'              => 0,
-                    'total_prescription_packs' => 0
+                $prescription_id = Prescription::insertGetId([
+                    'patient_id' => $get_registration_by_id->patient_id,
+                    'doctor_id'  => $get_registration_by_id->doctor_id,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s')
                 ]);
 
-                foreach ($medicines as $k => $v) {
-                    if($value['prefixNum'] == $v['prefixNum']) {
-                        PrescriptionDetail::create([
-                            'prescription_list_id' => $prescription_list_id,
-                            'medicine_id'          => $v['id'],
-                            'sub_total'            => $v['sub_total'],
-                            'qty'                  => $v['qty'],
-                            'prescription_packs'   => $v['prescription_packs'],
-                            'dose'                 => $v['dose'],
-                            'service_fee'          => $v['jasa'],
-                            'total'                => $v['total'],
-                            'faktor'               => $v['faktor'],
-                            'prescription_name'    => $v['prefixNum']
-                        ]);
+                foreach ($prescription_name as $key => $value) {
+                    $prescription_list_id = PrescriptionList::insertGetId([
+                        'prescription_id'          => $prescription_id,
+                        'name'                     => $value['prefixNum'],
+                        'service_fee'              => 0,
+                        'total_costs'              => 0,
+                        'total_prescription_packs' => 0
+                    ]);
 
-                        PrescriptionList::where('id', $prescription_list_id)->where('prescription_id',$prescription_id)->increment('service_fee', (int)$v['jasa']);
-                        PrescriptionList::where('id', $prescription_list_id)->where('prescription_id',$prescription_id)->increment('total_costs', (int)$v['total']);
-                        PrescriptionList::where('id', $prescription_list_id)->where('prescription_id',$prescription_id)->increment('total_prescription_packs', (int)$v['prescription_packs']);
+                    foreach ($medicines as $k => $v) {
+                        if($value['prefixNum'] == $v['prefixNum']) {
+                            PrescriptionDetail::create([
+                                'prescription_list_id' => $prescription_list_id,
+                                'medicine_id'          => $v['id'],
+                                'sub_total'            => $v['sub_total'],
+                                'qty'                  => $v['qty'],
+                                'prescription_packs'   => $v['prescription_packs'] ?? 0,
+                                'dose'                 => $v['dose'],
+                                'service_fee'          => $v['jasa'],
+                                'total'                => $v['total'],
+                                'faktor'               => $v['faktor'],
+                                'prescription_name'    => $v['prefixNum']
+                            ]);
+
+                            PrescriptionList::where('id', $prescription_list_id)->where('prescription_id',$prescription_id)->increment('service_fee', (int)$v['jasa']);
+                            PrescriptionList::where('id', $prescription_list_id)->where('prescription_id',$prescription_id)->increment('total_costs', (int)$v['total']);
+                            PrescriptionList::where('id', $prescription_list_id)->where('prescription_id',$prescription_id)->increment('total_prescription_packs', (int)$v['prescription_packs']);
+                        }
                     }
                 }
-            }
 
-            $transaction_id = TransactionPrescription::insertGetId([
-                'invoice_number'       => $kode_transaksi,
-                'date_transaction'     => date('Y-m-d'),
-                'prescription_id'      => $prescription_id,
-                'sub_total'            => $sub_total_grand,
-                'discount'             => $discount_grand,
-                'total'                => $total_grand,
-                'pay_total'            => $bayar,
-                'change_money'         => $kembalian,
-                'transaction_pay_type' => $jenis_pembayaran,
-                'status_transaction'   => 0,
-                'user_id'              => $request->user()->id,
-                'created_at'           => date('Y-m-d H:i:s'),
-                'updated_at'           => date('Y-m-d H:i:s')
-            ]);
+                $transaction_id = TransactionPrescription::insertGetId([
+                    'invoice_number'       => $kode_transaksi,
+                    'date_transaction'     => date('Y-m-d'),
+                    'prescription_id'      => $prescription_id,
+                    'sub_total'            => $sub_total_grand,
+                    'discount'             => $discount_grand,
+                    'total'                => $total_grand,
+                    'pay_total'            => $bayar,
+                    'change_money'         => $kembalian,
+                    'transaction_pay_type' => $jenis_pembayaran,
+                    'status_transaction'   => 0,
+                    'user_id'              => $request->user()->id,
+                    'created_at'           => date('Y-m-d H:i:s'),
+                    'updated_at'           => date('Y-m-d H:i:s')
+                ]);
+                   
+            }
 
             /* Update Status Register from 0 to 1 */
             Registration::where('id', $request->registration_id)->update(['status_register' => 1]);

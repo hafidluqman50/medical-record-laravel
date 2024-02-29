@@ -170,7 +170,7 @@ export default function Index({auth, app, stock_opname_details, page_num}: PageP
                                             {row.stock_display}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
-                                            {row.stock_deviation}
+                                            {row.stock_computer - row.stock_display}
                                         </TableCell>
                                         <TableCell className="border border-slate-200">
                                             {row.sub_value}

@@ -79,7 +79,7 @@ class TransactionUpdsController extends Controller
             'bayar'            => 'required|integer',
             'kembalian'        => 'required|integer',
             'kode_transaksi'   => 'required|string',
-            'jenis_pembayaran' => 'required|string|in:tunai,kartu-debit-kredit',
+            'jenis_pembayaran' => 'required|string|in:tunai,bank',
         ]);
 
         DB::beginTransaction();
@@ -143,17 +143,25 @@ class TransactionUpdsController extends Controller
         }
     }
 
-    public function printInvoice(int $id): Response
+    public function printInvoice(int $id, ?string $url = null): Response
     {
+        if($url == null) {
+            $url = 'administrator.transaction-upds';
+        }
+
         $transaction = Transaction::with(['user','transactionDetails.medicine'])->where('id',$id)->firstOrFail();
 
-        return Inertia::render('Administrator/TransactionUpds/Print', compact('transaction'));
+        return Inertia::render('Administrator/TransactionUpds/Print', compact('transaction', 'url'));
     }
 
-    public function printReceipt(int $id): Response
+    public function printReceipt(int $id, ?string $url = null): Response
     {
+        if($url == null) {
+            $url = 'administrator.transaction-upds';
+        }
+
        $transaction = Transaction::with(['user','transactionDetails.medicine'])->where('id',$id)->firstOrFail();
 
-        return Inertia::render('Administrator/TransactionUpds/Receipt', compact('transaction'));
+        return Inertia::render('Administrator/TransactionUpds/Receipt', compact('transaction', 'url'));
     }
 }

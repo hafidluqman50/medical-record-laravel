@@ -76,19 +76,33 @@ export default function Create({auth, location_racks}: PageProps<CreatePageProps
         location_rack:''
     });
 
-    const [rowObat, setRowObat] = useState<any>([])
+    const [rowObat, setRowObat] = useState<any>({
+        isLoading:false,
+        data:[]
+    })
 
     const selectLocationRackAct = async(value: string): Promise<void> => {
         setData('location_rack', value)
 
-        try {
-            const responseData = await axios.get<any>(route('api.medicines.get-by-location-rack', value))
+        setRowObat((rowObat:any) => ({
+            ...rowObat,
+            isLoading:true
+        }))
 
-            setRowObat(responseData.data.data.results)
+        try {
+            const { data:responseData} = await axios.get<any>(route('api.medicines.get-by-location-rack', value))
+
+            setRowObat((rowObat:any) => ({
+                ...rowObat,
+                isLoading:false,
+                data:responseData.data.results
+            }))
+            
             setData(data => ({
                 ...data,
-                medicine_stock_opnames:responseData.data.data.results
+                medicine_stock_opnames:responseData.data.results
             }))
+
         } catch(error) {
             if(axios.isAxiosError(error)) {
                 toast({
@@ -149,7 +163,7 @@ export default function Create({auth, location_racks}: PageProps<CreatePageProps
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg py-8 px-8">
                         <div className="border-b-2 mb-4 py-4 border-slate-200">
                             <Button variant="secondary" asChild>
-                                <Link href={route('administrator.sales-returns')}>Kembali</Link>
+                                <Link href={route('administrator.stock-opnames')}>Kembali</Link>
                             </Button>
                         </div>
                         <form onSubmit={submitForm}>
@@ -212,6 +226,13 @@ export default function Create({auth, location_racks}: PageProps<CreatePageProps
                     </div>
                 </div>
                 {
+                    rowObat.isLoading ?
+                    <div className="w-full mx-auto sm:px-6 lg:px-8 mt-6">
+                        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg py-8 px-8">
+                            <p className="text-center text-lg">Loading...</p>
+                        </div>
+                    </div>
+                    :
                     data.medicine_stock_opnames.length != 0 ? 
                     data.medicine_stock_opnames.map((row, key) => (    
                         <div className="w-full mx-auto sm:px-6 lg:px-8 mt-6" key={key}>

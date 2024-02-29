@@ -35,7 +35,7 @@ type PrintPageProps = {
     transaction:any
 }
 
-export default function Invoice({transaction}: PrintPageProps) {
+export default function Invoice({transaction, url}: PrintPageProps & {url:string}) {
 
     const [row, setRow] = useState<any>([])
 
@@ -65,7 +65,7 @@ export default function Invoice({transaction}: PrintPageProps) {
     return(
         <>
             <Head title="Kwitansi Resep" />
-            <a className="btn-hide" href={route('administrator.transaction-upds')}>Kembali</a>
+            <a className="btn-hide" href={route(url)}>Kembali</a>
             <div className="flex max-w-7xl mt-4 space-x-2 ml-4 border-black border-2 p-1 max-h-[500px]">
                 <div className="border-black border-r-8 border-double">
                     <div className="[writing-mode:vertical-rl] [transform:rotate(-180deg)] text-center flex">
