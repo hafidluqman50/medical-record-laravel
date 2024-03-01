@@ -91,7 +91,7 @@ export default function Index({auth, app, card_stocks, page_num, medicines}: Pag
 
     const search = (): void => {
         router.get(
-            route('administrator.purchase-histories'),
+            route('administrator.card-stocks'),
             {
                 medicine_batch_number:medicineBatch,
                 from_date:fromDate,
@@ -145,14 +145,17 @@ export default function Index({auth, app, card_stocks, page_num, medicines}: Pag
                                     value={toDate}
                                     onChange={(e) => setToDate(e.target.value)}
                                 />
-                                <Select onValueChange={(value) => setMedicineBatch(value)}>
+                                <Select onValueChange={(value) => {
+                                    const split = value.split('|')
+                                    setMedicineBatch(split[0])
+                                }}>
                                   <SelectTrigger className="w-full">
                                     <SelectValue placeholder="=== Pilih Obat ===" />
                                   </SelectTrigger>
                                   <SelectContent>
                                   {
                                     medicines.map((row, key) => (
-                                        <SelectItem value={row.batch_number} key={key}>{row.name}</SelectItem>
+                                        <SelectItem value={`${row.batch_number}|${row.id.toString()}`} key={key}>{row.name}</SelectItem>
                                     ))
                                   }
                                   </SelectContent>

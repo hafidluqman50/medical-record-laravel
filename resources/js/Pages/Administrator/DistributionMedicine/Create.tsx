@@ -79,7 +79,10 @@ export default function Create({auth, invoice_number}: PageProps & CreateFormPro
         data_location: string
     }>>([])
 
-    const [jualObat, setJualObat] = useState<any>([])
+    const [jualObat, setJualObat] = useState<any>({
+        isLoading:false,
+        data:[]
+    })
 
     const [dialogObat, setDialogObat] = useState<boolean>(false)
 
@@ -93,11 +96,18 @@ export default function Create({auth, invoice_number}: PageProps & CreateFormPro
     const qtyRef           = useRef<any>()
     const isiObatRef       = useRef<any>()
     const satuanRef        = useRef<any>()
+    const dataLocationRef  = useRef<any>()
     const btnInputRef      = useRef<any>()
 
     const obatAct = async(event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): Promise<void> => {
-        if((event as KeyboardEvent).keyCode === 13) {
+        if((event as KeyboardEvent).key === 'Enter') {
             setDialogObat(true)
+
+            setJualObat((jualObat: any) => ({
+                ...jualObat,
+                isLoading:true
+            }))
+
             try {
                 const { data } = await axios.get(
                     route('api.medicines.get-all'),
@@ -110,7 +120,11 @@ export default function Create({auth, invoice_number}: PageProps & CreateFormPro
 
                 const medicines = data.medicines
 
-                setJualObat(medicines)
+                setJualObat((jualObat: any) => ({
+                    ...jualObat,
+                    isLoading:false,
+                    data:medicines
+                }))
             } catch(error) {
                 console.error(error)
             }
@@ -133,7 +147,10 @@ export default function Create({auth, invoice_number}: PageProps & CreateFormPro
                 satuanRef.current.value        = data.medicine.unit_medicine
                 isiObatRef.current.value       = 1
 
-                setJualObat([])
+                setJualObat((jualObat: any) => ({
+                    ...jualObat,
+                    data:[]
+                }))
             } catch(error) {
                 console.error(error)
             }
@@ -148,7 +165,7 @@ export default function Create({auth, invoice_number}: PageProps & CreateFormPro
 
     const isiObatAct = (event: KeyboardEvent<HTMLInputElement>): void => {
         if((event as KeyboardEvent).keyCode == 13) {
-            btnInputRef.current.focus()
+            dataLocationRef.current.focus()
         }
     }
 
@@ -244,12 +261,17 @@ export default function Create({auth, invoice_number}: PageProps & CreateFormPro
                 </TableHeader>
                 <TableBody>
                 {
-                    jualObat.length == 0 ? 
+                    jualObat.isLoading ?
+                    <TableRow>
+                        <TableCell colSpan={8} align="center">Loading...</TableCell>
+                    </TableRow>
+                    :
+                    jualObat.data.length == 0 ? 
                     <TableRow>
                         <TableCell colSpan={8} align="center">Obat Tidak Ada!</TableCell>
                     </TableRow>
                     :
-                    jualObat.map((row: any, key: number) => (
+                    jualObat.data.map((row: any, key: number) => (
                         <TableRow key={key}>
                             <TableCell className="border border-slate-100">
                             {
@@ -309,7 +331,13 @@ export default function Create({auth, invoice_number}: PageProps & CreateFormPro
                                     value={data.date_distribution}
                                     className="mt-1 block w-full"
                                     autoComplete="date_distribution"
+                                    autoFocus
                                     onChange={(e) => setData('date_distribution', e.target.value)}
+                                    onKeyPress={(event) => {
+                                        if(event.key === 'Enter') {
+                                            kodeObatRef.current.focus()
+                                        }
+                                    }}
                                 />
 
                                 <InputError message={errors.date_distribution} className="mt-2" />
@@ -334,7 +362,7 @@ export default function Create({auth, invoice_number}: PageProps & CreateFormPro
                                         name="medicine_id"
                                         className="mt-1 block w-full"
                                         autoComplete="medicine_id"
-                                        onKeyUp={obatAct}
+                                        onKeyPress={obatAct}
                                         onChange={obatAct}
                                     />
                                     
@@ -404,10 +432,13 @@ export default function Create({auth, invoice_number}: PageProps & CreateFormPro
                                     <InputLabel htmlFor="data_location" value="Lokasi Distribusi" />
 
                                     <Select defaultValue={dataLocation} value={dataLocation} onValueChange={(value) => setDataLocation(value)}>
-                                      <SelectTrigger className="w-full">
+                                      <SelectTrigger ref={dataLocationRef} className="w-full">
                                         <SelectValue placeholder="=== Pilih Lokasi Distribusi ===" />
                                       </SelectTrigger>
-                                      <SelectContent>
+                                      <SelectContent onCloseAutoFocus={(event) => {
+                                        event.preventDefault()
+                                        btnInputRef.current.focus()
+                                      }}>
                                         <SelectItem value="kasir">Kasir</SelectItem>
                                       </SelectContent>
                                     </Select>
