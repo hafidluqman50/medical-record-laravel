@@ -6,6 +6,7 @@ use App\Models\CardStock;
 use App\Models\PurchaseHistory;
 use App\Models\PurchaseMedicine;
 use App\Models\PurchaseMedicineDetail;
+use App\Models\Ppn;
 use App\Models\Medicine;
 use App\Models\MedicalSupplier;
 use App\Http\Controllers\Controller;
@@ -118,7 +119,28 @@ class PurchaseMedicineController extends Controller
                     'sub_total'           => $value['sub_total']
                 ]);
 
-                $get_recent_stock = Medicine::where('id', $value['medicine_id'])->firstOrFail()->stock;
+                $medicine_first = Medicine::where('id', $value['medicine_id'])->firstOrFail();
+
+                if($value['ppn_type'] == 'include-ppn') {
+                    if($value['price'] > $medicine_first->capital_price_vat) {
+                        Medicine::where('id', $value['medicine_id'])->update([
+                            'capital_price'     => $value['price'],
+                            'capital_price_vat' => $value['price']
+                        ]);
+                    }
+                } else {
+                    if($value['price'] > $medicine_first->capital_price) {
+                        
+                        $ppn = Ppn::firstOrFail()->nilai_ppn;
+
+                        $capital_price_vat = $value['price'] + (($value['price'] * $ppn) / 100);
+                        
+                        Medicine::where('id', $value['medicine_id'])->update([
+                            'capital_price'     => $value['price'],
+                            'capital_price_vat' => $ppn
+                        ]);
+                    }
+                }
 
                 CardStock::create([
                     'invoice_number'    => $request->invoice_number,
@@ -128,7 +150,7 @@ class PurchaseMedicineController extends Controller
                     'buy'               => $value['qty'],
                     'sell'              => 0,
                     'return'            => 0,
-                    'accumulated_stock' => $get_recent_stock+$value['qty'],
+                    'accumulated_stock' => $medicine_first->stock+$value['qty'],
                     'notes'             => 'Pembelian'
                 ]);
             }

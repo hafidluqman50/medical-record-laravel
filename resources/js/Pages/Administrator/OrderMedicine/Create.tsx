@@ -92,6 +92,7 @@ export default function Create({auth, medical_suppliers, invoice_number}: PagePr
 
     const [dialogObat, setDialogObat] = useState<boolean>(false)
 
+    const supplierRef   = useRef<any>()
     const obatIdRef     = useRef<any>()
     const kodeObatRef   = useRef<any>()
     const namaObatRef   = useRef<any>()
@@ -113,7 +114,7 @@ export default function Create({auth, medical_suppliers, invoice_number}: PagePr
     }
 
     const obatAct = async(event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): Promise<void> => {
-        if((event as KeyboardEvent).keyCode === 13) {
+        if((event as KeyboardEvent).key === 'Enter') {
             setDialogObat(true)
             try {
                 const { data } = await axios.get(
@@ -245,7 +246,9 @@ export default function Create({auth, medical_suppliers, invoice_number}: PagePr
     const submitForm: FormEventHandler = (e) => {
         e.preventDefault()
 
-        post(route('administrator.order-medicines.store'));
+        if(data.order.length != 0) {
+            post(route('administrator.order-medicines.store'));
+        }
     }
 
     return(
@@ -346,7 +349,13 @@ export default function Create({auth, medical_suppliers, invoice_number}: PagePr
                                     value={data.date_order}
                                     className="mt-1 block w-full"
                                     autoComplete="date_order"
+                                    autoFocus
                                     onChange={(e) => setData('date_order', e.target.value)}
+                                    onKeyPress={(event) => {
+                                        if(event.key === 'Enter') {
+                                            supplierRef.current.focus()
+                                        }
+                                    }}
                                 />
 
                                 <InputError message={errors.date_order} className="mt-2" />
@@ -356,10 +365,13 @@ export default function Create({auth, medical_suppliers, invoice_number}: PagePr
                                 <InputLabel htmlFor="medical_supplier_id" value="Supplier" />
 
                                 <Select onValueChange={(value) => selectMedicalSupplierAct(parseInt(value))}>
-                                  <SelectTrigger className="w-full mt-1">
+                                  <SelectTrigger ref={supplierRef} className="w-full mt-1">
                                     <SelectValue placeholder="=== Pilih Supplier ===" />
                                   </SelectTrigger>
-                                  <SelectContent>
+                                  <SelectContent onCloseAutoFocus={(event) => {
+                                    event.preventDefault()
+                                    kodeObatRef.current.focus()
+                                  }}>
                                   {
                                     medical_suppliers.map((row, key) => (
                                         <SelectItem value={row.id.toString()} key={key}>{row.name}</SelectItem>
@@ -390,7 +402,7 @@ export default function Create({auth, medical_suppliers, invoice_number}: PagePr
                                         name="medicine_id"
                                         className="mt-1 block w-full"
                                         autoComplete="medicine_id"
-                                        onKeyUp={obatAct}
+                                        onKeyPress={obatAct}
                                         onChange={obatAct}
                                     />
 

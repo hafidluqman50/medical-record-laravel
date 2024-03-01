@@ -80,7 +80,10 @@ export default function Create({auth, invoice_number}: PageProps & CreateFormPro
         notes: string
     }>>([])
 
-    const [jualObat, setJualObat] = useState<any>([])
+    const [jualObat, setJualObat] = useState<any>({
+        isLoading:false,
+        data:[]
+    })
 
     const [dialogObat, setDialogObat] = useState<boolean>(false)
 
@@ -97,8 +100,14 @@ export default function Create({auth, invoice_number}: PageProps & CreateFormPro
     const btnInputRef   = useRef<any>()
 
     const obatAct = async(event: any): Promise<void> => {
-        if(event.keyCode === 13) {
+        if(event.key === 'Enter') {
             setDialogObat(true)
+
+            setJualObat((jualObat: any) => ({
+                ...jualObat,
+                isLoading:true
+            }))
+
             try {
                 const { data } = await axios.get(
                     route('api.medicines.get-all'),
@@ -111,7 +120,11 @@ export default function Create({auth, invoice_number}: PageProps & CreateFormPro
 
                 const medicines = data.medicines
 
-                setJualObat(medicines)
+                setJualObat((jualObat: any) => ({
+                    ...jualObat,
+                    isLoading:false,
+                    data:medicines
+                }))
             } catch(error) {
                 console.error(error)
             }
@@ -135,7 +148,10 @@ export default function Create({auth, invoice_number}: PageProps & CreateFormPro
                 satuanRef.current.value     = data.medicine.unit_medicine
                 isiObatRef.current.value    = 1
 
-                setJualObat([])
+                setJualObat((jualObat: any) => ({
+                    ...jualObat,
+                    data:[]
+                }))
             } catch(error) {
                 console.error(error)
             }
@@ -267,12 +283,17 @@ export default function Create({auth, invoice_number}: PageProps & CreateFormPro
                 </TableHeader>
                 <TableBody>
                 {
-                    jualObat.length == 0 ? 
+                    jualObat.isLoading ? 
+                    <TableRow>
+                        <TableCell colSpan={8} align="center">Loading...</TableCell>
+                    </TableRow>
+                    :
+                    jualObat.data.length == 0 ? 
                     <TableRow>
                         <TableCell colSpan={8} align="center">Obat Tidak Ada!</TableCell>
                     </TableRow>
                     :
-                    jualObat.map((row: any, key: number) => (
+                    jualObat.data.map((row: any, key: number) => (
                         <TableRow key={key}>
                             <TableCell className="border border-slate-100">
                             {
@@ -332,7 +353,13 @@ export default function Create({auth, invoice_number}: PageProps & CreateFormPro
                                     value={data.date_receive}
                                     className="mt-1 block w-full"
                                     autoComplete="date_receive"
+                                    autoFocus
                                     onChange={(e) => setData('date_receive', e.target.value)}
+                                    onKeyPress={(event) => {
+                                        if(event.key == 'Enter') {
+                                            kodeObatRef.current.focus()
+                                        }
+                                    }}
                                 />
 
                                 <InputError message={errors.date_receive} className="mt-2" />
@@ -357,7 +384,7 @@ export default function Create({auth, invoice_number}: PageProps & CreateFormPro
                                         name="medicine_id"
                                         className="mt-1 block w-full"
                                         autoComplete="medicine_id"
-                                        onKeyUp={obatAct}
+                                        onKeyPress={obatAct}
                                         onChange={obatAct}
                                     />
 
@@ -505,7 +532,7 @@ export default function Create({auth, invoice_number}: PageProps & CreateFormPro
                             </TableBody>
                             <TableFooter>
                                 <TableRow>
-                                    <TableCell className="border-slate-200" colSpan={7} align="right">Total :</TableCell>
+                                    <TableCell className="border-slate-200" colSpan={8} align="right">Total :</TableCell>
                                     <TableCell className="border-slate-200">Rp. {formatRupiah(data.total_grand)}</TableCell>
                                 </TableRow>
                             </TableFooter>

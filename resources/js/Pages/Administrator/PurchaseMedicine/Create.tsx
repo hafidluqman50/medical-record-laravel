@@ -35,6 +35,7 @@ import {
 import { Textarea } from "@/Components/ui/textarea"
 import { Button } from '@/Components/ui/button'
 import { Separator } from '@/Components/ui/separator'
+import { Combobox } from '@/Components/Combobox'
 import { formatRupiah } from '@/lib/helper'
 
 interface PurchaseMedicineForm {
@@ -100,9 +101,15 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
         ppn_type: string,
         sub_total: number
     }>>([])
-    const [ppnType, setPpnType]           = useState<string>('')
-    const [obat, setObat]                 = useState<number>(0)
-    const [namaObat, setNamaObat]         = useState<string>('')
+    const [ppnType, setPpnType]   = useState<string>('')
+    const [obat, setObat]         = useState<number>(0)
+    const [namaObat, setNamaObat] = useState<string>('')
+    const [selectedMedicalSupplier, setSelectedMedicalSupplier] = useState<string>(medical_suppliers[0].id.toString())
+
+    const typeRef          = useRef<any>()
+    const dateReceiveRef   = useRef<any>()
+    const ppnTypeRef       = useRef<any>()
+    const debtTimeRef      = useRef<any>()
 
     const invoiceNumberRef = useRef<any>()
     const hnaRef           = useRef<any>()
@@ -110,11 +117,14 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
     const jumlahRef        = useRef<any>()
     const diskonRef        = useRef<any>()
     const obatRef          = useRef<any>()
+    const inputBeliRef     = useRef<any>()
 
     const submitForm: FormEventHandler = (e) => {
         e.preventDefault()
 
-        post(route('administrator.purchase-medicines.store'));
+        if(ppnType != '') {
+            post(route('administrator.purchase-medicines.store'));
+        }
     }
 
     const selectMedicalSupplierAct = async(value: number): Promise<void> => {
@@ -175,30 +185,38 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
 
     const inputActPembelian = (): void => {
 
-        const calculate    = parseInt(jumlahRef.current.value) * parseInt(hnaRef.current.value)
-        let ppn            = 0
-        let sub_total      = 0
-        let total_ppn      = 0 + data.total_ppn
-        let total_dpp      = 0 + data.total_dpp
-        let total_discount = 0 + data.total_discount
-        let total_grand    = 0 + data.total_grand
+        const calculate        = parseInt(jumlahRef.current.value) * parseInt(hnaRef.current.value)
+        const discount         = parseInt(diskonRef.current.value ?? 0)
+
+        let calculate_discount = 0
+        let ppn                = 0
+        let sub_total          = 0
+        let total_ppn          = 0 + data.total_ppn
+        let total_dpp          = 0 + data.total_dpp
+        let total_discount     = 0 + data.total_discount
+        let total_grand        = 0 + data.total_grand
+
+        ppn = ((calculate * 11) / 100)
 
         if(ppnType == 'include-ppn') {
-            ppn = ((calculate * 11) / 100)
-            sub_total = calculate + ppn
-            total_dpp += sub_total
+            calculate_discount = ((calculate + ppn) * discount) / 100
+            sub_total = calculate + ppn - calculate_discount
+            total_dpp += calculate + ppn
             ppn = 0
         }
         else if(ppnType == 'exclude-ppn') {
-            ppn = ((calculate * 11) / 100)
-            sub_total = calculate + ppn
+            calculate_discount = ((calculate + ppn) * discount) / 100
+            sub_total = calculate + ppn - calculate_discount
             total_dpp += calculate
             total_ppn += ppn
         }
         else {
-            sub_total += calculate
+            calculate_discount = (calculate * discount) / 100
+            sub_total += calculate - calculate_discount
             total_dpp += calculate
         }
+
+        total_discount += calculate_discount
 
         total_grand = ((total_dpp + total_ppn) - total_discount)
 
@@ -211,7 +229,7 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
             qty: jumlahRef.current.value,
             price: hnaRef.current.value,
             ppn,
-            disc_1: diskonRef.current.value,
+            disc_1: calculate_discount,
             disc_2: 0,
             disc_3: 0,
             ppn_type: ppnType,
@@ -250,11 +268,11 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
 
         if(getRowOrder.ppn_type == 'exclude-ppn') {
             total_ppn      = data.total_ppn - getRowOrder.ppn
-            total_dpp      = data.total_dpp - ((getRowOrder.qty * getRowOrder.price) + getRowOrder.ppn)
+            total_dpp      = data.total_dpp - (((getRowOrder.qty * getRowOrder.price) + getRowOrder.ppn) - getRowOrder.disc_1)
         }
         else {
             total_ppn      = data.total_ppn - 0
-            total_dpp      = data.total_dpp - getRowOrder.sub_total
+            total_dpp      = data.total_dpp - getRowOrder.sub_total - getRowOrder.disc_1
         }
 
         let total_discount = data.total_discount - (getRowOrder.disc_1)
@@ -315,7 +333,7 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
                                 <div className="mt-4">
                                     <InputLabel htmlFor="medical_supplier_id" value="Supplier" />
 
-                                    <Select onValueChange={(value) => selectMedicalSupplierAct(parseInt(value))}>
+                                    {/*<Select onValueChange={(value) => selectMedicalSupplierAct(parseInt(value))}>
                                       <SelectTrigger className="w-full mt-1">
                                         <SelectValue placeholder="=== Pilih Supplier ===" />
                                       </SelectTrigger>
@@ -326,7 +344,14 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
                                         ))
                                       }
                                       </SelectContent>
-                                    </Select>
+                                    </Select>*/}
+                                    <Combobox 
+                                        // ref={}
+                                        data={medical_suppliers} 
+                                        placeholder="Supplier Obat" 
+                                        nextRef={typeRef}
+                                        onValueChange={selectMedicalSupplierAct}
+                                    />
 
                                     <InputError message={errors.medical_supplier_id} className="mt-2" />
                                 </div>
@@ -350,11 +375,25 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
                                 <div className="mt-4">
                                     <InputLabel htmlFor="type" value="Jenis Beli" />
 
-                                    <Select onValueChange={(value) => setData('type', value)}>
-                                      <SelectTrigger className="w-full mt-1">
+                                    <Select onValueChange={(value) => {
+                                        if(value != 'tunai') {
+                                            setData('type', value)
+                                        }
+                                        else {
+                                            setData(data => ({
+                                                ...data,
+                                                type:value,
+                                                debt_time:0
+                                            }))
+                                        }
+                                    }}>
+                                      <SelectTrigger ref={typeRef} className="w-full mt-1">
                                         <SelectValue placeholder="=== Pilih Jenis Beli ===" />
                                       </SelectTrigger>
-                                      <SelectContent>
+                                      <SelectContent onCloseAutoFocus={(event) => {
+                                        event.preventDefault()
+                                        dateReceiveRef.current.focus()
+                                      }}>
                                         <SelectItem value="tunai">Tunai</SelectItem>
                                         <SelectItem value="kredit">Kredit</SelectItem>
                                         <SelectItem value="konsinyasi">Konsinyasi</SelectItem>
@@ -369,6 +408,7 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
                                     <InputLabel htmlFor="date_receive" value="Tanggal Terima" />
 
                                     <Input
+                                        ref={dateReceiveRef}
                                         id="date_receive"
                                         type="date"
                                         name="date_receive"
@@ -376,6 +416,16 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
                                         className="mt-1 block w-full"
                                         autoComplete="date_receive"
                                         onChange={(e) => setData('date_receive', e.target.value)}
+                                        onKeyPress={(event) => {
+                                            if(event.key == 'Enter') {
+                                                if(data.debt_time == 0) {
+                                                    ppnTypeRef.current.focus()
+                                                }
+                                                else {
+                                                    debtTimeRef.current.focus()
+                                                }
+                                            }
+                                        }}
                                     />
 
                                     <InputError message={errors.date_receive} className="mt-2" />
@@ -385,6 +435,7 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
                                     <InputLabel htmlFor="debt_time" value="Waktu Hutang" />
 
                                     <Input
+                                        ref={debtTimeRef}
                                         id="debt_time"
                                         type="number"
                                         name="debt_time"
@@ -419,10 +470,13 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
                                     <InputLabel htmlFor="ppn_type" value="Jenis PPn" />
 
                                     <Select onValueChange={(value) => setPpnType(value)}>
-                                      <SelectTrigger id="ppn_type" className="w-full mt-1">
+                                      <SelectTrigger ref={ppnTypeRef} id="ppn_type" className="w-full mt-1">
                                         <SelectValue placeholder="=== Pilih Jenis Ppn ===" />
                                       </SelectTrigger>
-                                      <SelectContent>
+                                      <SelectContent onCloseAutoFocus={(event) => {
+                                        event.preventDefault()
+                                        obatRef.current.focus()
+                                      }}>
                                         <SelectItem value="include-ppn">Include PPn</SelectItem>
                                         <SelectItem value="exclude-ppn">Exclude PPn</SelectItem>
                                         <SelectItem value="no-ppn">Tanpa PPn</SelectItem>
@@ -443,9 +497,9 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
                         <div className="grid grid-cols-2 gap-5 mt-4">
                             <div className="grid grid-cols-1">
                                 <div>
-                                    <InputLabel htmlFor="medicine_id" value="Obat" />
+                                    <InputLabel htmlFor="medicines" value="Obat" />
 
-                                    <Select defaultValue={obat == 0 ? '' : obat.toString()} value={obat == 0 ? '' : obat.toString()} onValueChange={(value) => selectObatAct(parseInt(value))}>
+                                    {/*<Select defaultValue={obat == 0 ? '' : obat.toString()} value={obat == 0 ? '' : obat.toString()} onValueChange={(value) => selectObatAct(parseInt(value))}>
                                       <SelectTrigger ref={obatRef} className="w-full mt-1">
                                         <SelectValue placeholder="=== Pilih Obat ===" />
                                       </SelectTrigger>
@@ -456,9 +510,18 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
                                         ))
                                       }
                                       </SelectContent>
-                                    </Select>
+                                    </Select>*/}
 
-                                    {/*<InputError message={errors.medicine_id} className="mt-2" />*/}
+                                    <Combobox
+                                        data={medicines}
+                                        placeholder="Obat"
+                                        nextRef={jumlahRef}
+                                        onValueChange={selectObatAct}
+                                        defaultValue={obat == 0 ? '' : obat.toString()}
+                                        ref={obatRef}
+                                    />
+
+                                    <InputError message={errors.order} className="mt-2" />
                                 </div>
 
                                 <div className="mt-4">
@@ -473,6 +536,11 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
                                         className="mt-1 block w-full"
                                         autoComplete="qty"
                                         // onChange={(e) => setData('qty', e.target.value)}
+                                        onKeyPress={(event) => {
+                                            if(event.key == 'Enter') {
+                                                diskonRef.current.focus()
+                                            }
+                                        }}
                                     />
 
                                     {/*<InputError message={errors.qty} className="mt-2" />*/}
@@ -516,18 +584,24 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
 
                                 <div>
                                     <InputLabel htmlFor="disc" value="Diskon" />
-
-                                    <Input
-                                        ref={diskonRef}
-                                        id="disc"
-                                        type="number"
-                                        name="disc"
-                                        // value={data.disc}
-                                        className="mt-1 block w-full"
-                                        autoComplete="disc"
-                                        // onChange={(e) => setData('disc', e.target.value)}
-                                    />
-
+                                    <div className="flex">
+                                        <Input
+                                            ref={diskonRef}
+                                            id="disc"
+                                            type="number"
+                                            name="disc"
+                                            // value={data.disc}
+                                            className="mt-1 block w-full"
+                                            autoComplete="disc"
+                                            // onChange={(e) => setData('disc', e.target.value)}
+                                            onKeyPress={(event) => {
+                                                if(event.key === 'Enter') {
+                                                    inputBeliRef.current.focus()
+                                                }
+                                            }}
+                                        />
+                                        <Button variant="ghost" className="mt-1" type="button" disabled>%</Button>
+                                    </div>
                                     {/*<InputError message={errors.disc} className="mt-2" />*/}
                                 </div>
 
@@ -535,7 +609,7 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
                         </div>
 
                         <div className="mt-4 w-full border-t-2 border-slate-200 py-4">
-                            <Button onClick={() => inputActPembelian()}>Input</Button>
+                            <Button ref={inputBeliRef} onClick={() => inputActPembelian()}>Input</Button>
                         </div>
                     </div>
                 </div>

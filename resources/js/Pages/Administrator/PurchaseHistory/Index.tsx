@@ -145,14 +145,17 @@ export default function Index({auth, app, purchase_histories, page_num, medicine
                                     value={toDate}
                                     onChange={(e) => setToDate(e.target.value)}
                                 />
-                                <Select onValueChange={(value) => setMedicineBatch(value)}>
+                                <Select onValueChange={(value) => {
+                                    const split = value.split('|')
+                                    setMedicineBatch(split[0])
+                                }}>
                                   <SelectTrigger className="w-full">
                                     <SelectValue placeholder="=== Pilih Obat ===" />
                                   </SelectTrigger>
                                   <SelectContent>
                                   {
                                     medicines.map((row, key) => (
-                                        <SelectItem value={row.batch_number} key={key}>{row.name}</SelectItem>
+                                        <SelectItem value={`${row.batch_number}|${row.id.toString()}`} key={key}>{row.name}</SelectItem>
                                     ))
                                   }
                                   </SelectContent>
