@@ -134,13 +134,13 @@ export default function Index({auth, app, card_stocks, page_num, medicines}: Pag
                         <div className="flex">
                             <div className="w-full flex-none flex space-x-4">
                                 <Input
-                                    type="date" 
+                                    type="date"
                                     name="from_date"
                                     value={fromDate}
                                     onChange={(e) => setFromDate(e.target.value)}
                                 />
                                 <Input
-                                    type="date" 
+                                    type="date"
                                     name="from_date"
                                     value={toDate}
                                     onChange={(e) => setToDate(e.target.value)}
@@ -182,7 +182,7 @@ export default function Index({auth, app, card_stocks, page_num, medicines}: Pag
                           </TableHeader>
                           <TableBody>
                             {
-                                card_stocks.data.length == 0 ? 
+                                card_stocks.data.length == 0 ?
                                 <TableRow>
                                     <TableCell colSpan={9} align="center">
                                         Empty Data!
@@ -225,19 +225,19 @@ export default function Index({auth, app, card_stocks, page_num, medicines}: Pag
                             <TableRow>
                                 <TableCell colSpan={9}>
                                     <Pagination>
-                                        <PaginationContent>    
+                                        <PaginationContent>
                                     {
                                         card_stocks.links.map((pagination, key) => (
-                                            
+
                                             <div key={key}>
-                                            {   
-                                                pagination.label.includes('Previous') ? 
+                                            {
+                                                pagination.label.includes('Previous') ?
                                                 <Link href={pagination.url === undefined ? '#' : pagination.url}>
                                                     <PaginationPrevious/>
                                                 </Link> : ''
                                             }
                                             {
-                                                !pagination.label.includes('Previous') && !pagination.label.includes('Next') ? 
+                                                !pagination.label.includes('Previous') && !pagination.label.includes('Next') ?
 
                                                 <Link href={pagination.url === undefined ? '#' : pagination.url}>
                                                     <PaginationItem key={key}>
