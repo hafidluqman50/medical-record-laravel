@@ -1,10 +1,9 @@
-import { useState, useEffect, FormEventHandler, useRef } from "react";
-import axios from "axios";
-import AdministratorLayout from "@/Layouts/AdministratorLayout";
-import { type MedicineIndexProps } from "./type";
-import { Head, Link, router, usePage } from "@inertiajs/react";
-import { PageProps } from "@/types";
 import { Button } from "@/Components/ui/button";
+import AdministratorLayout from "@/Layouts/AdministratorLayout";
+import { PageProps } from "@/types";
+import { Head, Link, router, usePage } from "@inertiajs/react";
+import { useState } from "react";
+import { type MedicineIndexProps } from "./type";
 
 import {
   Select,
@@ -18,10 +17,10 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
-  TableFooter,
 } from "@/Components/ui/table";
 
 import {

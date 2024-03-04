@@ -15,9 +15,9 @@ use App\Models\PriceParameter;
 use App\Models\Registration;
 use App\Models\TransactionPrescription;
 use App\Http\Controllers\Controller;
-use DB;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -129,6 +129,7 @@ class MedicalRecordController extends Controller
             }
 
             $input_medical_record_list = $request->except([
+                'indexObat',
                 'kode_transaksi',
                 'medicines', 
                 'sub_total_grand',
@@ -240,7 +241,7 @@ class MedicalRecordController extends Controller
                                     })->orWhereHas('registration.doctor', function(Builder $queryHas) use ($search) {
                                         $queryHas->where('name', 'like', "%{$search}%");
                                     });
-                                })->where('medical_record_id', $medical_record_id)->paginate(5)->onEachSide(3)->withQueryString();
+                                })->where('medical_record_id', $medical_record_id)->orderBy('id','DESC')->paginate(5)->onEachSide(3)->withQueryString();
 
         $page_num = ($medical_record_lists->currentPage() - 1) * $medical_record_lists->perPage() + 1;
 
@@ -265,7 +266,7 @@ class MedicalRecordController extends Controller
 
         $page_num = ($medical_record_details->currentPage() - 1) * $medical_record_details->perPage() + 1;
 
-        return Inertia::render('Doctor/MedicalRecord/DetailRecord', compact('medical_record_details', 'page_num'));
+        return Inertia::render('Doctor/MedicalRecord/DetailRecord', compact('medical_record_id', 'medical_record_list_id', 'medical_record_details', 'page_num'));
     }
 
     public function delete(int $id): RedirectResponse

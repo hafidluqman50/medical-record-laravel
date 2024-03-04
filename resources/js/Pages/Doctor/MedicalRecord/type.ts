@@ -95,6 +95,7 @@ export type FormCreateProps = {
 }
 
 export interface MedicalRecordForm {
+    indexObat: number | null
     registration_id:number|null
     body_height:number|null
     body_weight:number|null
