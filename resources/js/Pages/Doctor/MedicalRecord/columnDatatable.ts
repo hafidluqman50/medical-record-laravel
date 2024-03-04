@@ -1,24 +1,24 @@
-import { ColumnDef } from "@tanstack/react-table"
+import { ColumnDef } from "@tanstack/react-table";
 
-import { Medicine } from '@/Pages/Administrator/Medicine/type'
+import { Medicine } from "@/Pages/Administrator/Medicine/type";
 
-import { MedicinePriceParameters } from './typeProps'
+import { MedicinePriceParameters } from "./typeProps";
 
-import { Patient } from '@/Pages/Administrator/Patient/type'
+import { Patient } from "@/Pages/Administrator/Patient/type";
 
-import { LabAction } from '@/Pages/Administrator/LabAction/type'
+import { LabAction } from "@/Pages/Administrator/LabAction/type";
 
 interface ColumnLists {
-    columnFilter:string
-    columnName:string
+  columnFilter: string;
+  columnName: string;
 }
 
 export const columnLabActions: ColumnDef<LabAction>[] = [
-{
+  {
     accessorKey: "name",
-    header:"Nama Tindakan Lab"
-}
-]
+    header: "Nama Tindakan Lab",
+  },
+];
 
 export const columns: ColumnDef<MedicinePriceParameters>[] = [
   {
@@ -69,7 +69,7 @@ export const columns: ColumnDef<MedicinePriceParameters>[] = [
     accessorKey: "enggros_faktur_price",
     header: "Harga Enggros Faktur",
   },
-]
+];
 
 export const columnLists: ColumnLists[] = [
   {
@@ -80,7 +80,7 @@ export const columnLists: ColumnLists[] = [
     columnFilter: "medicine_factory_name",
     columnName: "Pabrik",
   },
-]
+];
 
 export const columnPatients: ColumnDef<Patient>[] = [
   {
@@ -98,8 +98,8 @@ export const columnPatients: ColumnDef<Patient>[] = [
   {
     accessorKey: "phone_number",
     header: "Nomor Telepon",
-  }
-]
+  },
+];
 
 export const columnListPatients: ColumnLists[] = [
   {
@@ -117,8 +117,8 @@ export const columnListPatients: ColumnLists[] = [
   {
     columnFilter: "phone_number",
     columnName: "Nomor Telepon",
-  }
-]
+  },
+];
 
 export const columnMedicines: ColumnDef<Medicine>[] = [
   {
@@ -149,7 +149,7 @@ export const columnMedicines: ColumnDef<Medicine>[] = [
     accessorKey: "sell_price",
     header: "Hja/Net",
   },
-]
+];
 
 export const columnListMedicines: ColumnLists[] = [
   {
@@ -160,4 +160,4 @@ export const columnListMedicines: ColumnLists[] = [
     columnFilter: "medicine_factory_name",
     columnName: "Pabrik",
   },
-]
+];

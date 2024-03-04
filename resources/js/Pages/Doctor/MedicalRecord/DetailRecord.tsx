@@ -1,54 +1,30 @@
-import { useState, useEffect, FormEventHandler } from 'react'
-import axios from 'axios'
+import { Button } from '@/Components/ui/button';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableFooter,
+    TableHead,
+    TableHeader,
+    TableRow
+} from "@/Components/ui/table";
 import DoctorLayout from '@/Layouts/DoctorLayout';
+import { PageProps } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { PageProps, Doctor } from '@/types';
-import { ColumnDef } from "@tanstack/react-table"
-import { DataTable } from '@/Components/DataTable'
-import { SkeletonTable } from "@/Components/SkeletonTable"
-import { Button } from '@/Components/ui/button'
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  TableFooter
-} from "@/Components/ui/table"
+import { useState } from 'react';
 
 import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/Components/ui/pagination"
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/Components/ui/pagination";
 
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@/Components/ui/alert"
+import { Input } from '@/Components/ui/input';
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/Components/ui/alert-dialog"
-
-import { Input } from '@/Components/ui/input'
-
-import { MedicalRecordDetail, PaginationData } from './type'
+import { MedicalRecordDetail, PaginationData } from './type';
 
 interface MedicalRecordDetails {
     data:Array<MedicalRecordDetail>;
@@ -57,9 +33,10 @@ interface MedicalRecordDetails {
 
 type MedicalRecordDetailProps = {
     medical_record_details:MedicalRecordDetails
+    medical_record_id: number
 }
 
-export default function DetailRecord({auth, app, medical_record_details, page_num}: PageProps & MedicalRecordDetailProps) {
+export default function DetailRecord({auth, medical_record_id, medical_record_details, page_num}: PageProps<MedicalRecordDetailProps>) {
 
     const [searchData, setSearchData] = useState<string>('')
 
@@ -103,7 +80,7 @@ export default function DetailRecord({auth, app, medical_record_details, page_nu
                         <div className="flex">
                             <div className="grow">
                                 <Button variant="secondary" className="mb-2" asChild>
-                                    <Link href={route('doctor.medical-records.list-records', medical_record_details.data[0].medical_record_list.medical_record_id)}>Kembali</Link>
+                                    <Link href={route('doctor.medical-records.list-records', medical_record_id)}>Kembali</Link>
                                 </Button>
                             </div>
                             <div className="w-1/3 flex-none flex space-x-4">
