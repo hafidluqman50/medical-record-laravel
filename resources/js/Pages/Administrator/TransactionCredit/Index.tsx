@@ -183,6 +183,14 @@ export default function TransactionCredit({
 
     const bayarTransaksi      = useRef<any>()
     const submitBayarRef      = useRef<any>()
+    
+    /* ESC USE REF */
+    const qtyObatEscRef = useRef<any>()
+    const bungkusEscRef = useRef<any>()
+    const jumlahHargaEscRef = useRef<any>()
+    const dosisRacikEscRef = useRef<any>()
+    const jasaEscRef = useRef<any>()
+    /* END ESC USE REF */
 
     const openEnterDialog = async(event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): Promise<void> => {
         if((event as KeyboardEvent).keyCode === 13) {
@@ -468,11 +476,18 @@ export default function TransactionCredit({
         namaObat.current.value      = getRowObat[index].name
         hargaObat.current.value     = getRowObat[index].sell_price
         satuanObat.current.value    = getRowObat[index].unit_medicine
+        
         qtyObat.current.value       = getRowObat[index].qty
+        qtyObatEscRef.current       = getRowObat[index].qty
         dosisRacikRef.current.value = getRowObat[index].dose
+        dosisRacikEscRef.current    = getRowObat[index].dose
         bungkusRef.current.value    = getRowObat[index].prescription_packs
+        bungkusEscRef.current       = getRowObat[index].prescription_packs
         jumlahHarga.current.value   = getRowObat[index].total
+        jumlahHargaEscRef.current   = getRowObat[index].total
         jasaRef.current.value       = getRowObat[index].jasa
+        jasaEscRef.current          = getRowObat[index].jasa
+
 
         setSubTotal(getRowObat[index].sub_total)
 
@@ -723,12 +738,12 @@ export default function TransactionCredit({
             let medicinesData: Array<any> = []
             const getRowObat = rowObat
             
-            getRowObat[data.indexObat].qty                = parseInt(qtyObat.current.value)
-            getRowObat[data.indexObat].prescription_packs = parseInt(bungkusRef.current.value)
-            getRowObat[data.indexObat].sub_total          = parseInt(jumlahHarga.current.value)
-            getRowObat[data.indexObat].dose               = parseInt(dosisRacikRef.current.value)
-            getRowObat[data.indexObat].jasa               = parseInt(jasaRef.current.value)
-            getRowObat[data.indexObat].total              = parseInt(jumlahHarga.current.value)
+            getRowObat[data.indexObat].qty                = parseInt(qtyObatEscRef.current)
+            getRowObat[data.indexObat].prescription_packs = parseInt(bungkusEscRef.current)
+            getRowObat[data.indexObat].sub_total          = parseInt(jumlahHargaEscRef.current)
+            getRowObat[data.indexObat].dose               = parseInt(dosisRacikEscRef.current)
+            getRowObat[data.indexObat].jasa               = parseInt(jasaEscRef.current)
+            getRowObat[data.indexObat].total              = parseInt(jumlahHargaEscRef.current)
 
             subTotalGrandData = getRowObat[data.indexObat].sub_total + data.sub_total_grand + getRowObat[data.indexObat].jasa
             totalGrandData    = subTotalGrandData

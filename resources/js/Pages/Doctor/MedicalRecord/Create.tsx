@@ -43,6 +43,7 @@ export default function Create({
     const { toast } = useToast();
 
     const { data, setData, post, processing, errors, reset } = useForm<MedicalRecordForm>({
+        indexObat:null,
         registration_id:registration_id,
         body_height:null,
         body_weight:null,

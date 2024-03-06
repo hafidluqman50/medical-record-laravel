@@ -235,7 +235,7 @@ export default function ListRecord({auth, app, medical_record_lists, page_num}: 
                           </TableBody>
                           <TableFooter>
                             <TableRow>
-                                <TableCell colSpan={18}>
+                                <TableCell colSpan={19}>
                                     <Pagination>
                                         <PaginationContent>    
                                     {
