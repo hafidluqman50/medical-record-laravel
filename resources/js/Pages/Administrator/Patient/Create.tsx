@@ -1,20 +1,19 @@
-import { useState, useEffect, FormEventHandler, SetStateAction } from 'react'
-import axios from 'axios'
-import AdministratorLayout from '@/Layouts/AdministratorLayout';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
-import { Head, Link, useForm } from '@inertiajs/react';
-import { PageProps, PatientCategory } from '@/types'
+import { Button } from '@/Components/ui/button';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/Components/ui/select"
-import { Textarea } from "@/Components/ui/textarea"
-import { Button } from '@/Components/ui/button'
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/Components/ui/select";
+import { Textarea } from "@/Components/ui/textarea";
+import AdministratorLayout from '@/Layouts/AdministratorLayout';
+import { PageProps, PatientCategory } from '@/types';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { FormEventHandler, useRef } from 'react';
 
 type PatientCreateProps = {
     code:string;
@@ -32,7 +31,7 @@ interface PatientForm {
     phone_number: string
 }
 
-export default function Create({auth, code, patient_categories}: PageProps & PatientCreateProps) {
+export default function Create({auth, code, patient_categories}: PageProps<PatientCreateProps>) {
 
     const { data, setData, post, processing, errors, reset } = useForm<PatientForm>({
         code,
@@ -44,6 +43,15 @@ export default function Create({auth, code, patient_categories}: PageProps & Pat
         address:'',
         phone_number:''
     });
+    
+    const patientCategoryRef = useRef<any>()
+    const nameRef = useRef<any>()
+    const bpjsNumberRef = useRef<any>()
+    const cityPlaceRef = useRef<any>()
+    const birthDateRef = useRef<any>()
+    const addressRef = useRef<any>()
+    const phoneNumberRef = useRef<any>()
+    const submitRef = useRef<any>()
 
     const submitForm: FormEventHandler = (e) => {
         e.preventDefault()
@@ -68,7 +76,7 @@ export default function Create({auth, code, patient_categories}: PageProps & Pat
                                 <Link href={route('administrator.patients')}>Kembali</Link>
                             </Button>
                         </div>
-                        <form onSubmit={submitForm}>
+                        <form onSubmit={(event) => event.preventDefault()}>
                             <div>
                                 <InputLabel htmlFor="code" value="Kode Pasien" />
 
@@ -89,10 +97,14 @@ export default function Create({auth, code, patient_categories}: PageProps & Pat
                                 <InputLabel htmlFor="patient_category_id" value="Kategori Pasien" />
 
                                 <Select onValueChange={(value) => setData('patient_category_id', parseInt(value))}>
-                                  <SelectTrigger className="w-full">
+                                  <SelectTrigger ref={patientCategoryRef} className="w-full" autoFocus>
                                     <SelectValue placeholder="=== Pilih Kategori Pasien ===" />
                                   </SelectTrigger>
-                                  <SelectContent>
+                                  <SelectContent onCloseAutoFocus={(event) => {
+                                    event.preventDefault()
+                                    
+                                    nameRef.current.focus()
+                                  }}>
                                     {
                                         patient_categories.map((row, key) => (
                                             <SelectItem key={key} value={row.id.toString()}>{row.name}</SelectItem>
@@ -108,14 +120,19 @@ export default function Create({auth, code, patient_categories}: PageProps & Pat
                                 <InputLabel htmlFor="name" value="Nama Pasien" />
 
                                 <TextInput
+                                    ref={nameRef}
                                     id="name"
                                     type="text"
                                     name="name"
                                     value={data.name}
                                     className="mt-1 block w-full"
                                     autoComplete="name"
-                                    isFocused={true}
                                     onChange={(e) => setData('name', e.target.value)}
+                                    onKeyPress={(event) => {
+                                      if(event.key === 'Enter') {
+                                        bpjsNumberRef.current.focus()
+                                      }
+                                    }}
                                 />
 
                                 <InputError message={errors.name} className="mt-2" />
@@ -125,6 +142,7 @@ export default function Create({auth, code, patient_categories}: PageProps & Pat
                                 <InputLabel htmlFor="bpjs_number" value="Nomor BPJS" />
 
                                 <TextInput
+                                    ref={bpjsNumberRef}
                                     id="bpjs_number"
                                     type="text"
                                     name="bpjs_number"
@@ -132,6 +150,11 @@ export default function Create({auth, code, patient_categories}: PageProps & Pat
                                     className="mt-1 block w-full"
                                     autoComplete="bpjs_number"
                                     onChange={(e) => setData('bpjs_number', e.target.value)}
+                                    onKeyPress={(event) => {
+                                      if(event.key === 'Enter') {
+                                        cityPlaceRef.current.focus()
+                                      }
+                                    }}
                                 />
 
                                 <InputError message={errors.bpjs_number} className="mt-2" />
@@ -141,6 +164,7 @@ export default function Create({auth, code, patient_categories}: PageProps & Pat
                                 <InputLabel htmlFor="city_place" value="Kota Pasien" />
 
                                 <TextInput
+                                    ref={cityPlaceRef}
                                     id="city_place"
                                     type="text"
                                     name="city_place"
@@ -148,6 +172,11 @@ export default function Create({auth, code, patient_categories}: PageProps & Pat
                                     className="mt-1 block w-full"
                                     autoComplete="city_place"
                                     onChange={(e) => setData('city_place', e.target.value)}
+                                    onKeyPress={(event) => {
+                                      if(event.key === 'Enter') {
+                                        birthDateRef.current.focus()
+                                      }
+                                    }}
                                 />
 
                                 <InputError message={errors.city_place} className="mt-2" />
@@ -157,6 +186,7 @@ export default function Create({auth, code, patient_categories}: PageProps & Pat
                                 <InputLabel htmlFor="birth_date" value="Tanggal Lahir" />
 
                                 <TextInput
+                                    ref={birthDateRef}
                                     id="birth_date"
                                     type="date"
                                     name="birth_date"
@@ -164,6 +194,11 @@ export default function Create({auth, code, patient_categories}: PageProps & Pat
                                     className="mt-1 block w-full"
                                     autoComplete="birth_date"
                                     onChange={(e) => setData('birth_date',e.target.value)}
+                                    onKeyPress={(event) => {
+                                      if(event.key === 'Enter') {
+                                        addressRef.current.focus()
+                                      }
+                                    }}
                                 />
 
                                 <InputError message={errors.birth_date} className="mt-2" />
@@ -173,12 +208,18 @@ export default function Create({auth, code, patient_categories}: PageProps & Pat
                                 <InputLabel htmlFor="address" value="Alamat Pasien" />
 
                                 <Textarea 
+                                    ref={addressRef}
                                     name="address"
                                     className="mt-1 block w-full focus:border-indigo-700" 
                                     value={data.address}
                                     rows={10}
                                     cols={10}
                                     onChange={(e) => setData('address', e.target.value)}
+                                    onKeyPress={(event) => {
+                                      if(event.key === 'Enter') {
+                                        phoneNumberRef.current.focus()
+                                      }
+                                    }}
                                 />
 
                                 <InputError message={errors.address} className="mt-2" />
@@ -188,6 +229,7 @@ export default function Create({auth, code, patient_categories}: PageProps & Pat
                                 <InputLabel htmlFor="phone_number" value="Nomor HP Pasien" />
 
                                 <TextInput
+                                    ref={phoneNumberRef}
                                     id="phone_number"
                                     type="number"
                                     name="phone_number"
@@ -195,13 +237,23 @@ export default function Create({auth, code, patient_categories}: PageProps & Pat
                                     className="mt-1 block w-full"
                                     autoComplete="phone_number"
                                     onChange={(e) => setData('phone_number', e.target.value)}
+                                    onKeyPress={(event) => {
+                                      if(event.key === 'Enter') {
+                                        submitRef.current.focus()
+                                      }
+                                    }}
                                 />
 
                                 <InputError message={errors.phone_number} className="mt-2" />
                             </div>
 
                             <div className="mt-4 w-full border-t-2 border-slate-200 py-4">
-                                <Button disabled={processing}>Simpan</Button>
+                                <Button 
+                                    ref={submitRef} 
+                                    disabled={processing} 
+                                    onClick={(event) => submitForm(event)}
+                                    type="button"
+                                >Simpan</Button>
                             </div>
 
                         </form>

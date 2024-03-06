@@ -117,6 +117,13 @@ export default function TransactionUpds({
     const diskonObat     = useRef<any>()
     const bayarTransaksi = useRef<any>()
     const submitBayarRef = useRef<any>()
+    
+    /* ESC USE REF */
+    const qtyObatEscRef = useRef<any>()
+    const hargaObatEscRef = useRef<any>()
+    const diskonObatEscRef = useRef<any>()
+    const jumlahHargaEscRef = useRef<any>()
+    /* END ESC USE REF */
 
     const openEnterDialog = async(
         event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>
@@ -431,10 +438,15 @@ export default function TransactionUpds({
             kodeObat.current.value    = getRowObat[index].code
             namaObat.current.value    = getRowObat[index].name
             satuanObat.current.value  = getRowObat[index].unit_medicine
+            
             hargaObat.current.value   = getRowObat[index].sell_price
+            hargaObatEscRef.current   = getRowObat[index].sell_price
             diskonObat.current.value  = getRowObat[index].disc
+            diskonObatEscRef.current  = getRowObat[index].disc
             qtyObat.current.value     = getRowObat[index].qty
+            qtyObatEscRef.current     = getRowObat[index].qty
             jumlahHarga.current.value = getRowObat[index].total
+            jumlahHargaEscRef.current = getRowObat[index].total
 
             setSubTotal(getRowObat[index].sub_total)
 
@@ -467,10 +479,10 @@ export default function TransactionUpds({
             let calculate: number = 0
 
             if(rowObat[data.indexObat].is_hja_net) {
-                calculate = parseInt(qtyObat.current.value) * parseInt(hargaObat.current.value)
+                calculate = parseInt(qtyObatEscRef.current) * parseInt(hargaObatEscRef.current)
             } else {
                 calculate = Math.round(
-                        (parseInt(qtyObat.current.value) * parseInt(hargaObat.current.value) * price_parameter.upds) / price_parameter.pembulatan
+                        (parseInt(qtyObatEscRef.current) * parseInt(hargaObat.current.value) * price_parameter.upds) / price_parameter.pembulatan
                     ) * price_parameter.pembulatan
             }
 
@@ -481,18 +493,18 @@ export default function TransactionUpds({
             let discData          = data.disc
             let totalData         = data.total
             let subTotalGrandData = data.sub_total_grand + calculate
-            let totalGrandData    = data.total_grand + parseInt(jumlahHarga.current.value)
+            let totalGrandData    = data.total_grand + parseInt(jumlahHargaEscRef.current)
             let diskonGrandData   = data.diskon_grand + diskon
 
-            qtyData[data.indexObat] = qtyObat.current.value
+            qtyData[data.indexObat] = qtyObatEscRef.current
             
-            priceData[data.indexObat] = hargaObat.current.value
+            priceData[data.indexObat] = hargaObatEscRef.current
             
             subTotalData[data.indexObat] = calculate
             
-            discData[data.indexObat] =  parseInt(diskonObat.current.value)
+            discData[data.indexObat] =  parseInt(diskonObatEscRef.current)
 
-            totalData[data.indexObat] = jumlahHarga.current.value
+            totalData[data.indexObat] = jumlahHargaEscRef.current
 
             const result = rowObat
 
