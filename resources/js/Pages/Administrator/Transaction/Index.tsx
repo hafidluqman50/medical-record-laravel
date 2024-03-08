@@ -209,7 +209,7 @@ export default function Index({auth, app, transactions, page_num, tab_value}: Pa
                                                 {row.transaction_pay_type}
                                             </TableCell>
                                             <TableCell className="border border-slate-200">
-                                                {row.user.name}
+                                                {row.user == null ? '-' : row.user.name}
                                             </TableCell>
                                             <TableCell className="border border-slate-200">
                                                 <div className="flex space-x-4">
@@ -360,7 +360,7 @@ export default function Index({auth, app, transactions, page_num, tab_value}: Pa
                                                 {row.transaction_pay_type}
                                             </TableCell>
                                             <TableCell className="border border-slate-200">
-                                                {row.user.name}
+                                                {row.user == null ? '-' : row.user.name}
                                             </TableCell>
                                             <TableCell className="border border-slate-200">
                                                 <div className="flex space-x-4">
@@ -511,7 +511,7 @@ export default function Index({auth, app, transactions, page_num, tab_value}: Pa
                                                 {row.transaction_pay_type}
                                             </TableCell>
                                             <TableCell className="border border-slate-200">
-                                                {row.user.name}
+                                                {row.user == null ? '-' : row.user.name}
                                             </TableCell>
                                             <TableCell className="border border-slate-200">
                                                 <div className="flex space-x-4">
