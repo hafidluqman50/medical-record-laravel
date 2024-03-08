@@ -986,7 +986,13 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
                         rowObat.map((row, key) => (
                             <TableRow key={key} onDoubleClick={(event) => dblClickAct(event, key)}>
                                 <TableCell className="border border-slate-100">
-                                    <input type="radio" name="medicine_id" onClick={(event) => rowObatAct(event, key)} value={key} />
+                                    <input 
+                                      type="radio" 
+                                      name="medicine_id" 
+                                      onClick={(event) => rowObatAct(event, key)} 
+                                      onKeyPress={(event) => rowObatAct(event, key)} 
+                                      value={key} 
+                                    />
                                 </TableCell>
                                 <TableCell className="border border-slate-100">
                                     {key+1}
