@@ -1185,6 +1185,7 @@ export default function TransactionPrescription({
                     type="radio"
                     name="medicine_id"
                     onClick={(event) => rowObatAct(event, key)}
+                    onKeyPress={(event) => rowObatAct(event, key)} 
                     value={key}
                   />
                 </TableCell>

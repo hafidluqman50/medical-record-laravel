@@ -669,6 +669,8 @@ export default function TransactionUpds({
     useEffect(() => {
         
         document.addEventListener('keydown', onKeyDownAct)
+        
+        console.log('mantap')
 
         return () => {
             document.removeEventListener('keydown', onKeyDownAct)
@@ -980,7 +982,13 @@ export default function TransactionUpds({
                         rowObat.map((row, key) => (
                             <TableRow key={key} onDoubleClick={(event) => dblClickAct(event, key)}>
                                 <TableCell className="border border-slate-100">
-                                    <input type="radio" name="medicine_id" onClick={(event) => rowObatAct(event, key)} value={key} />
+                                    <input 
+                                        type="radio" 
+                                        name="medicine_id" 
+                                        onClick={(event) => rowObatAct(event, key)} 
+                                        onKeyPress={(event) => rowObatAct(event, key)} 
+                                        value={key} 
+                                      />
                                 </TableCell>
                                 <TableCell className="border border-slate-100">
                                     {key+1}
