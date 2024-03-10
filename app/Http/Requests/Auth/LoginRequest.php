@@ -40,8 +40,14 @@ class LoginRequest extends FormRequest
     public function authenticate(string $guard = 'web'): void
     {
         $this->ensureIsNotRateLimited();
-
-        if (! Auth::guard($guard)->attempt($this->only('username', 'password'), true)) {
+        
+        $login_request = $this->only('username', 'password');
+        
+        if($guard == 'doctor') {
+            $login_request['status_doctor'] = 1;
+        }
+        
+        if (! Auth::guard($guard)->attempt($login_request, true)) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([

@@ -6,10 +6,11 @@ use App\Models\DistributionMedicine;
 use App\Models\DistributionMedicineDetail;
 use App\Models\Medicine;
 use App\Http\Controllers\Controller;
-use DB;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
