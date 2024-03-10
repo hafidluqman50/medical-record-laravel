@@ -173,7 +173,7 @@ export default function Edit({auth, doctor}: PageProps & DoctorProps) {
                                     id="fee"
                                     type="number"
                                     name="fee"
-                                    value={data.fee ?? 0}
+                                    value={data.fee ?? ''}
                                     className="mt-1 block w-full"
                                     autoComplete="fee"
                                     onChange={(e) => setData('fee', parseInt(e.target.value))}

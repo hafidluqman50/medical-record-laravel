@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Doctor;
 
-use Auth;
 use App\Models\LabAction;
 use App\Models\Medicine;
 use App\Models\MedicalRecord;
@@ -17,6 +16,7 @@ use App\Models\TransactionPrescription;
 use App\Http\Controllers\Controller;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -33,6 +33,8 @@ class MedicalRecordController extends Controller
                                 $query->whereHas('patient', function(Builder $queryHas) use ($search) {
                                     $queryHas->where('name', 'like', "%{$search}%");
                                 });
+                            })->whereHas('medicalRecordLists.registration', function(Builder $query) {
+                                $query->where('doctor_id', Auth::guard('doctor')->id());
                             })->paginate(5)->onEachSide(3)->withQueryString();
 
         $page_num = ($medical_records->currentPage() - 1) * $medical_records->perPage() + 1;
