@@ -4,12 +4,12 @@ namespace App\Http\Controllers\Administrator;
 
 use App\Models\Doctor;
 use App\Http\Controllers\Controller;
-use DB;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -65,6 +65,8 @@ class DoctorController extends Controller
         ]);
 
         $input = $request->all();
+        
+        $input['password'] = Hash::make($request->password);
 
         DB::beginTransaction();
         try {
@@ -105,6 +107,8 @@ class DoctorController extends Controller
         }
         else {
             $input = $request->all();
+            
+            $input['password'] = Hash::make($request->password);
         }
 
         DB::beginTransaction();
