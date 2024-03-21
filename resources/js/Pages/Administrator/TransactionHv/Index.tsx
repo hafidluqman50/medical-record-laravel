@@ -60,6 +60,8 @@ import {
     columnLists
 } from './columnDatatable'
 
+import { DataTableHargaObat } from './DataTableServer'
+
 import { useToast } from '@/Components/ui/use-toast'
 
 import { useStateWithCallback } from '@/lib/hooks'
@@ -750,7 +752,7 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
                 <DialogHeader>
                   <DialogTitle>Data Harga Obat</DialogTitle>
                 </DialogHeader>
-                <DataTable columns={columns} data={medicine_price_parameters} columnLists={columnLists}/>
+                <DataTableHargaObat />
               </DialogContent>
             </Dialog>
 

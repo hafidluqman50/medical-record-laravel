@@ -32,6 +32,11 @@ export interface Medicine {
   capital_price: number | string;
   capital_price_vat: number | string;
   sell_price: number | string;
+  resep_tunai_price: number | string;
+  upds_price: number | string;
+  hv_otc_price: number | string;
+  resep_kredit_price: number | string;
+  enggros_faktur_price: number | string;
 }
 
 export interface Medicines {

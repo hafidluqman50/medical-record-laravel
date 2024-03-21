@@ -120,11 +120,33 @@ export default function Index({
                 </div>
               </Alert>
             )}
+            {session.error && (
+              <Alert id="alert-danger" className="mb-5 flex" variant="destructive">
+                <div className="w-full grow">
+                  <AlertTitle>Gagal !</AlertTitle>
+                  <AlertDescription>{session.error}</AlertDescription>
+                </div>
+                <div className="flex-none">
+                  <Button
+                    className="justify-content-end"
+                    variant="ghost"
+                    onClick={dismissAlert}
+                  >
+                    X
+                  </Button>
+                </div>
+              </Alert>
+            )}
             <div className="flex">
               <div className="grow">
                 <Button className="mb-2" asChild>
                   <Link href={route("administrator.medicines.create")}>
                     Tambah Obat
+                  </Link>
+                </Button>
+                <Button variant="success" className="ml-2 mb-2" asChild>
+                  <Link href={route("administrator.medicines.import-medicines-form")}>
+                    Import Obat
                   </Link>
                 </Button>
               </div>

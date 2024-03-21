@@ -15,6 +15,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
 
 class MedicineController extends Controller
 {
@@ -226,5 +229,119 @@ class MedicineController extends Controller
 
             throw new Exception($e->getMessage() . " - Line:" . $e->getLine());
         }
+    }
+    
+    public function importMedicinesForm(): Response
+    {
+        return Inertia::render('Administrator/Medicine/ImportForm');
+    }
+    
+    public function importMedicines(Request $request): RedirectResponse
+    {
+        $file_excel = $request->file_excel;
+        
+        $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
+        $spreadsheet = $reader->load($file_excel[0]);
+        $rows = $spreadsheet->getActiveSheet()->toArray();
+        
+        DB::beginTransaction();
+        
+        try {
+            foreach($rows as $key => $row) {
+                if($key >= 3 && $row[0] != null) {
+                    $check_medicines_factory = MedicineFactory::where('name', $row[1])->exists();
+                    if(!$check_medicines_factory) {
+                        $medicine_factory_id = MedicineFactory::insertGetId([
+                            'name' => $row[1],
+                            'phone_number' => 0,
+                            'address' => '-'
+                        ]);
+                    }
+                    else {
+                        $medicine_factory_id = MedicineFactory::where('name', $row[1])->firstOrFail()->id;
+                    }
+                    
+                    Medicine::updateOrCreate(
+                        ['code' => $row[7], 'name' => $row[0], 'data_location' => 'gudang'],
+                        [
+                            'code' => $row[7],
+                            'batch_number' => $row[7],
+                            'name' => $row[0],
+                            'date_expired' => '0000-00-00',
+                            'medicine_factory_id' => $medicine_factory_id,
+                            'drug_classification_id' => 1,
+                            'medical_supplier_id' => 1,
+                            'min_stock_supplier' => 0,
+                            'is_generic' => 0,
+                            'is_active' => 1,
+                            'is_prescription' => 1,
+                            'stock' => $row[4],
+                            'piece_weight' => 1,
+                            'pack_medicine' => $row[2],
+                            'unit_medicine' => $row[3],
+                            'capital_price' => (int)$row[5],
+                            'capital_price_vat' => (int)$row[6],
+                            'sell_price' => 0,
+                            'medicinal_preparations' => $row[2],
+                            'location_rack' => '-',
+                            'dose' => 0,
+                            'composition' => '-',
+                            'is_fullpack' => 0,
+                            'data_location' => 'gudang'
+                        ]
+                    );
+                    
+                    Medicine::updateOrCreate(
+                        ['code' => $row[7], 'name' => $row[0], 'data_location' => 'kasir'],
+                        [
+                            'code' => $row[7],
+                            'batch_number' => $row[7],
+                            'name' => $row[0],
+                            'date_expired' => '0000-00-00',
+                            'medicine_factory_id' => $medicine_factory_id,
+                            'drug_classification_id' => 1,
+                            'medical_supplier_id' => 1,
+                            'min_stock_supplier' => 0,
+                            'is_generic' => 0,
+                            'is_active' => 1,
+                            'is_prescription' => 1,
+                            'stock' => $row[4],
+                            'piece_weight' => 1,
+                            'pack_medicine' => $row[2],
+                            'unit_medicine' => $row[3],
+                            'capital_price' => (int)$row[5],
+                            'capital_price_vat' => (int)$row[6],
+                            'sell_price' => 0,
+                            'medicinal_preparations' => $row[2],
+                            'location_rack' => '-',
+                            'dose' => 0,
+                            'composition' => '-',
+                            'is_fullpack' => 0,
+                            'data_location' => 'kasir'
+                        ]
+                    );
+                }
+            }
+            
+            DB::commit();
+            
+            return redirect()->intended('/administrator/medicines')->with('success', 'Berhasil Import Data Obat!');
+        } catch(Exception $e) {
+            DB::rollBack();
+            
+            return redirect()->intended('/administrator/medicines')->with('error', $e->getMessage().'-'.$e->getLine());
+        }
+    }
+    
+    public function testExcel(): void
+    {
+        $spreadsheet = new Spreadsheet();
+        $activeWorksheet = $spreadsheet->getActiveSheet();
+        $activeWorksheet->setCellValue('A1', 'Hello World !');
+        
+        $writer = new Xlsx($spreadsheet);
+        header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        header("Content-Disposition: attachment;filename=\"hello world.xlsx\"");
+        $writer->save('php://output');
     }
 }
