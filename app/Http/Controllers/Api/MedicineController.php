@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Medicine;
+use App\Models\PriceParameter;
 use App\Http\Controllers\ApiBaseController;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -48,7 +49,13 @@ class MedicineController extends ApiBaseController
              return $query;
         });
 
-        $count = Medicine::where('data_location', $data_location)->count();
+        $count = Medicine::where('data_location', $data_location)->when($filter != '', function(Builder $query) use ($search, $filter) {
+            if($filter == 'generic') {
+                $query->where('is_generic', 1);
+            } else {
+                $query->where($filter, 'like', "%{$search}%");
+            }
+        })->count();
 
         $max_page = ceil($count / 5);
 
@@ -121,6 +128,54 @@ class MedicineController extends ApiBaseController
 
         return $this->responseResult()
                     ->message('Success Set Status Medicine ID '.$id)
+                    ->ok();
+    }
+    
+    public function getAllWithPriceParameters(Request $request): JsonResponse
+    {
+        $page_num = $request->page_num;
+        $search = $request->search;
+        
+        $price_parameter = PriceParameter::where('label', 'Tunai')->firstOrFail();
+        
+        $medicine_price_parameters = Medicine::with(['medicineFactory'])->when($search != '', function(Builder $query) use ($search) {
+            $query->where('name', 'like', "%{$search}%");
+        })->when($page_num != '', function(Builder $query) use ($page_num) {
+            $query->offset($page_num)->limit(5);
+        })->get()->map(function(Medicine $medicine) use ($price_parameter) {
+
+            $capital_price     = $medicine->capital_price;
+            $capital_price_vat = $medicine->capital_price_vat;
+            $sell_price        = $medicine->sell_price;
+
+            $medicine->resep_tunai_price     = format_rupiah($capital_price_vat * $price_parameter->resep_tunai);
+            $medicine->upds_price            = format_rupiah($capital_price_vat * $price_parameter->upds);
+            $medicine->hv_otc_price          = format_rupiah($capital_price_vat * $price_parameter->hv_otc);
+            $medicine->resep_kredit_price    = format_rupiah($capital_price_vat * $price_parameter->resep_kredit);
+            $medicine->enggros_faktur_price  = format_rupiah($capital_price_vat * $price_parameter->enggros_faktur);
+            $medicine->medicine_factory_name = $medicine->medicineFactory->name;
+
+            unset(
+                $medicine->capital_price,
+                $medicine->capital_price_vat,
+                $medicine->sell_price
+            );
+
+            $medicine->capital_price     = format_rupiah($capital_price);
+            $medicine->capital_price_vat = format_rupiah($capital_price_vat);
+            $medicine->sell_price        = format_rupiah($sell_price);
+
+            return $medicine;
+        });
+        
+        $count = Medicine::where('data_location', 'kasir')->when($search != '', function(Builder $query) use ($search) {
+            $query->where('name', 'like', "%{$search}%");
+        })->count();
+
+        $max_page = ceil($count / 5);
+        
+        return $this->responseResult(compact('medicine_price_parameters', 'max_page'))
+                    ->message('Success Get Medicine Price Parameter!')
                     ->ok();
     }
 }

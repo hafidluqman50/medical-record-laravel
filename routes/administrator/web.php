@@ -123,6 +123,9 @@ Route::group(['middleware' => ['guard.check:web']], function() {
         Route::get('/edit/{id}', [MedicineController::class, 'edit'])->name('administrator.medicines.edit');
         Route::put('/update/{id}', [MedicineController::class, 'update'])->name('administrator.medicines.update');
         Route::delete('/delete/{id}', [MedicineController::class, 'delete'])->name('administrator.medicines.delete');
+        Route::get('/test-excel', [MedicineController::class, 'testExcel'])->name('administrator.medicines.test-excel');
+        Route::get('/import-medicines-form', [MedicineController::class, 'importMedicinesForm'])->name('administrator.medicines.import-medicines-form');
+        Route::post('/import-medicines', [MedicineController::class, 'importMedicines'])->name('administrator.medicines.import-medicines');
     });
 
     Route::group(['prefix' => 'price-parameters'], function() {
