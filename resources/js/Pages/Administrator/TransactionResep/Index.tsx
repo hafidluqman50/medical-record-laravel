@@ -82,7 +82,8 @@ import { useToast } from '@/Components/ui/use-toast'
 import { 
     DataTableMasterObat,
     DataTableRekamMedis,
-    DataTableTransaction
+    DataTableTransaction,
+    DataTableHargaObat
 } from './DataTableServer'
 
 import { useStateWithCallback } from '@/lib/hooks'
@@ -1047,7 +1048,8 @@ export default function TransactionResep({
                 <DialogHeader>
                   <DialogTitle>Data Harga Obat</DialogTitle>
                 </DialogHeader>
-                <DataTable columns={columns} data={medicine_price_parameters} />
+                {/* <DataTable columns={columns} data={medicine_price_parameters} /> */}
+                <DataTableHargaObat />
               </DialogContent>
             </Dialog>
 
