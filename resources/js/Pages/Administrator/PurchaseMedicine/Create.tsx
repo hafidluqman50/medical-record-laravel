@@ -1,12 +1,16 @@
 import { 
     useState, 
     useEffect, 
+    useCallback,
     FormEventHandler, 
     useRef,
     KeyboardEvent,
     ChangeEvent
 } from 'react'
 import axios from 'axios'
+import { useQuery, QueryFunctionContext } from "@tanstack/react-query";
+
+import {default as ReactSelect} from 'react-select'
 import AdministratorLayout from '@/Layouts/AdministratorLayout';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
@@ -105,6 +109,10 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
     const [obat, setObat]         = useState<number>(0)
     const [namaObat, setNamaObat] = useState<string>('')
     const [selectedMedicalSupplier, setSelectedMedicalSupplier] = useState<string>(medical_suppliers[0].id.toString())
+    
+    const [listObat, setListObat] = useState<Array<{value:number,label:string}>>([])
+    
+    const [pageNum, setPageNum] = useState<number>(0)
 
     const typeRef          = useRef<any>()
     const dateReceiveRef   = useRef<any>()
@@ -166,6 +174,52 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
             due_date:new_date
         }))
     }
+    
+    const fetchListObat = async ({
+      queryKey,
+    }: QueryFunctionContext<[string, number]>): Promise<Array<{
+      value:number,
+      label:string
+    }>> => {
+      const [_, pageNum] = queryKey;
+      const response = await axios.get<{
+          medicines: Medicine[];
+          max_page: number;
+        }>(route("api.medicines.get-all"), {
+        params: {
+          page_num: pageNum,
+          data_location:'gudang',
+          limit: 20
+        },
+      });
+      
+      const listObatMap = response.data.medicines.map((map) => {
+        return {
+          value:map.id,
+          label:`${map.name} - ${map.batch_number}`
+        }
+      })
+      
+      setListObat([...listObat, ...listObatMap])
+      
+      return response.data.medicines.map((map) => {
+        return {
+          value:map.id,
+          label:`${map.name} - ${map.batch_number}`
+        }
+      });
+    };
+  
+    const { isLoading, isError, data: dataQuery, error, refetch } = useQuery({
+      queryKey: ["listObat", pageNum],
+      queryFn: fetchListObat,
+    });
+    
+    const handleScrollBottom = useCallback(() => {
+        // key.current += 1;
+        //setKey(key + 1);
+        setPageNum(pageNum => pageNum + 20)
+    }, [pageNum]);
 
     const selectObatAct = async(value: number): Promise<void> => {
         setObat(value)
@@ -257,6 +311,7 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
         satuanRef.current.value = ''
         hnaRef.current.value    = ''
         diskonRef.current.value = ''
+        obatRef.current.clearValue()
         obatRef.current.focus()
     }
 
@@ -512,15 +567,29 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
                                       </SelectContent>
                                     </Select>*/}
 
-                                    <Combobox
+                                    {/* <Combobox
                                         data={medicines}
                                         placeholder="Obat"
                                         nextRef={jumlahRef}
                                         onValueChange={selectObatAct}
                                         defaultValue={obat == 0 ? '' : obat.toString()}
                                         ref={obatRef}
+                                    /> */}
+                                    
+                                    <ReactSelect 
+                                        ref={obatRef}
+                                        className="basic-single text-sm" 
+                                        classNamePrefix="select" 
+                                        options={listObat}
+                                        name="list-obat"
+                                        onMenuScrollToBottom={handleScrollBottom}
+                                        onChange={(event) => {
+                                          if(event != null) {  
+                                            selectObatAct(event.value)
+                                          }
+                                          jumlahRef.current.focus()
+                                        }}
                                     />
-
                                     <InputError message={errors.order} className="mt-2" />
                                 </div>
 
