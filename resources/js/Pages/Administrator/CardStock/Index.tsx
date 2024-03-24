@@ -1,5 +1,6 @@
-import { useState, useEffect, FormEventHandler } from 'react'
+import { useState, useEffect, FormEventHandler, useRef, useCallback } from 'react'
 import axios from 'axios'
+import { useQuery, QueryFunctionContext } from "@tanstack/react-query";
 import AdministratorLayout from '@/Layouts/AdministratorLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { PageProps } from '@/types';
@@ -9,13 +10,18 @@ import { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from '@/Components/DataTable'
 import { SkeletonTable } from "@/Components/SkeletonTable"
 import { Button } from '@/Components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/Components/ui/select"
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "@/Components/ui/select"
+
+import AsyncSelect from 'react-select/async';
+
+import Select from 'react-select';
+
 import {
   Table,
   TableBody,
@@ -75,9 +81,14 @@ type CardStockProps = {
 
 export default function Index({auth, app, card_stocks, page_num, medicines}: PageProps & CardStockProps) {
 
-    const [medicineBatch, setMedicineBatch] = useState<string>('')
+    const [medicineBatch, setMedicineBatch] = useState<number|null>(null)
     const [fromDate, setFromDate]           = useState<string>('')
     const [toDate, setToDate]               = useState<string>('')
+    const [listObat, setListObat]           = useState<Array<{value:number,label:string}>>([])
+    
+    const [pageNum, setPageNum] = useState<number>(0)
+    
+    const listObatRef = useRef<any>()
 
     const { session } = usePage<PageProps>().props
 
@@ -103,6 +114,54 @@ export default function Index({auth, app, card_stocks, page_num, medicines}: Pag
             }
         )
     }
+    
+    const fetchListObat = async ({
+      queryKey,
+    }: QueryFunctionContext<[string, number]>): Promise<Array<{
+      value:number,
+      label:string
+    }>> => {
+      const [_, pageNum] = queryKey;
+      const response = await axios.get<{
+          medicines: Medicine[];
+          max_page: number;
+        }>(route("api.medicines.get-all"), {
+        params: {
+          page_num: pageNum,
+          data_location:'gudang',
+          limit: 20
+        },
+      });
+      
+      const listObatMap = response.data.medicines.map((map) => {
+        return {
+          value:map.id,
+          label:`${map.name} - ${map.batch_number}`
+        }
+      })
+      
+      setListObat([...listObat, ...listObatMap])
+      
+      return response.data.medicines.map((map) => {
+        return {
+          value:map.id,
+          label:`${map.name} - ${map.batch_number}`
+        }
+      });
+    };
+  
+    const { isLoading, isError, data, error, refetch } = useQuery({
+      queryKey: ["listObat", pageNum],
+      queryFn: fetchListObat,
+    });
+    
+    const handleScrollBottom = useCallback(() => {
+        // key.current += 1;
+        //setKey(key + 1);
+        setPageNum(pageNum => pageNum + 20)
+    }, [pageNum]);
+    
+    console.log(pageNum, listObat)
 
     return (
         <AdministratorLayout
@@ -133,19 +192,23 @@ export default function Index({auth, app, card_stocks, page_num, medicines}: Pag
                     )}
                         <div className="flex">
                             <div className="w-full flex-none flex space-x-4">
+                              <div className="w-3/12">
                                 <Input
                                     type="date"
                                     name="from_date"
                                     value={fromDate}
                                     onChange={(e) => setFromDate(e.target.value)}
                                 />
+                              </div>
+                              <div className="w-3/12">
                                 <Input
                                     type="date"
                                     name="from_date"
                                     value={toDate}
                                     onChange={(e) => setToDate(e.target.value)}
                                 />
-                                <Select onValueChange={(value) => {
+                              </div>
+                                {/* <Select onValueChange={(value) => {
                                     const split = value.split('|')
                                     setMedicineBatch(split[0])
                                 }}>
@@ -159,8 +222,21 @@ export default function Index({auth, app, card_stocks, page_num, medicines}: Pag
                                     ))
                                   }
                                   </SelectContent>
-                                </Select>
-
+                                </Select> */}
+                                <div className="w-5/12">
+                                  <Select 
+                                      className="basic-single text-sm" 
+                                      classNamePrefix="select" 
+                                      options={listObat}
+                                      name="list-obat"
+                                      onMenuScrollToBottom={handleScrollBottom}
+                                      onChange={(event) => {
+                                        if(event != null) {
+                                          setMedicineBatch(event.value)
+                                        }
+                                      }}
+                                  />
+                                </div>
                                 <Button className="mb-2" variant="secondary" onClick={search}>
                                     Cari
                                 </Button>
