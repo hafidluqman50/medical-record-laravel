@@ -1018,7 +1018,7 @@ export function DataTableTransaction({
                     <TableCell>Rp. {formatRupiah(row.total)}</TableCell>
                     <TableCell>Rp. {formatRupiah(row.pay_total)}</TableCell>
                     <TableCell>Rp. {formatRupiah(row.change_money)}</TableCell>
-                    <TableCell>{row.user.name}</TableCell>
+                    <TableCell>{row.user == null ? '-' : row.user.name}</TableCell>
                     <TableCell className="flex flex-col space-y-2">
                       <Button className="bg-cyan-500" asChild>
                         <Link
