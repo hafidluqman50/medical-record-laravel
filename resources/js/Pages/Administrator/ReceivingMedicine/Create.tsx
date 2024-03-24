@@ -1,5 +1,13 @@
-import { useState, useEffect, FormEventHandler, useRef } from 'react'
+import { 
+  useState, 
+  useEffect, 
+  FormEventHandler, 
+  useRef,
+  KeyboardEvent,
+  ChangeEvent
+} from 'react'
 import axios from 'axios'
+import { useQuery, QueryFunctionContext } from "@tanstack/react-query";
 import AdministratorLayout from '@/Layouts/AdministratorLayout';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
@@ -86,6 +94,9 @@ export default function Create({auth, invoice_number}: PageProps & CreateFormPro
     })
 
     const [dialogObat, setDialogObat] = useState<boolean>(false)
+    
+    const [pageNum, setPageNum] = useState<number>(0)
+    const [searchObatJual, setSearchObatJual] = useState<string|null>(null)
 
     const obatIdRef     = useRef<any>()
     const kodeObatRef   = useRef<any>()
@@ -98,32 +109,76 @@ export default function Create({auth, invoice_number}: PageProps & CreateFormPro
     const hnaRef        = useRef<any>()
     const notesRef      = useRef<any>()
     const btnInputRef   = useRef<any>()
+    const jualObatRef   = useRef<any>()
+    
+    const onScroll = () => {
+      if (jualObatRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = jualObatRef.current;
+        if (scrollTop + clientHeight === scrollHeight) {
+          setPageNum(pageNum => pageNum + 20)
+        }
+      }
+    };
+    
+    const fetchJualObat = async ({
+      queryKey,
+    }: QueryFunctionContext<[string, number, string|null]>): Promise<{
+      medicines: Medicine[];
+      max_page: number;
+    }> => {
+      const [_, pageNum, searchObatJual] = queryKey;
+      const response = await axios.get<{
+          medicines: Medicine[];
+          max_page: number;
+        }>(route("api.medicines.get-all"), {
+        params: {
+          page_num: pageNum,
+          data_location:'gudang',
+          medicine: searchObatJual,
+          limit: 20
+        },
+      });
+      
+      setJualObat((jualObat:any) => ({
+          ...jualObat,
+          data:[...jualObat.data, ...response.data.medicines]
+      }))
+      
+      return response.data;
+    };
+  
+    const { isLoading, isError, data:jualObatQuery, error, refetch } = useQuery({
+      queryKey: ["jualObat", pageNum, searchObatJual],
+      queryFn: fetchJualObat,
+    });
 
-    const obatAct = async(event: any): Promise<void> => {
-        if(event.key === 'Enter') {
+    const obatAct = async(event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): Promise<void> => {
+        if((event as KeyboardEvent).key === 'Enter') {
             setDialogObat(true)
 
-            setJualObat((jualObat: any) => ({
-                ...jualObat,
-                isLoading:true
-            }))
+            // setJualObat((jualObat: any) => ({
+            //     ...jualObat,
+            //     isLoading:true
+            // }))
 
             try {
-                const { data } = await axios.get(
-                    route('api.medicines.get-all'),
-                    {
-                        params:{
-                            medicine:event.target.value
-                        }
-                    }
-                )
+                // const { data } = await axios.get(
+                //     route('api.medicines.get-all'),
+                //     {
+                //         params:{
+                //             medicine:(event.target as HTMLInputElement).value
+                //         }
+                //     }
+                // )
 
-                const medicines = data.medicines
+                // const medicines = data.medicines
+                // 
+                
+                setSearchObatJual((event.target as HTMLInputElement).value)
 
                 setJualObat((jualObat: any) => ({
                     ...jualObat,
-                    isLoading:false,
-                    data:medicines
+                    data:[]
                 }))
             } catch(error) {
                 console.error(error)
@@ -152,6 +207,8 @@ export default function Create({auth, invoice_number}: PageProps & CreateFormPro
                     ...jualObat,
                     data:[]
                 }))
+                
+                setSearchObatJual(null)
             } catch(error) {
                 console.error(error)
             }
@@ -264,7 +321,7 @@ export default function Create({auth, invoice_number}: PageProps & CreateFormPro
                     if(kodeObatRef.current.value != "") {
                         qtyRef.current.focus()
                     }
-                }} className="max-w-5xl">
+                }} className="max-w-5xl overflow-y-scroll max-h-screen" onScroll={onScroll} ref={jualObatRef}>
                 <DialogHeader>
                   <DialogTitle>List Obat</DialogTitle>
                 </DialogHeader>
@@ -283,17 +340,7 @@ export default function Create({auth, invoice_number}: PageProps & CreateFormPro
                 </TableHeader>
                 <TableBody>
                 {
-                    jualObat.isLoading ? 
-                    <TableRow>
-                        <TableCell colSpan={8} align="center">Loading...</TableCell>
-                    </TableRow>
-                    :
-                    jualObat.data.length == 0 ? 
-                    <TableRow>
-                        <TableCell colSpan={8} align="center">Obat Tidak Ada!</TableCell>
-                    </TableRow>
-                    :
-                    jualObat.data.map((row: any, key: number) => (
+                  jualObat.data.map((row: any, key: number) => (
                         <TableRow key={key}>
                             <TableCell className="border border-slate-100">
                             {
@@ -311,6 +358,18 @@ export default function Create({auth, invoice_number}: PageProps & CreateFormPro
                             <TableCell className="border border-slate-100">{row.stock}</TableCell>
                         </TableRow>
                     ))
+                }
+                {
+                  isLoading ? 
+                  <TableRow>
+                      <TableCell colSpan={8} align="center">Loading ...!</TableCell>
+                  </TableRow>
+                  : 
+                  jualObat.data.length == 0 ?
+                  <TableRow>
+                      <TableCell colSpan={8} align="center">Obat Tidak Ada!</TableCell>
+                  </TableRow>
+                  : <></>
                 }
                 </TableBody>
               </Table>
