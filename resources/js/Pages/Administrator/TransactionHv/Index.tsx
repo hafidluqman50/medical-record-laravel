@@ -230,6 +230,8 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
                     ...jualObat,
                     data:[]
                 }))
+                
+                setSearchObatJual(null)
             } catch(error) {
                 if(axios.isAxiosError(error)) {
                     toast({

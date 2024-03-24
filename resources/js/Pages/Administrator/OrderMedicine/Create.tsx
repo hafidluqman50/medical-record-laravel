@@ -14,6 +14,7 @@ import { Input } from '@/Components/ui/input';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { PageProps } from '@/types'
 import { MedicalSupplier } from '@/Pages/Administrator/MedicalSupplier/type'
+import { useQuery, QueryFunctionContext } from "@tanstack/react-query";
 import { Medicine } from '@/Pages/Administrator/Medicine/type'
 import {
   Select,
@@ -91,6 +92,9 @@ export default function Create({auth, medical_suppliers, invoice_number}: PagePr
     const [jualObat, setJualObat] = useState<any>([])
 
     const [dialogObat, setDialogObat] = useState<boolean>(false)
+    
+    const [pageNum, setPageNum] = useState<number>(0)
+    const [searchObatJual, setSearchObatJual] = useState<string|null>(null)
 
     const supplierRef   = useRef<any>()
     const obatIdRef     = useRef<any>()
@@ -103,6 +107,46 @@ export default function Create({auth, medical_suppliers, invoice_number}: PagePr
     const satuanRef     = useRef<any>()
     const hnaRef        = useRef<any>()
     const btnInputRef   = useRef<any>()
+    
+    const jualObatRef   = useRef<any>()
+    
+    const onScroll = () => {
+      if (jualObatRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = jualObatRef.current;
+        if (scrollTop + clientHeight === scrollHeight) {
+          setPageNum(pageNum => pageNum + 20)
+        }
+      }
+    };
+    
+    const fetchJualObat = async ({
+      queryKey,
+    }: QueryFunctionContext<[string, number, string|null]>): Promise<{
+      medicines: Medicine[];
+      max_page: number;
+    }> => {
+      const [_, pageNum, searchObatJual] = queryKey;
+      const response = await axios.get<{
+          medicines: Medicine[];
+          max_page: number;
+        }>(route("api.medicines.get-all"), {
+        params: {
+          page_num: pageNum,
+          data_location:'gudang',
+          medicine: searchObatJual,
+          limit: 20
+        },
+      });
+      
+      setJualObat([...jualObat, ...response.data.medicines])
+      
+      return response.data;
+    };
+  
+    const { isLoading, isError, data:jualObatQuery, error, refetch } = useQuery({
+      queryKey: ["jualObat", pageNum, searchObatJual],
+      queryFn: fetchJualObat,
+    });
 
     const selectMedicalSupplierAct = async(value: number): Promise<void> => {
         const requestData = await axios.get<any>(route('api.medical-suppliers.get-by-id', value))
@@ -117,18 +161,19 @@ export default function Create({auth, medical_suppliers, invoice_number}: PagePr
         if((event as KeyboardEvent).key === 'Enter') {
             setDialogObat(true)
             try {
-                const { data } = await axios.get(
-                    route('api.medicines.get-all'),
-                    {
-                        params:{
-                            medicine:(event.target as HTMLInputElement).value
-                        }
-                    }
-                )
+                // const { data } = await axios.get(
+                //     route('api.medicines.get-all'),
+                //     {
+                //         params:{
+                //             medicine:(event.target as HTMLInputElement).value
+                //         }
+                //     }
+                // )
 
-                const medicines = data.medicines
-
-                setJualObat(medicines)
+                // const medicines = data.medicines
+                // 
+                setSearchObatJual((event.target as HTMLInputElement).value)
+                setJualObat([])
             } catch(error) {
                 console.error(error)
             }
@@ -153,6 +198,7 @@ export default function Create({auth, medical_suppliers, invoice_number}: PagePr
                 isiObatRef.current.value    = 1
 
                 setJualObat([])
+                setSearchObatJual(null)
             } catch(error) {
                 console.error(error)
             }
@@ -265,7 +311,7 @@ export default function Create({auth, medical_suppliers, invoice_number}: PagePr
                     if(kodeObatRef.current.value != "") {
                         qtyRef.current.focus()
                     }
-                }} className="max-w-5xl">
+                }} className="max-w-5xl overflow-y-scroll max-h-screen" onScroll={onScroll} ref={jualObatRef}>
                 <DialogHeader>
                   <DialogTitle>List Obat</DialogTitle>
                 </DialogHeader>
@@ -284,11 +330,6 @@ export default function Create({auth, medical_suppliers, invoice_number}: PagePr
                 </TableHeader>
                 <TableBody>
                 {
-                    jualObat.length == 0 ? 
-                    <TableRow>
-                        <TableCell colSpan={8} align="center">Obat Tidak Ada!</TableCell>
-                    </TableRow>
-                    :
                     jualObat.map((row: any, key: number) => (
                         <TableRow key={key}>
                             <TableCell className="border border-slate-100">
@@ -307,6 +348,18 @@ export default function Create({auth, medical_suppliers, invoice_number}: PagePr
                             <TableCell className="border border-slate-100">{row.stock}</TableCell>
                         </TableRow>
                     ))
+                }
+                {
+                  isLoading ? 
+                  <TableRow>
+                      <TableCell colSpan={8} align="center">Loading ...!</TableCell>
+                  </TableRow>
+                  : 
+                  jualObat.length == 0 ?
+                  <TableRow>
+                      <TableCell colSpan={8} align="center">Obat Tidak Ada!</TableCell>
+                  </TableRow>
+                  : <></>
                 }
                 </TableBody>
               </Table>
