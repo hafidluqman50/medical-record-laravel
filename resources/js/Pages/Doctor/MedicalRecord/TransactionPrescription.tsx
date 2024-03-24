@@ -18,6 +18,9 @@ import { Label } from "@/Components/ui/label";
 
 import { Separator } from "@/Components/ui/separator";
 
+import { Medicine } from '@/Pages/Administrator/Medicine/type'
+import { useQuery, QueryFunctionContext } from "@tanstack/react-query";
+
 import { Input } from "@/Components/ui/input";
 
 import {
@@ -135,6 +138,9 @@ export default function TransactionPrescription({
   const [nonRacikNum, setNonRacikNum] = useState<number>(1);
   const [racikNum, setRacikNum] = useState<number>(1);
   /* END COUNTER USE STATE HOOKS */
+  
+  const [pageNum, setPageNum] = useState<number>(0)
+  const [searchObatJual, setSearchObatJual] = useState<string|null>(null)
 
   /* LIST MEDICINES USE STATE HOOKS */
   const [rowObat, setRowObat] = useState<RowObat[]>([]);
@@ -203,6 +209,51 @@ export default function TransactionPrescription({
   const dosisRacikEscRef = useRef<any>()
   const jasaEscRef = useRef<any>()
   /* END ESC USE REF */
+  
+  const jualObatRef    = useRef<any>()
+  
+  const onScroll = () => {
+    if (jualObatRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = jualObatRef.current;
+      if (scrollTop + clientHeight === scrollHeight) {
+        setPageNum(pageNum => pageNum + 20)
+      }
+    }
+  };
+  
+  const fetchJualObat = async ({
+    queryKey,
+  }: QueryFunctionContext<[string, number, string|null]>): Promise<{
+    medicines: Medicine[];
+    max_page: number;
+  }> => {
+    const [_, pageNum, searchObatJual] = queryKey;
+    const response = await axios.get<{
+        medicines: Medicine[];
+        max_page: number;
+      }>(route("api.medicines.get-all"), {
+      params: {
+        page_num: pageNum,
+        data_location:'kasir',
+        medicine: searchObatJual,
+        limit: 20
+      },
+    });
+    
+    setJualObat((jualObat:any) => ({
+        ...jualObat,
+        data:[...jualObat.data, ...response.data.medicines]
+    }))
+    
+    console.log('sip')
+    
+    return response.data;
+  };
+
+  const { isLoading, isError, data:jualObatQuery, error, refetch } = useQuery({
+    queryKey: ["jualObat", pageNum, searchObatJual],
+    queryFn: fetchJualObat,
+  });
 
   const openEnterDialog = async (
     event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>,
@@ -210,25 +261,27 @@ export default function TransactionPrescription({
     if ((event as KeyboardEvent).keyCode === 13) {
       setOpen(true);
 
-      setJualObat((jualObat: any) => ({
-        ...jualObat,
-        isLoading: true,
-      }));
+      // setJualObat((jualObat: any) => ({
+      //   ...jualObat,
+      //   isLoading: true,
+      // }));
 
       try {
-        const { data } = await axios.get(route("api.medicines.get-all"), {
-          params: {
-            medicine: (event.target as HTMLInputElement).value,
-            data_location: "kasir",
-          },
-        });
+        // const { data } = await axios.get(route("api.medicines.get-all"), {
+        //   params: {
+        //     medicine: (event.target as HTMLInputElement).value,
+        //     data_location: "kasir",
+        //   },
+        // });
 
-        const medicines = data.medicines;
+        // const medicines = data.medicines;
+        // 
+        
+        setSearchObatJual((event.target as HTMLInputElement).value)
 
         setJualObat((jualObat: any) => ({
           ...jualObat,
-          isLoading: false,
-          data: medicines,
+          data: [],
         }));
       } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -303,6 +356,8 @@ export default function TransactionPrescription({
           ...jualObat,
           data: [],
         }));
+        
+        setSearchObatJual(null)
       } catch (error) {
         if (axios.isAxiosError(error)) {
           toast({
@@ -802,6 +857,8 @@ export default function TransactionPrescription({
             }
           }}
           className="max-h-screen max-w-5xl overflow-y-scroll"
+          onScroll={onScroll}
+          ref={jualObatRef}
         >
           <DialogHeader>
             <DialogTitle>List Obat</DialogTitle>
@@ -830,19 +887,7 @@ export default function TransactionPrescription({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {jualObat.isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={8} align="center">
-                    Loading...
-                  </TableCell>
-                </TableRow>
-              ) : jualObat.data.length == 0 ? (
-                <TableRow>
-                  <TableCell colSpan={8} align="center">
-                    Obat Tidak Ada!
-                  </TableCell>
-                </TableRow>
-              ) : (
+              {
                 jualObat.data.map((row: any, key: number) => (
                   <TableRow key={key}>
                     <TableCell className="border border-slate-100">
@@ -886,7 +931,19 @@ export default function TransactionPrescription({
                     </TableCell>
                   </TableRow>
                 ))
-              )}
+              }
+              {
+                isLoading ? 
+                <TableRow>
+                    <TableCell colSpan={8} align="center">Loading ...!</TableCell>
+                </TableRow>
+                : 
+                jualObat.data.length == 0 ?
+                <TableRow>
+                    <TableCell colSpan={8} align="center">Obat Tidak Ada!</TableCell>
+                </TableRow>
+                : <></>
+              }
             </TableBody>
           </Table>
         </DialogContent>

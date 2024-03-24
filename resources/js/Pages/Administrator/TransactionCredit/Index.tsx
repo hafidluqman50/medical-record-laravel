@@ -3,6 +3,8 @@ import { Button } from '@/Components/ui/button'
 import axios from 'axios'
 import TransactionLayout from '@/Layouts/TransactionLayout'
 import { Label } from '@/Components/ui/label'
+import { useQuery, QueryFunctionContext } from "@tanstack/react-query";
+import { Medicine } from "@/Pages/Administrator/Medicine/type";
 
 import { Separator } from '@/Components/ui/separator'
 
@@ -112,6 +114,9 @@ export default function TransactionCredit({
     const [openMasterObat, setOpenMasterObat]         = useState<boolean>(false)
     const [openTransaction, setOpenTransaction]       = useState<boolean>(false)
     /* END DIALOG USE STATE HOOKS */
+    
+    const [pageNum, setPageNum] = useState<number>(0)
+    const [searchObatJual, setSearchObatJual] = useState<string|null>(null)
 
     /* MECHANISM TRANSACTION USE STATE HOOKS */
     const [faktor, setFaktor]                         = useState<string>('UM')
@@ -191,34 +196,81 @@ export default function TransactionCredit({
     const dosisRacikEscRef = useRef<any>()
     const jasaEscRef = useRef<any>()
     /* END ESC USE REF */
+    
+    const jualObatRef    = useRef<any>()
+    
+    const onScroll = () => {
+      if (jualObatRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = jualObatRef.current;
+        if (scrollTop + clientHeight === scrollHeight) {
+          setPageNum(pageNum => pageNum + 20)
+        }
+      }
+    };
+    
+    const fetchJualObat = async ({
+      queryKey,
+    }: QueryFunctionContext<[string, number, string|null]>): Promise<{
+      medicines: Medicine[];
+      max_page: number;
+    }> => {
+      const [_, pageNum, searchObatJual] = queryKey;
+      const response = await axios.get<{
+          medicines: Medicine[];
+          max_page: number;
+        }>(route("api.medicines.get-all"), {
+        params: {
+          page_num: pageNum,
+          data_location:'kasir',
+          medicine: searchObatJual,
+          limit: 20
+        },
+      });
+      
+      setJualObat((jualObat:any) => ({
+          ...jualObat,
+          data:[...jualObat.data, ...response.data.medicines]
+      }))
+      
+      console.log('sip')
+      
+      return response.data;
+    };
+  
+    const { isLoading, isError, data:jualObatQuery, error, refetch } = useQuery({
+      queryKey: ["jualObat", pageNum, searchObatJual],
+      queryFn: fetchJualObat,
+    });
 
     const openEnterDialog = async(event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): Promise<void> => {
         if((event as KeyboardEvent).keyCode === 13) {
             setOpen(true)
 
-            setJualObat((jualObat:any) => ({
-                ...jualObat,
-                isLoading:true,
-                data:[]
-            }))
+            // setJualObat((jualObat:any) => ({
+            //     ...jualObat,
+            //     isLoading:true,
+            //     data:[]
+            // }))
 
             try {
-                const { data } = await axios.get(
-                    route('api.medicines.get-all'),
-                    {
-                        params:{
-                            medicine:(event.target as HTMLInputElement).value,
-                            data_location:'kasir'
-                        }
-                    }
-                )
+                // const { data } = await axios.get(
+                //     route('api.medicines.get-all'),
+                //     {
+                //         params:{
+                //             medicine:(event.target as HTMLInputElement).value,
+                //             data_location:'kasir'
+                //         }
+                //     }
+                // )
 
-                const medicines = data.medicines
+                // const medicines = data.medicines
+
+                setSearchObatJual((event.target as HTMLInputElement).value)
 
                 setJualObat((jualObat:any) => ({
                     ...jualObat,
-                    isLoading:false,
-                    data:medicines
+                    // isLoading:false,
+                    data:[]
                 }))
             } catch(error) {
                 if(axios.isAxiosError(error)) {
@@ -283,9 +335,10 @@ export default function TransactionCredit({
 
                 setJualObat((jualObat:any) => ({
                     ...jualObat,
-                    isLoading:false,
                     data:[]
                 }))
+                
+                setSearchObatJual(null)
             } catch(error) {
                 if(axios.isAxiosError(error)) {
                     toast({
@@ -895,7 +948,7 @@ export default function TransactionCredit({
                             qtyObat.current.focus()
                         }
                     }
-                }}className="max-w-5xl overflow-y-scroll max-h-screen">
+                }}className="max-w-5xl overflow-y-scroll max-h-screen" onScroll={onScroll} ref={jualObatRef}>
                 <DialogHeader>
                   <DialogTitle>List Obat</DialogTitle>
                 </DialogHeader>
@@ -914,16 +967,6 @@ export default function TransactionCredit({
                 </TableHeader>
                 <TableBody>
                 {
-                    jualObat.isLoading ? 
-                    <TableRow>
-                        <TableCell colSpan={8} align="center">Loading...</TableCell>
-                    </TableRow>
-                    :
-                    jualObat.data.length == 0 ? 
-                    <TableRow>
-                        <TableCell colSpan={8} align="center">Obat Tidak Ada!</TableCell>
-                    </TableRow>
-                    :
                     jualObat.data.map((row: any, key: number) => (
                         <TableRow key={key}>
                             <TableCell className="border border-slate-100">
@@ -942,6 +985,18 @@ export default function TransactionCredit({
                             <TableCell className="border border-slate-100">{row.stock}</TableCell>
                         </TableRow>
                     ))
+                }
+                {
+                  isLoading ? 
+                  <TableRow>
+                      <TableCell colSpan={8} align="center">Loading ...!</TableCell>
+                  </TableRow>
+                  : 
+                  jualObat.data.length == 0 ?
+                  <TableRow>
+                      <TableCell colSpan={8} align="center">Obat Tidak Ada!</TableCell>
+                  </TableRow>
+                  : <></>
                 }
                 </TableBody>
               </Table>

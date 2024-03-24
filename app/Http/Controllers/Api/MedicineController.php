@@ -16,15 +16,18 @@ class MedicineController extends ApiBaseController
         $medicine      = $request->medicine;
         $data_location = $request->data_location ?? 'gudang';
         $page_num      = $request->page_num;
+        $limit         = $request->limit;
         $search        = $request->search;
         $filter        = $request->filter;
 
         $medicines = Medicine::with('medicineFactory')->when($medicine != '', function(Builder $query) use ($medicine, $data_location) {
-            $query->where('name','like',"%{$medicine}%")
-                  ->where('data_location', $data_location)
-                  ->orWhere('code','like',"%{$medicine}%");
-        })->when($page_num != '', function(Builder $query) use ($page_num) {
-            $query->offset($page_num)->limit(5);
+            if($medicine != 'all') {
+                $query->where('name','like',"%{$medicine}%")
+                    ->where('data_location', $data_location)
+                    ->orWhere('code','like',"%{$medicine}%");
+            }
+        })->when($page_num != '', function(Builder $query) use ($page_num, $limit) {
+            $query->offset($page_num)->limit($limit != null ? $limit : 5);
         })->when($filter != '', function(Builder $query) use ($search, $filter) {
             if($filter == 'generic') {
                 $query->where('is_generic', 1);

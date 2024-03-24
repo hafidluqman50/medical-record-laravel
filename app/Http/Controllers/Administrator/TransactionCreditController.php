@@ -33,56 +33,56 @@ class TransactionCreditController extends Controller
 
         $patients = Patient::with(['patientCategory'])->get();
 
-        $medicine_price_parameters = Medicine::with(['medicineFactory'])->get()->map(function(Medicine $medicine) use ($price_parameter) {
+        // $medicine_price_parameters = Medicine::with(['medicineFactory'])->get()->map(function(Medicine $medicine) use ($price_parameter) {
 
-            $capital_price     = $medicine->capital_price;
-            $capital_price_vat = $medicine->capital_price_vat;
-            $sell_price        = $medicine->sell_price;
+        //     $capital_price     = $medicine->capital_price;
+        //     $capital_price_vat = $medicine->capital_price_vat;
+        //     $sell_price        = $medicine->sell_price;
 
-            $medicine->resep_tunai_price     = format_rupiah($capital_price_vat * $price_parameter->resep_tunai);
-            $medicine->upds_price            = format_rupiah($capital_price_vat * $price_parameter->upds);
-            $medicine->hv_otc_price          = format_rupiah($capital_price_vat * $price_parameter->hv_otc);
-            $medicine->resep_kredit_price    = format_rupiah($capital_price_vat * $price_parameter->resep_kredit);
-            $medicine->enggros_faktur_price  = format_rupiah($capital_price_vat * $price_parameter->enggros_faktur);
-            $medicine->medicine_factory_name = $medicine->medicineFactory->name;
+        //     $medicine->resep_tunai_price     = format_rupiah($capital_price_vat * $price_parameter->resep_tunai);
+        //     $medicine->upds_price            = format_rupiah($capital_price_vat * $price_parameter->upds);
+        //     $medicine->hv_otc_price          = format_rupiah($capital_price_vat * $price_parameter->hv_otc);
+        //     $medicine->resep_kredit_price    = format_rupiah($capital_price_vat * $price_parameter->resep_kredit);
+        //     $medicine->enggros_faktur_price  = format_rupiah($capital_price_vat * $price_parameter->enggros_faktur);
+        //     $medicine->medicine_factory_name = $medicine->medicineFactory->name;
 
-            unset(
-                $medicine->capital_price,
-                $medicine->capital_price_vat,
-                $medicine->sell_price
-            );
+        //     unset(
+        //         $medicine->capital_price,
+        //         $medicine->capital_price_vat,
+        //         $medicine->sell_price
+        //     );
 
-            $medicine->capital_price     = format_rupiah($capital_price);
-            $medicine->capital_price_vat = format_rupiah($capital_price_vat);
-            $medicine->sell_price        = format_rupiah($sell_price);
+        //     $medicine->capital_price     = format_rupiah($capital_price);
+        //     $medicine->capital_price_vat = format_rupiah($capital_price_vat);
+        //     $medicine->sell_price        = format_rupiah($sell_price);
 
-            return $medicine;
-        });
+        //     return $medicine;
+        // });
 
-        $medicines = Medicine::with(['medicineFactory'])->get()->map(function(Medicine $medicine) {
+        // $medicines = Medicine::with(['medicineFactory'])->get()->map(function(Medicine $medicine) {
 
-            $capital_price     = $medicine->capital_price;
-            $capital_price_vat = $medicine->capital_price_vat;
-            $sell_price        = $medicine->sell_price;
+        //     $capital_price     = $medicine->capital_price;
+        //     $capital_price_vat = $medicine->capital_price_vat;
+        //     $sell_price        = $medicine->sell_price;
 
-            unset(
-                $medicine->capital_price,
-                $medicine->capital_price_vat,
-                $medicine->sell_price
-            );
+        //     unset(
+        //         $medicine->capital_price,
+        //         $medicine->capital_price_vat,
+        //         $medicine->sell_price
+        //     );
 
-            $medicine->capital_price     = format_rupiah($capital_price);
-            $medicine->capital_price_vat = format_rupiah($capital_price_vat);
-            $medicine->sell_price        = format_rupiah($sell_price);
+        //     $medicine->capital_price     = format_rupiah($capital_price);
+        //     $medicine->capital_price_vat = format_rupiah($capital_price_vat);
+        //     $medicine->sell_price        = format_rupiah($sell_price);
 
-            return $medicine;
-        });
+        //     return $medicine;
+        // });
 
         $compact = compact(
                             'kode_transaksi', 
                             'price_parameter', 
-                            'medicine_price_parameters',
-                            'medicines',
+                            // 'medicine_price_parameters',
+                            // 'medicines',
                             'patients',
                             'debitur',
                             'customers'
