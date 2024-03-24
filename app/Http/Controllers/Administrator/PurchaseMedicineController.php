@@ -52,10 +52,10 @@ class PurchaseMedicineController extends Controller
     public function create(): Response
     {
         $medical_suppliers = MedicalSupplier::all();
-        $medicines         = Medicine::where('data_location', 'gudang')->get();
+        // $medicines         = Medicine::where('data_location', 'gudang')->get();
         $kode_pembelian    = PurchaseMedicine::generateCode();
 
-        return Inertia::render('Administrator/PurchaseMedicine/Create', compact('medical_suppliers', 'medicines', 'kode_pembelian'));
+        return Inertia::render('Administrator/PurchaseMedicine/Create', compact('medical_suppliers', 'kode_pembelian'));
     }
 
     public function store(Request $request): RedirectResponse
