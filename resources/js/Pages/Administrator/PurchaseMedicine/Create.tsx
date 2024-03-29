@@ -112,6 +112,8 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
     
     const [listObat, setListObat] = useState<Array<{value:number,label:string}>>([])
     
+    const [searchObat, setSearchObat] = useState<string|null>(null)
+    
     const [pageNum, setPageNum] = useState<number>(0)
 
     const typeRef          = useRef<any>()
@@ -177,17 +179,18 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
     
     const fetchListObat = async ({
       queryKey,
-    }: QueryFunctionContext<[string, number]>): Promise<Array<{
+    }: QueryFunctionContext<[string, number, string|null]>): Promise<Array<{
       value:number,
       label:string
     }>> => {
-      const [_, pageNum] = queryKey;
+      const [_, pageNum, searchObat] = queryKey;
       const response = await axios.get<{
           medicines: Medicine[];
           max_page: number;
         }>(route("api.medicines.get-all"), {
         params: {
           page_num: pageNum,
+          medicine: searchObat,
           data_location:'gudang',
           limit: 20
         },
@@ -211,7 +214,7 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
     };
   
     const { isLoading, isError, data: dataQuery, error, refetch } = useQuery({
-      queryKey: ["listObat", pageNum],
+      queryKey: ["listObat", pageNum, searchObat],
       queryFn: fetchListObat,
     });
     
@@ -588,6 +591,9 @@ export default function Create({auth, medical_suppliers, medicines, kode_pembeli
                                             selectObatAct(event.value)
                                           }
                                           jumlahRef.current.focus()
+                                        }}
+                                        onInputChange={(event) => {
+                                          setSearchObat(event)
                                         }}
                                     />
                                     <InputError message={errors.order} className="mt-2" />
