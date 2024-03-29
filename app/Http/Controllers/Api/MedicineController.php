@@ -20,7 +20,7 @@ class MedicineController extends ApiBaseController
         $search        = $request->search;
         $filter        = $request->filter;
 
-        $medicines = Medicine::with('medicineFactory')->when($medicine != '', function(Builder $query) use ($medicine, $data_location) {
+        $medicines = Medicine::with('medicineFactory')->when($medicine != '' || $medicine != null, function(Builder $query) use ($medicine, $data_location) {
             if($medicine != 'all') {
                 $query->where('name','like',"%{$medicine}%")
                     ->where('data_location', $data_location)

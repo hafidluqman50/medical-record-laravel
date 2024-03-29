@@ -84,6 +84,7 @@ export default function Index({auth, app, purchase_histories, page_num, medicine
     const [fromDate, setFromDate]           = useState<string>('')
     const [toDate, setToDate]               = useState<string>('')
     const [listObat, setListObat]           = useState<Array<{value:number,label:string}>>([])
+    const [searchObat, setSearchObat]       = useState<string|null>(null)
     
     const [pageNum, setPageNum] = useState<number>(0)
 
@@ -114,17 +115,18 @@ export default function Index({auth, app, purchase_histories, page_num, medicine
     
     const fetchListObat = async ({
       queryKey,
-    }: QueryFunctionContext<[string, number]>): Promise<Array<{
+    }: QueryFunctionContext<[string, number, string|null]>): Promise<Array<{
       value:number,
       label:string
     }>> => {
-      const [_, pageNum] = queryKey;
+      const [_, pageNum, searchObat] = queryKey;
       const response = await axios.get<{
           medicines: Medicine[];
           max_page: number;
         }>(route("api.medicines.get-all"), {
         params: {
           page_num: pageNum,
+          medicine: searchObat,
           data_location:'gudang',
           limit: 20
         },
@@ -148,7 +150,7 @@ export default function Index({auth, app, purchase_histories, page_num, medicine
     };
   
     const { isLoading, isError, data, error, refetch } = useQuery({
-      queryKey: ["listObat", pageNum],
+      queryKey: ["listObat", pageNum, searchObat],
       queryFn: fetchListObat,
     });
     
@@ -230,6 +232,9 @@ export default function Index({auth, app, purchase_histories, page_num, medicine
                                         if(event != null) {
                                           setMedicineBatch(event.value)
                                         }
+                                      }}
+                                      onInputChange={(event) => {
+                                        setSearchObat(event)
                                       }}
                                   />
                                 </div>

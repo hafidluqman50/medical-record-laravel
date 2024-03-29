@@ -85,6 +85,7 @@ export default function Index({auth, app, card_stocks, page_num, medicines}: Pag
     const [fromDate, setFromDate]           = useState<string>('')
     const [toDate, setToDate]               = useState<string>('')
     const [listObat, setListObat]           = useState<Array<{value:number,label:string}>>([])
+    const [searchObat, setSearchObat]       = useState<string|null>(null)
     
     const [pageNum, setPageNum] = useState<number>(0)
     
@@ -117,7 +118,7 @@ export default function Index({auth, app, card_stocks, page_num, medicines}: Pag
     
     const fetchListObat = async ({
       queryKey,
-    }: QueryFunctionContext<[string, number]>): Promise<Array<{
+    }: QueryFunctionContext<[string, number, string|null]>): Promise<Array<{
       value:number,
       label:string
     }>> => {
@@ -128,6 +129,7 @@ export default function Index({auth, app, card_stocks, page_num, medicines}: Pag
         }>(route("api.medicines.get-all"), {
         params: {
           page_num: pageNum,
+          medicine: searchObat,
           data_location:'gudang',
           limit: 20
         },
@@ -151,7 +153,7 @@ export default function Index({auth, app, card_stocks, page_num, medicines}: Pag
     };
   
     const { isLoading, isError, data, error, refetch } = useQuery({
-      queryKey: ["listObat", pageNum],
+      queryKey: ["listObat", pageNum, searchObat],
       queryFn: fetchListObat,
     });
     
@@ -161,7 +163,7 @@ export default function Index({auth, app, card_stocks, page_num, medicines}: Pag
         setPageNum(pageNum => pageNum + 20)
     }, [pageNum]);
     
-    console.log(pageNum, listObat)
+    console.log(pageNum, listObat, searchObat)
 
     return (
         <AdministratorLayout
@@ -234,6 +236,9 @@ export default function Index({auth, app, card_stocks, page_num, medicines}: Pag
                                         if(event != null) {
                                           setMedicineBatch(event.value)
                                         }
+                                      }}
+                                      onInputChange={(event) => {
+                                        setSearchObat(event)
                                       }}
                                   />
                                 </div>
