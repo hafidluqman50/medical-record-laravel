@@ -267,39 +267,23 @@ export default function TransactionResep({
     const openEnterDialog = async(
         event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>
     ): Promise<void> => {
+      
+        setSearchObatJual((event.target as HTMLInputElement).value)
+        
         if((event as KeyboardEvent).keyCode === 13) {
             setOpen(true)
 
-            // setJualObat((jualObat:any) => ({
-            //     ...jualObat,
-            //     isLoading:true
-            // }))
-
             try {
-            //     const { data } = await axios.get(
-            //         route('api.medicines.get-all'),
-            //         {
-            //             params:{
-            //                 medicine:(event.target as HTMLInputElement).value,
-            //                 data_location:'kasir'
-            //             }
-            //         }
-            //     )
-
-            //     const medicines = data.medicines
-
-            //     setJualObat((jualObat:any) => ({
-            //         ...jualObat,
-            //         isLoading:false,
-            //         data:medicines
-            //     }))
-            // 
-            setSearchObatJual((event.target as HTMLInputElement).value)
+              
+              setPageNum(0)
             
-            setJualObat((jualObat:any) => ({
-              ...jualObat,
-              data:[]
-            }))
+              setJualObat((jualObat:any) => ({
+                ...jualObat,
+                data:[]
+              }))
+              
+              refetch()
+              
             } catch(error) {
                 if(axios.isAxiosError(error)) {
                     toast({
@@ -322,8 +306,20 @@ export default function TransactionResep({
             let calculateQty   = isRacikan ? Math.round((dosisRacikVal * bungkusVal) / dosisObatVal) : 0
             let priceCalculate = 0
             
-            if(isHjaNet) {
-                priceCalculate = Math.round((hargaObatVal * price_parameter.resep_tunai))
+            if(!isHjaNet) {
+              
+                let priceParam: number = 0
+                  
+                if(faktorRef.current.value == 'UPDS') {
+                  priceParam = price_parameter.upds
+                }
+                else if(faktorRef.current.value == 'HV') {
+                  priceParam = price_parameter.hv_otc
+                } else if(faktorRef.current.value == 'RESEP') {
+                  priceParam = price_parameter.resep_tunai
+                }
+                
+                priceCalculate = Math.round((hargaObatVal * priceParam))
             } else {
                 priceCalculate = hargaObatVal
             }
@@ -392,8 +388,18 @@ export default function TransactionResep({
             let calculateQty   = isRacikan ? Math.round((dosisRacikVal * bungkusVal) / dosisObatVal) : 0
             let priceCalculate = 0
             
-            if(isHjaNet) {
-                priceCalculate = Math.round((hargaObatVal * price_parameter.resep_tunai))
+            if(!isHjaNet) {
+                let priceParam: number = 0
+                  
+                if(faktorRef.current.value == 'UPDS') {
+                  priceParam = price_parameter.upds
+                }
+                else if(faktorRef.current.value == 'HV') {
+                  priceParam = price_parameter.hv_otc
+                } else if(faktorRef.current.value == 'RESEP') {
+                  priceParam = price_parameter.resep_tunai
+                }
+                priceCalculate = Math.round((hargaObatVal * priceParam))
             } else {
                 priceCalculate = hargaObatVal
             }

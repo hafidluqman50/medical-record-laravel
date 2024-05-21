@@ -15,6 +15,7 @@ export interface UpdsForm {
     sub_total:number[]
     disc:number[]
     total:number[]
+    faktor: string[]
     sub_total_grand:number
     total_grand:number
     diskon_grand:number
@@ -51,4 +52,5 @@ export interface RowObat {
     sub_total:number
     disc:number
     total:number
+    faktor:string
 }

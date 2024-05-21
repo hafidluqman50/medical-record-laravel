@@ -92,6 +92,7 @@ class TransactionUpdsController extends Controller
             $sub_total   = $request->sub_total;
             $discount    = $request->disc;
             $total       = $request->total;
+            $faktor      = $request->faktor;
 
             foreach ($medicine_id as $key => $value) {
                 $transaction_detail_input = [

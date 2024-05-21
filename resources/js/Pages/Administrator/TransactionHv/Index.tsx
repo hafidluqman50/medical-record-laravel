@@ -82,6 +82,7 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
         sub_total:[],
         disc:[],
         total:[],
+        faktor: [],
         sub_total_grand:0,
         total_grand:0,
         diskon_grand:0,
@@ -93,9 +94,10 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
     });
 
     const [open, setOpen]                             = useState<boolean>(false)
+    const [faktor, setFaktor]                         = useState<string>('HV')
     const [cekHargaObatDialog, setCekHargaObatDialog] = useState<boolean>(false)
     const [bayarDialog, setBayarDialog]               = useState<boolean>(false)
-    const [diskon, setDiskon]                         = useState<number>(0)
+    const [diskonState, setDiskonState]               = useState<number>(0)
     const [subTotal, setSubTotal]                     = useState<number>(0)
     const [isHjaNet, setIsHjaNet]                     = useState<boolean>(false)
     const [priceMedicine, setPriceMedicine]           = useState<number>(0)
@@ -123,6 +125,7 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
     const diskonObat     = useRef<any>()
     const bayarTransaksi = useRef<any>()
     const submitBayarRef = useRef<any>()
+    const faktorRef      = useRef<any>()
     
     /* ESC USE REF */
     const qtyObatEscRef = useRef<any>()
@@ -175,28 +178,27 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
     const openEnterDialog = async(
         event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>
     ): Promise<void> => {
+      
+        setSearchObatJual((event.target as HTMLInputElement).value)
+      
         if((event as KeyboardEvent).keyCode === 13) {
             setOpen(true)
             
             try {
-                // const { data } = await axios.get(
-                //     route('api.medicines.get-all'),
-                //     {
-                //         params:{
-                //             medicine:(event.target as HTMLInputElement).value,
-                //             data_location:'kasir'
-                //         }
-                //     }
-                // )
-
-                // const medicines = data.medicines
-                
-                setSearchObatJual((event.target as HTMLInputElement).value)
-
-                setJualObat((jualObat:any) => ({
-                    ...jualObat,
-                    data:[]
-                }))
+              
+                  // if((event.target as HTMLInputElement).value != '') {
+                    
+                    setPageNum(0)
+                    
+                    setJualObat((jualObat:any) => ({
+                      ...jualObat,
+                      data:[]
+                    }))
+                    
+                    refetch()
+                    
+                  // }
+                  
             } catch(error) {
                 if(axios.isAxiosError(error)) {
                     toast({
@@ -263,6 +265,8 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
         const keyEvent = (event as KeyboardEvent)
 
         let jumlah: number = 0
+        let diskon: number = 0
+        
         if(qtyObat.current.value == "") {
             jumlah = 0
         }
@@ -270,19 +274,130 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
             if(isHjaNet) {
                 jumlah = parseInt(qtyObat.current.value) * parseInt(hargaObat.current.value)
             } else {
+              
+                let priceParam: number = 0
+                  
+                if(faktorRef.current.value == 'UPDS') {
+                  priceParam = price_parameter.upds
+                }
+                else if(faktorRef.current.value == 'HV') {
+                  priceParam = price_parameter.hv_otc
+                }
+                  
                 jumlah = Math.round(
-                        (parseInt(qtyObat.current.value) * parseInt(hargaObat.current.value) * price_parameter.upds) / price_parameter.pembulatan
+                        (parseInt(qtyObat.current.value) * parseInt(hargaObat.current.value) * priceParam) / price_parameter.pembulatan
                     ) * price_parameter.pembulatan
             }
         }
 
         jumlahHarga.current.value = jumlah
 
+        // if(keyEvent.keyCode == 13) {
+        //     diskonObat.current.focus()
+        //     if(diskon == 0) {
+        //         diskonObat.current.value = 0
+        //     }
+        // }
+
         if(keyEvent.keyCode == 13) {
-            diskonObat.current.focus()
-            if(diskon == 0) {
-                diskonObat.current.value = 0
+
+            let medicineIdData    = data.medicine_id
+            let qtyData           = data.qty
+            let priceData         = data.price
+            let subTotalData      = data.sub_total
+            let discData          = data.disc
+            let totalData         = data.total
+            let faktorData        = data.faktor
+            let subTotalGrandData = data.sub_total_grand + jumlah
+            let totalGrandData    = data.total_grand + parseInt(jumlahHarga.current.value)
+            let diskonGrandData   = data.diskon_grand + diskon
+
+            if(data.indexObat != null) {
+                qtyData[data.indexObat] = qtyObat.current.value
+                
+                priceData[data.indexObat] = hargaObat.current.value
+                
+                subTotalData[data.indexObat] = jumlah
+                
+                discData[data.indexObat] =  diskon
+
+                totalData[data.indexObat] = jumlahHarga.current.value
+
+                const result = rowObat
+
+                result[data.indexObat].qty = qtyData[data.indexObat]
+                result[data.indexObat].sell_price = priceData[data.indexObat]
+                result[data.indexObat].sub_total = subTotalData[data.indexObat]
+                result[data.indexObat].disc = discData[data.indexObat]
+                result[data.indexObat].total = totalData[data.indexObat]
+
+                setRowObat(result)
+                setIndexRowObat(null)
+
+                setData(data => ({
+                    ...data,
+                    indexObat:null
+                }))
+            } else {
+
+                const result = [{
+                    is_hja_net: isHjaNet,
+                    code: kodeObat.current.value,
+                    name: namaObat.current.value,
+                    unit_medicine: satuanObat.current.value,
+                    sell_price: hargaObat.current.value,
+                    qty: qtyObat.current.value,
+                    sub_total: jumlah,
+                    disc: diskon,
+                    total: jumlahHarga.current.value,
+                    faktor: faktor,
+                }]
+                setRowObat([
+                    ...rowObat,
+                    ...result
+                ])
+
+                medicineIdData = [...data.medicine_id, obatId.current.value]
+                
+                qtyData = [...data.qty, qtyObat.current.value]
+                
+                priceData = [...data.price, hargaObat.current.value]
+                
+                subTotalData = [...data.sub_total, jumlah]
+                
+                discData = [...data.disc, diskon]
+
+                totalData = [...data.total, jumlahHarga.current.value]
+                
+                faktorData = [...data.faktor, faktor]
             }
+
+            setData(data => ({
+                ...data,
+                medicine_id:medicineIdData,
+                qty:qtyData,
+                price:priceData,
+                sub_total:subTotalData,
+                disc:discData,
+                total:totalData,
+                faktor: faktorData,
+                sub_total_grand:subTotalGrandData,
+                total_grand:totalGrandData,
+                diskon_grand:diskonGrandData
+            }))
+
+            kodeObat.current.value = ""
+            namaObat.current.value = ""
+            satuanObat.current.value = ""
+            hargaObat.current.value = ""
+            diskonObat.current.value = ""
+            qtyObat.current.value = ""
+            jumlahHarga.current.value = ""
+            setSubTotal(0)
+            setDiskonState(0)
+            setIsHjaNet(false)
+
+            kodeObat.current.focus()
         }
     }
 
@@ -299,8 +414,20 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
         if(isHjaNet) {
             calculate = parseInt(qtyObat.current.value) * parseInt(hargaObat.current.value)
         } else {
+          
+            let priceParam: number = 0
+              
+            if(faktorRef.current.value == 'UPDS') {
+              priceParam = price_parameter.upds
+            }
+            else if(faktorRef.current.value == 'HV') {
+              priceParam = price_parameter.hv_otc
+            }
+            
+            console.log(priceParam)
+            
             calculate = Math.round(
-                    (parseInt(qtyObat.current.value) * parseInt(hargaObat.current.value) * price_parameter.upds) / price_parameter.pembulatan
+                    (parseInt(qtyObat.current.value) * parseInt(hargaObat.current.value) * priceParam) / price_parameter.pembulatan
                 ) * price_parameter.pembulatan
         }
 
@@ -320,7 +447,7 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
 
         setSubTotal(calculate)
 
-        setDiskon(diskon)
+        setDiskonState(diskon)
 
         jumlahHarga.current.value = jumlah 
 
@@ -332,6 +459,7 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
             let subTotalData      = data.sub_total
             let discData          = data.disc
             let totalData         = data.total
+            let faktorData        = data.faktor
             let subTotalGrandData = data.sub_total_grand + calculate
             let totalGrandData    = data.total_grand + parseInt(jumlahHarga.current.value)
             let diskonGrandData   = data.diskon_grand + diskon
@@ -373,7 +501,8 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
                     qty: qtyObat.current.value,
                     sub_total: calculate,
                     disc: diskon,
-                    total: jumlahHarga.current.value
+                    total: jumlahHarga.current.value,
+                    faktor: faktor
                 }]
                 setRowObat([
                     ...rowObat,
@@ -391,6 +520,8 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
                 discData = [...data.disc, diskon]
 
                 totalData = [...data.total, jumlahHarga.current.value]
+                
+                faktorData = [...data.faktor, faktor]
             }
 
             setData(data => ({
@@ -401,6 +532,7 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
                 sub_total:subTotalData,
                 disc:discData,
                 total:totalData,
+                faktor: faktorData,
                 sub_total_grand:subTotalGrandData,
                 total_grand:totalGrandData,
                 diskon_grand:diskonGrandData
@@ -414,7 +546,7 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
             qtyObat.current.value = ""
             jumlahHarga.current.value = ""
             setSubTotal(0)
-            setDiskon(0)
+            setDiskonState(0)
             setIsHjaNet(false)
 
             kodeObat.current.focus()
@@ -496,7 +628,7 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
 
             setSubTotal(getRowObat[index].sub_total)
 
-            setDiskon(getRowObat[index].disc)
+            setDiskonState(getRowObat[index].disc)
 
             const subTotalGrandData = data.sub_total_grand - getRowObat[index].sub_total
             const diskonGrandData   = data.diskon_grand - getRowObat[index].disc
@@ -527,9 +659,18 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
             if(rowObat[data.indexObat].is_hja_net) {
                 calculate = parseInt(qtyObatEscRef.current) * parseInt(hargaObatEscRef.current)
             } else {
-                calculate = Math.round(
-                        (parseInt(qtyObatEscRef.current) * parseInt(hargaObat.current.value) * price_parameter.upds) / price_parameter.pembulatan
-                    ) * price_parameter.pembulatan
+              let priceParam: number = 0
+                  
+              if(rowObat[data.indexObat].faktor == 'UP') {
+                priceParam = price_parameter.upds
+              }
+              else if(rowObat[data.indexObat].faktor == 'HV') {
+                priceParam = price_parameter.hv_otc
+              }
+              
+              calculate = Math.round(
+                  (parseInt(qtyObatEscRef.current) * parseInt(hargaObat.current.value) * priceParam) / price_parameter.pembulatan
+              ) * price_parameter.pembulatan
             }
 
             let medicineIdData    = data.medicine_id
@@ -540,7 +681,7 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
             let totalData         = data.total
             let subTotalGrandData = data.sub_total_grand + calculate
             let totalGrandData    = data.total_grand + parseInt(jumlahHargaEscRef.current)
-            let diskonGrandData   = data.diskon_grand + diskon
+            let diskonGrandData   = data.diskon_grand + diskonState
 
             qtyData[data.indexObat] = qtyObatEscRef.current
             
@@ -689,6 +830,17 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
                 route('administrator.transaction-hv'),
                 '_blank'
             )
+        }
+        else if(event.ctrlKey && event.keyCode == 70) {
+
+            if(faktorRef.current.value == 'HV') {
+                setFaktor('UPDS')
+                // faktorRef.current.value="HV"
+            } else if(faktorRef.current.value == 'UPDS') {
+                setFaktor('HV')
+                // faktorRef.current.value="UPDS"
+            }
+
         }
         else if(event.keyCode == 119) {
             hapusAct()
@@ -989,7 +1141,7 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
                             <Label htmlFor="kode-transaksi"><u>F</u>aktor : </Label>
                         </div>
                         <div>
-                            <Input className="bg-slate-200" type="text" value="HV" readOnly/>
+                            <Input ref={faktorRef} className="bg-slate-200" type="text" value={faktor == 'HV' ? 'HV' : 'UPDS'} readOnly/>
                         </div>
                     </div>
                     <div className="flex space-x-4">
@@ -1054,7 +1206,7 @@ export default function TransactionHv({kode_transaksi, price_parameter, medicine
                                 <TableCell className="border border-slate-100">Rp. {formatRupiah(row.sub_total)},00</TableCell>
                                 <TableCell className="border border-slate-100">Rp. {formatRupiah(row.disc)},00</TableCell>
                                 <TableCell className="border border-slate-100">Rp. {formatRupiah(row.total)},00</TableCell>
-                                <TableCell className="border border-slate-100">UP</TableCell>
+                                <TableCell className="border border-slate-100">{row.faktor}</TableCell>
                             </TableRow>
                         ))
                     }

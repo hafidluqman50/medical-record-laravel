@@ -243,35 +243,22 @@ export default function TransactionCredit({
     });
 
     const openEnterDialog = async(event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): Promise<void> => {
+      
+        setSearchObatJual((event.target as HTMLInputElement).value)
+        
         if((event as KeyboardEvent).keyCode === 13) {
             setOpen(true)
 
-            // setJualObat((jualObat:any) => ({
-            //     ...jualObat,
-            //     isLoading:true,
-            //     data:[]
-            // }))
-
             try {
-                // const { data } = await axios.get(
-                //     route('api.medicines.get-all'),
-                //     {
-                //         params:{
-                //             medicine:(event.target as HTMLInputElement).value,
-                //             data_location:'kasir'
-                //         }
-                //     }
-                // )
-
-                // const medicines = data.medicines
-
-                setSearchObatJual((event.target as HTMLInputElement).value)
+                setPageNum(0)
 
                 setJualObat((jualObat:any) => ({
                     ...jualObat,
-                    // isLoading:false,
                     data:[]
                 }))
+                
+                refetch()
+                
             } catch(error) {
                 if(axios.isAxiosError(error)) {
                     toast({
@@ -295,7 +282,7 @@ export default function TransactionCredit({
             let calculateQty   = isRacikan ? Math.round((dosisRacikVal * bungkusVal) / dosisObatVal) : 0
             let priceCalculate = 0
             
-            if(isHjaNet) {
+            if(!isHjaNet) {
                 priceCalculate = Math.round((hargaObatVal * price_parameter.resep_tunai))
             } else {
                 priceCalculate = hargaObatVal
@@ -361,7 +348,7 @@ export default function TransactionCredit({
             let calculateQty   = isRacikan ? Math.round((dosisRacikVal * bungkusVal) / dosisObatVal) : 0
             let priceCalculate = 0
             
-            if(isHjaNet) {
+            if(!isHjaNet) {
                 priceCalculate = Math.round((hargaObatVal * price_parameter.resep_tunai))
             } else {
                 priceCalculate = hargaObatVal
