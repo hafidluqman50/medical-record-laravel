@@ -153,33 +153,23 @@ export default function Create({auth, invoice_number}: PageProps & CreateFormPro
     });
 
     const obatAct = async(event: KeyboardEvent<HTMLInputElement> | ChangeEvent<HTMLInputElement>): Promise<void> => {
+      
+        setSearchObatJual((event.target as HTMLInputElement).value)
+        
         if((event as KeyboardEvent).key === 'Enter') {
             setDialogObat(true)
 
-            // setJualObat((jualObat: any) => ({
-            //     ...jualObat,
-            //     isLoading:true
-            // }))
-
             try {
-                // const { data } = await axios.get(
-                //     route('api.medicines.get-all'),
-                //     {
-                //         params:{
-                //             medicine:(event.target as HTMLInputElement).value
-                //         }
-                //     }
-                // )
 
-                // const medicines = data.medicines
-                // 
-                
-                setSearchObatJual((event.target as HTMLInputElement).value)
-
+                setPageNum(0)
+              
                 setJualObat((jualObat: any) => ({
                     ...jualObat,
                     data:[]
                 }))
+                
+                refetch()
+                
             } catch(error) {
                 console.error(error)
             }
